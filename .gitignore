@@ -3,7 +3,7 @@
 !docs/**
 !example
 !example/index.js
-example/logs
+example/_contents
 !src
 !src/**
 !.gitignore
