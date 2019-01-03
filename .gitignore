@@ -2,7 +2,7 @@
 !docs
 !docs/**
 !example
-!example/**
+!example/index.js
 example/logs
 !src
 !src/**
