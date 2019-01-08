@@ -6,6 +6,12 @@
 import Filesystem from './core/filesystem'
 import { merge } from "lodash";
 
+/*!
+* contentstack-sync-content-store-filesystem
+* copyright (c) Contentstack LLC
+* MIT Licensed
+*/
+"use strict"
 let connector = null
 let config: any = {}
 export function start (userConfig, assetConnector) {

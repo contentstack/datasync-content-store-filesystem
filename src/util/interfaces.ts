@@ -1,3 +1,9 @@
+/*!
+* contentstack-sync-content-store-filesystem
+* copyright (c) Contentstack LLC
+* MIT Licensed
+*/
+"use strict"
 export interface AssetConfigInterface {
 	type: string
 	pattern: string
