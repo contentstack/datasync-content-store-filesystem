@@ -1,8 +1,12 @@
+/*!
+* contentstack-sync-content-store-filesystem
+* copyright (c) Contentstack LLC
+* MIT Licensed
+*/
+
 const contentConnector = require('../dist')
 const assetConnector = require('../.././new/contentstack-sync-asset-store/dist')
 const config = require('../.././new/contentstack-sync-asset-store/dist/default')
-
-
 let asset_data = {
 content_type_uid: '_assets',
 action: 'publish',
@@ -53,6 +57,7 @@ let asset_data2= {
 		force_load: false,
 		content_type_uid: '_assets' }
 }
+
 let asset_data3= {
 	content_type_uid: '_assets',
 	action: 'publish',

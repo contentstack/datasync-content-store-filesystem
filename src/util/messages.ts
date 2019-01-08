@@ -1,3 +1,9 @@
+/*!
+* contentstack-sync-content-store-filesystem
+* copyright (c) Contentstack LLC
+* MIT Licensed
+*/
+"use strict"
 export const messages = {
 	success: {
 		publish: `{{type}} published successfully!`,
@@ -10,12 +16,12 @@ export const messages = {
 		delete: `Error while deleting {{type}}\n{{error}}`,
 		find: `Error while finding {{type}}\n{{error}}`,
 		fetch: `Error while fetching {{type}}\n{{error}}`,
-		invalid_publish_keys: `Kindly provide valid parameters for publish\n`,
-		invalid_unpublish_keys: `Kindly provide valid parameters for unpublish\n`,
-		invalid_delete_keys: `Kindly provide valid parameters for delete\n`,
-		invalid_find_keys: `Kindly provide valid parameters for find\n`,
-		invalid_fetch_keys: `Kindly provide valid parameters for fetch\n`,
-		invalid_count_keys: `Kindly provide valid parameters for count\n`,
+		invalid_publish_keys: `Kindly provide valid parameters for publish`,
+		invalid_unpublish_keys: `Kindly provide valid parameters for unpublish`,
+		invalid_delete_keys: `Kindly provide valid parameters for delete`,
+		invalid_find_keys: `Kindly provide valid parameters for find`,
+		invalid_fetch_keys: `Kindly provide valid parameters for fetch`,
+		invalid_count_keys: `Kindly provide valid parameters for count`,
 		pth_not_exists: `{{type}} {{path}} did not exist!`,
 		asset_manager_failed: `Asset manager - {{type}} failed to load`,
 		content_manager_failed: `Content manager - {{type}} failed to load`,

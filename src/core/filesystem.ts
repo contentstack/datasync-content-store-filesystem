@@ -1,6 +1,9 @@
-/*
- * Module dependencies
- */
+/*!
+* contentstack-sync-content-store-filesystem
+* copyright (c) Contentstack LLC
+* MIT Licensed
+*/
+"use strict"
 import { Promise as Promises } from 'bluebird';
 import * as rimraf from 'rimraf'
 import * as mkdirp from 'mkdirp'
@@ -9,7 +12,7 @@ import * as filesystem from 'fs'
 import sift from 'sift'
 import { has, isPlainObject, isEmpty, clone, uniq, cloneDeep, map, filter } from 'lodash'
 import { join } from 'path'
-import { detectCyclic, sort } from '../util'
+//import { detectCyclic, sort } from '../util'
 //import { get } from '../config'
 import { OptionalParams, CountParams, PublishParams, UnpublishParams, DeleteParams, ReferenceDepth, DeleteContentType, FindParams, DeleteAssetFolder } from '../util/interfaces'
 import { defs } from '../util/key-definitions'
@@ -270,13 +273,13 @@ class FileSystem {
    */
 
   public delete (query: DeleteParams) {
-    console.log("delete event")
+    //console.log("delete event")
     return new Promises(async (resolve, reject) => {
       try {
         if (this.validate(query)) {
-          console.log("ithe aalo")
+          //console.log("ithe aalo")
           if (!query.hasOwnProperty(defs.locale) && query.content_type_uid === defs.ct.schema) {
-            console.log("delete ct event")
+            //console.log("delete ct event")
             return this.deleteContentType(<DeleteContentType>query)
               .then(resolve)
               .catch(reject)
@@ -285,7 +288,7 @@ class FileSystem {
               .then(resolve)
               .catch(reject)
           } else {
-            console.log("ithe aalo 3")
+            //console.log("ithe aalo 3")
             const locale: string = query.locale
             const content_type_uid: string = query.content_type_uid
             const type: string = (content_type_uid === defs.ct.asset) ? defs.asset: defs.entry
@@ -305,14 +308,14 @@ class FileSystem {
                     let flag = false
                     for (let i = 0; i < objs.length; i++) {
                       if (objs[i].uid === asset.uid) {
-                        response[asset.po_key] = render(msg.success.unpublish, { type: type })
+                        response[asset.po_key] = render(msg.success.delete, { type: type })
                         flag = true
                         objs.splice(i, 1)
                         break
                       }
                     }
                     if (!flag) {
-                      response[asset.po_key] = render(msg.success.unpublish, { type: type })
+                      response[asset.po_key] = render(msg.success.delete, { type: type })
                     }
                     return this.asset_mgmt.delete(asset, locale)
                       .then(() => {
@@ -325,7 +328,7 @@ class FileSystem {
                     return fs.writeFileP(pth, JSON.stringify(objs))
                       .then(() => resolve(response))
                       .catch(error => {
-                        return reject(render(msg.error.unpublish, { type: type, error: error }))
+                        return reject(render(msg.error.delete, { type: type, error: error }))
                       })
                   }).catch(reject)
                 } else {
@@ -401,6 +404,7 @@ class FileSystem {
   }
 
   private deleteAssetFolder(query: DeleteAssetFolder) {
+    console.log(query,"query ofr folder deletionnnnnnnnnnnnnnnnnnn")
     return new Promises((resolve, reject) => {
      // const locales: string[] = map(get('locales'), 'code')
       //return new Promises.map(locales, locale => {
@@ -540,9 +544,9 @@ class FileSystem {
                   count: data.length
                 })
               }
-              if (_sort) {
-                data = sort(data, sort_key, sort_operator)
-              }
+              // if (_sort) {
+              //   data = sort(data, sort_key, sort_operator)
+              // }
               if (!remove) {
                 data = {
                   [key]: data
@@ -623,113 +627,113 @@ class FileSystem {
     })
   }
 
-  private includeReferences(data: any, locale: string, references: any, parent_id: string | undefined, context: any[], reference_depth: ReferenceDepth) {
-    return new Promises((resolve, reject) => {
-      let calls: any[] = []
-      const self = this
-      if (isEmpty(references)) {
-        references = {}
-      }
+  // private includeReferences(data: any, locale: string, references: any, parent_id: string | undefined, context: any[], reference_depth: ReferenceDepth) {
+  //   return new Promises((resolve, reject) => {
+  //     let calls: any[] = []
+  //     const self = this
+  //     if (isEmpty(references)) {
+  //       references = {}
+  //     }
 
-      function _includeReferences(data) {
-        for (let key in data) {
-          if (data.uid) {
-            parent_id = data.uid
-          }
+  //     function _includeReferences(data) {
+  //       for (let key in data) {
+  //         if (data.uid) {
+  //           parent_id = data.uid
+  //         }
 
-          if (typeof data[key] === 'object') {
-            if (data[key] && data[key][defs.ct.content_type_id]) {
-              const content_type_uid: string = data[key][defs.ct.content_type_id]
-              if (content_type_uid === defs.ct.asset && typeof context === 'object' && context[content_type_uid]) {
-                data[key] = sift({
-                  uid: {
-                    $in: data[key]['values']
-                  }
-                }, context[content_type_uid])
-              } else {
-                if (typeof reference_depth === 'undefined' || (reference_depth && (reference_depth.current_depth < reference_depth.defined_depth))) {
-                  const reference_uids: string[] = filter(data[key]['values'], uid => {
-                    return !detectCyclic(uid, references)
-                  })
-                  if (reference_uids.length === 0) {
-                    data[key] = []
-                  } else {
-                    calls.push(((_key, _data) => {
-                      return new Promises((_resolve) => {
-                        const query: FindParams = {
-                          content_type_uid: _data[_key][defs.ct.content_type_id],
-                          locale: locale,
-                          include_reference: true,
-                          remove: true,
-                          reference_depth: reference_depth,
-                          query: {
-                            uid: {
-                              $in: reference_uids
-                            }
-                          }
-                        }
+  //         if (typeof data[key] === 'object') {
+  //           if (data[key] && data[key][defs.ct.content_type_id]) {
+  //             const content_type_uid: string = data[key][defs.ct.content_type_id]
+  //             if (content_type_uid === defs.ct.asset && typeof context === 'object' && context[content_type_uid]) {
+  //               data[key] = sift({
+  //                 uid: {
+  //                   $in: data[key]['values']
+  //                 }
+  //               }, context[content_type_uid])
+  //             } else {
+  //               if (typeof reference_depth === 'undefined' || (reference_depth && (reference_depth.current_depth < reference_depth.defined_depth))) {
+  //                 const reference_uids: string[] = filter(data[key]['values'], uid => {
+  //                   return !detectCyclic(uid, references)
+  //                 })
+  //                 if (reference_uids.length === 0) {
+  //                   data[key] = []
+  //                 } else {
+  //                   calls.push(((_key, _data) => {
+  //                     return new Promises((_resolve) => {
+  //                       const query: FindParams = {
+  //                         content_type_uid: _data[_key][defs.ct.content_type_id],
+  //                         locale: locale,
+  //                         include_reference: true,
+  //                         remove: true,
+  //                         reference_depth: reference_depth,
+  //                         query: {
+  //                           uid: {
+  //                             $in: reference_uids
+  //                           }
+  //                         }
+  //                       }
 
-                        if (query.content_type_uid === '_assets') {
-                          return self.asset_mgmt.find(query).then(result => {
-                            _data[_key] = result
-                            return _resolve(_data[_key])
-                          }).catch(error => {
-                            console.error('Error while binding asset reference!\n' + error)
-                            _data[_key] = []
-                            return _resolve(_data[_key])
-                          })
-                        } else {
-                          return self.find(query, {
-                            references: cloneDeep(references),
-                            parent_id: parent_id
-                          }, context, reference_depth).then(result => {
-                            _data[_key] = result
-                            return _resolve(_data[_key])
-                          }).catch(error => {
-                            console.error('Error while binding content reference!\n' + error)
-                            _data[_key] = []
-                            return _resolve(_data[_key])
-                          })
-                        }
-                      })
-                    })(key, data))
-                  }
-                } else {
-                  data[key] = []
-                }
-              }
-            } else {
-              _includeReferences(data[key])
-            }
-          }
-        }
-      }
+  //                       if (query.content_type_uid === '_assets') {
+  //                         return self.asset_mgmt.find(query).then(result => {
+  //                           _data[_key] = result
+  //                           return _resolve(_data[_key])
+  //                         }).catch(error => {
+  //                           console.error('Error while binding asset reference!\n' + error)
+  //                           _data[_key] = []
+  //                           return _resolve(_data[_key])
+  //                         })
+  //                       } else {
+  //                         return self.find(query, {
+  //                           references: cloneDeep(references),
+  //                           parent_id: parent_id
+  //                         }, context, reference_depth).then(result => {
+  //                           _data[_key] = result
+  //                           return _resolve(_data[_key])
+  //                         }).catch(error => {
+  //                           console.error('Error while binding content reference!\n' + error)
+  //                           _data[_key] = []
+  //                           return _resolve(_data[_key])
+  //                         })
+  //                       }
+  //                     })
+  //                   })(key, data))
+  //                 }
+  //               } else {
+  //                 data[key] = []
+  //               }
+  //             }
+  //           } else {
+  //             _includeReferences(data[key])
+  //           }
+  //         }
+  //       }
+  //     }
 
-      function recursive(data: any) {
-        return new Promises((_resolve) => {
-          _includeReferences(data)
-          if (calls.length) {
-            return Promises.map(calls, call => {
-              calls = []
-              return setImmediate(() => {
-                return recursive(call).then(() => {
-                  return
-                }).catch(error => {
-                  throw error
-                })
-              })
-            }, { concurrency: 1 }).then(() => _resolve(data)).catch(reject)
-          } else {
-            return _resolve(data)
-          }
-        })
-      }
+  //     function recursive(data: any) {
+  //       return new Promises((_resolve) => {
+  //         _includeReferences(data)
+  //         if (calls.length) {
+  //           return Promises.map(calls, call => {
+  //             calls = []
+  //             return setImmediate(() => {
+  //               return recursive(call).then(() => {
+  //                 return
+  //               }).catch(error => {
+  //                 throw error
+  //               })
+  //             })
+  //           }, { concurrency: 1 }).then(() => _resolve(data)).catch(reject)
+  //         } else {
+  //           return _resolve(data)
+  //         }
+  //       })
+  //     }
 
-      return recursive(data)
-        .then(() => resolve(data))
-        .catch(reject)
-    })
-  }
+  //     return recursive(data)
+  //       .then(() => resolve(data))
+  //       .catch(reject)
+  //   })
+  // }
 
  }
 
