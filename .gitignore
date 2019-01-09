@@ -1,6 +1,5 @@
 *
-!docs
-!docs/**
+coverage
 !example
 !example/index.js
 example/_contents

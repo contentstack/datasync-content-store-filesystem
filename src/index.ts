@@ -1,35 +1,34 @@
-// import { existsSync } from 'fs'
-// import { join } from 'path'
-// import { get } from '../config'
-// import { render } from '../util'
-// import { messages as msg } from '../util/messages'
-import Filesystem from './core/filesystem'
-import { merge } from "lodash";
-
 /*!
 * contentstack-sync-content-store-filesystem
 * copyright (c) Contentstack LLC
 * MIT Licensed
 */
 "use strict"
+import { debug as Debug } from "debug";
+import Filesystem from './core/filesystem'
+import { merge } from "lodash";
+import LoggerBuilder from "./logger";
+
+let log
 let connector = null
 let config: any = {}
-export function start (userConfig, assetConnector) {
+const debug = Debug("content-sotre-filesystem");
+export function start (userConfig: any, assetConnector: any, customLogger? :any ) {
+  log = new LoggerBuilder(customLogger).Logger
   try {
     return new Promise((resolve, reject) => {
       if (userConfig) {
-        //console.log("userconfig");
         config = merge(config, userConfig)
       } else {
-        console.log("Starting connector with default configs");
+        debug("Starting connector with default configs");
+        log.info("Starting connector with default configs");
       }
-      //build(config)
       connector = new Filesystem(config, assetConnector)
       resolve(connector)
     })
   } catch (error) {
-    console.error(error)
-
+    debug('Failed to load content-store due to %O',error);
+    log.error('Failed to load content-store',error);
   }
 }
 

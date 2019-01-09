@@ -4,23 +4,24 @@
 * MIT Licensed
 */
 "use strict"
+import { debug as Debug } from "debug";
 import { Promise as Promises } from 'bluebird';
 import * as rimraf from 'rimraf'
 import * as mkdirp from 'mkdirp'
 import * as Mustache from 'mustache'
 import * as filesystem from 'fs'
 import sift from 'sift'
-import { has, isPlainObject, isEmpty, clone, uniq, cloneDeep, map, filter } from 'lodash'
+import {  uniq, cloneDeep, map } from 'lodash'
 import { join } from 'path'
-//import { detectCyclic, sort } from '../util'
-//import { get } from '../config'
-import { OptionalParams, CountParams, PublishParams, UnpublishParams, DeleteParams, ReferenceDepth, DeleteContentType, FindParams, DeleteAssetFolder } from '../util/interfaces'
+import LoggerBuilder from "../logger";
+import { OptionalParams, CountParams, PublishParams, UnpublishParams, DeleteParams, DeleteContentType, FindParams, DeleteAssetFolder } from '../util/interfaces'
 import { defs } from '../util/key-definitions'
 import { messages as msg } from '../util/messages'
 
 const render = Mustache.render
 const fs: any = Promises.promisifyAll(filesystem, { suffix: 'P' })
-
+let log;
+const debug = Debug("content-sotre-filesystem");
 class FileSystem {
   //private default_reference_depth: number
   private asset_mgmt: any
@@ -30,6 +31,7 @@ class FileSystem {
   constructor (config, assetConnector) {
     this.config = config || {}
     this.asset_mgmt = assetConnector
+    log = new LoggerBuilder().Logger
     // this.default_reference_depth = get('default_reference_depth') || 6
     // this.required_keys = [defs.locale, defs.content_type_uid]
   }
@@ -44,23 +46,8 @@ class FileSystem {
     return true
   }
 
-  /**
-   * {
-   *   locale: string,
-   *   content_type: {
-   *     uid: string,
-   *     ..
-   *   },
-   *   content_type_uid: string
-   *   data: {
-   *   }
-   *
-   *    OR
-   *   data: []
-   * }
-   */
-
   public publish (data: PublishParams) {
+    debug("Publish called with", data)
     return new Promises(async (resolve, reject) => {
       if (this.validate(data) && typeof defs.locale === 'string') {
         const locale: string = (data.locale) ? data.locale: 'en-us'
@@ -69,10 +56,11 @@ class FileSystem {
         const type = (content_type_uid === "_assets") ? "asset" : "entry"
         const pth: string = (content_type_uid === "_assets") ? join('./_contents', locale,'assets'): join('./_contents', locale, 'data', content_type_uid)
         const entity_pth: string = (content_type_uid === "_assets") ? join(pth, "_assets.json"): join(pth, "index.json")
-        console.log(locale,"locale", content_type_uid, "ctu", type, "type", pth, "pth", entity_pth, "entity_pth")
         let p_objects = (data.data instanceof Array) ? data.data: [data.data]
         let contents: any = []
         if (!fs.existsSync(pth)) {
+          debug("new path created as", pth)
+          log.info(`${pth} is created`)
           mkdirp.sync(pth, '0755')
         }
 
@@ -102,12 +90,11 @@ class FileSystem {
             })
           }, { concurrency: 2}).then(() => {
             return fs.writeFileP(entity_pth, JSON.stringify(contents)).then(() => {
-              console.log(response, "response")
+              log.info("Asset published successfullly", data.data)
               return resolve(response)
             }).catch(reject)
           }).catch(reject)
         } else {
-          console.log(p_objects, contents, "p_objects")
           p_objects.forEach(entry => {
             let flag = false
             for (let i = 0; i < contents.length; i++) {
@@ -124,49 +111,34 @@ class FileSystem {
             }
             delete entry.po_key
           })
-          console.log(response, "resssssssssssssssssssssssssssssssssssssssssssssssssss")
           const schema_pth = join(pth, defs.schema_file)
           return fs.writeFileP(schema_pth, JSON.stringify(data.content_type)).then(() => {
             return fs.writeFileP(entity_pth, JSON.stringify(contents))
               .then(() => {
+                console.log(data.data.title)
+                log.info("Entry published sucessfully", data.data)
+                debug("Entry published sucessfully")
                 return resolve(response)
               })
               .catch(error => {
                 console.error(error)
+                log.error(msg.error.publish)
+                debug(msg.error.publish)
                 return reject(render(msg.error.publish, { type: type }))
               })
           }).catch(console.error)
         }
       } else {
+        log.error(msg.error.invalid_publish_keys)
+        debug(msg.error.invalid_publish_keys)
         return reject(msg.error.invalid_publish_keys)
       }
     })
   }
 
-  /**
-   * For entries
-   * {
-   *   content_type_uid: string,
-   *   locale: string,
-   *   data: {
-   *     po_key: string
-   *     uid: string
-   *   }
-   *
-   *   OR
-   *
-   *   data: [
-   *     {
-   *       po_key: string,
-   *       uid: string
-   *     }
-   *   ]
-   * }
-   *
-   * No data key for content type deletion
-   */
 
   public unpublish (data: UnpublishParams) {
+    debug("unpublish called with", data)
     return new Promises((resolve, reject) => {
       try {
         if (this.validate(data) && typeof data.locale === 'string') {
@@ -207,8 +179,13 @@ class FileSystem {
                     })
                 }, { concurrency: 2}).then(() => {
                   return fs.writeFileP(pth, JSON.stringify(objs))
-                    .then(() => resolve(response))
+                    .then( () => {
+                      debug("asset unpublished succefully", data.data)
+                      log.info("asset unpublished succefully", data.data)
+                      resolve(response) 
+                    })
                     .catch(error => {
+                      log.error(msg.error.unpublish);
                       return reject(render(msg.error.unpublish, { type: type, error: error }))
                     })
                 }).catch(reject)
@@ -228,8 +205,14 @@ class FileSystem {
                   }
                 })
                 return fs.writeFileP(pth, JSON.stringify(objs))
-                  .then(() => resolve(response))
+                  .then(() => {
+                    debug("Entry unpublished successfully")
+                    log.info("Entry unpublished successfully", data.data)
+                    resolve(response)
+                  })
                   .catch(error => {
+                    debug(msg.error.unpublish)
+                    log.error(msg.error.unpublish)
                     return reject(render(msg.error.unpublish, { type: type, error: error }))
                   })
               }
@@ -241,45 +224,24 @@ class FileSystem {
             })
           }
         } else {
+          debug(msg.error.invalid_unpublish_keys)
+          log.error(msg.error.invalid_unpublish_keys)
           return reject(msg.error.invalid_unpublish_keys)
         }
       } catch (error) {
+        debug(msg.error.unpublish)
+        log.error(msg.error.unpublish)
         return reject(render(msg.error.unpublish, { type: 'Object', error: error }))
       }
     })
   }
 
-  /**
-   * For entries
-   * {
-   *   content_type_uid: string,
-   *   locale: string,
-   *   data: {
-   *     po_key: string
-   *     uid: string
-   *   }
-   *
-   *   OR
-   *
-   *   data: [
-   *     {
-   *       po_key: string,
-   *       uid: string
-   *     }
-   *   ]
-   * }
-   *
-   * No data key for content type deletion
-   */
-
   public delete (query: DeleteParams) {
-    //console.log("delete event")
+   debug("delete called with", query)
     return new Promises(async (resolve, reject) => {
       try {
         if (this.validate(query)) {
-          //console.log("ithe aalo")
           if (!query.hasOwnProperty(defs.locale) && query.content_type_uid === defs.ct.schema) {
-            //console.log("delete ct event")
             return this.deleteContentType(<DeleteContentType>query)
               .then(resolve)
               .catch(reject)
@@ -288,7 +250,6 @@ class FileSystem {
               .then(resolve)
               .catch(reject)
           } else {
-            //console.log("ithe aalo 3")
             const locale: string = query.locale
             const content_type_uid: string = query.content_type_uid
             const type: string = (content_type_uid === defs.ct.asset) ? defs.asset: defs.entry
@@ -326,8 +287,14 @@ class FileSystem {
                       })
                   }, { concurrency: 2}).then(() => {
                     return fs.writeFileP(pth, JSON.stringify(objs))
-                      .then(() => resolve(response))
+                      .then(() => {
+                        log.info("asset deleted sucessfully", query.data)
+                        debug("asset deleted sucessfully",query.data)
+                        resolve(response)
+                      })
                       .catch(error => {
+                        log.error(msg.error.delete)
+                        debug(msg.error.delete)
                         return reject(render(msg.error.delete, { type: type, error: error }))
                       })
                   }).catch(reject)
@@ -347,8 +314,14 @@ class FileSystem {
                     }
                   })
                   return fs.writeFileP(pth, JSON.stringify(objs))
-                    .then(() => resolve(response))
+                    .then(() => {
+                      log.info("Entry deleted sucessfully",query.data)
+                      debug("Entry deleted sucessfully",query.data)
+                      resolve(response)
+                    })
                     .catch(error => {
+                      log.error(msg.error.delete)
+                      debug(msg.error.delete)
                       console.error(error)
                       return reject(render(msg.error.delete, { type: type, error: error }))
                     })
@@ -363,9 +336,13 @@ class FileSystem {
             }
           }
         } else {
+          log.error(msg.error.invalid_delete_keys)
+          debug(msg.error.invalid_delete_keys)
           return reject(msg.error.invalid_delete_keys)
         }
       } catch (error) {
+        log.error(msg.error.delete)
+        debug(msg.error.delete)
         return reject(render(msg.error.delete, { type: 'Object', error: error }))
       }
     })
@@ -383,28 +360,30 @@ class FileSystem {
    */
  
   private deleteContentType(query: DeleteContentType) {
-    console.log(query,"delete ct data")
+    debug("Delete content type called for ", query)
     return new Promises((resolve, reject) => {
       try {
        // const locales: string[] = map(get('locales'), 'code')
         //locales.forEach(locale => {
           const pth = join('./_contents', query.data.locale, 'data', query.data.uid)
-          console.log(pth, "pth for delteion")
+          
           if (fs.existsSync(pth)) {
             rimraf.sync(pth)
           }
        // })
+        log.info(msg.success.delete, query.data)
         return resolve({
           [query.po_key]: render(msg.success.delete, { type: defs.content_type})
         })
       } catch (error) {
+        log.error("failed to delete content type due to", error);
         return reject(error)
       }
     })
   }
 
   private deleteAssetFolder(query: DeleteAssetFolder) {
-    console.log(query,"query ofr folder deletionnnnnnnnnnnnnnnnnnn")
+    debug("delete asset folder called with ", query)
     return new Promises((resolve, reject) => {
      // const locales: string[] = map(get('locales'), 'code')
       //return new Promises.map(locales, locale => {
@@ -426,37 +405,13 @@ class FileSystem {
         }
       //}
       , { concurrency: 1 }).then(() => {
+        log.info("deleted asset folder successfully", query.data)
         return resolve({
           [query.po_key]: render(msg.success.delete, {type: defs.asset_folder})
         })
       }).catch(reject)
     })
   }
-
-  /**
-   * query: {
-   *   content_type_uid: string,
-   *   locale: string,
-   *   query: any
-   * }
-   *
-   * options: {
-   *   sort: {
-   *     [prop: string]: number
-   *   }
-   * }
-   *
-   * _context?: {
-   *   content_type_uid_1: {
-   *     [prop: string]: string|number
-   *   }[]
-   * }
-   *
-   * reference_depth?: {
-   *   current_depth: number,
-   *   defined_depth: number
-   * }
-   */
 
   public find (query: FindParams, options: OptionalParams, _context?: any, reference_depth?: any) {
     return new Promises((resolve, reject) => {
@@ -614,18 +569,18 @@ class FileSystem {
     })
   }
 
-  public count (query: CountParams) {
-    return new Promises((resolve, reject) => {
-      if (typeof query === 'object') {
-        query.count_only = true
-        return this.find(<FindParams>query, {})
-          .then(resolve)
-          .catch(reject)
-      } else {
-        return reject(msg.error.invalid_count_keys)
-      }
-    })
-  }
+  // public count (query: CountParams) {
+  //   return new Promises((resolve, reject) => {
+  //     if (typeof query === 'object') {
+  //       query.count_only = true
+  //       return this.find(<FindParams>query, {})
+  //         .then(resolve)
+  //         .catch(reject)
+  //     } else {
+  //       return reject(msg.error.invalid_count_keys)
+  //     }
+  //   })
+  // }
 
   // private includeReferences(data: any, locale: string, references: any, parent_id: string | undefined, context: any[], reference_depth: ReferenceDepth) {
   //   return new Promises((resolve, reject) => {
