@@ -2,6 +2,7 @@
 coverage
 !example
 !example/index.js
+!example/mock/
 !example/mock/**
 example/_contents
 !src
