@@ -115,7 +115,6 @@ class FileSystem {
           return fs.writeFileP(schema_pth, JSON.stringify(data.content_type)).then(() => {
             return fs.writeFileP(entity_pth, JSON.stringify(contents))
               .then(() => {
-                console.log(data.data.title)
                 log.info("Entry published sucessfully", data.data)
                 debug("Entry published sucessfully")
                 return resolve(response)

@@ -1,11 +1,5 @@
 module.exports = {
   contentstack: {
-    // Small stack
-    // apiKey: '***REMOVED***',
-    // token: '***REMOVED***'
-    // Dummy Stack - Ninad
-    // apiKey: '***REMOVED***',
-    // token: '***REMOVED***'
     apiKey: '***REMOVED***',
     token: '***REMOVED***'
   },
