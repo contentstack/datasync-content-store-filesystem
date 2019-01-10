@@ -1,7 +1,7 @@
 {
   "name": "contentstack-content-store-filesystem",
   "version": "1.0.0",
-  "description": "Listen to contentstack webhook and triggers sync manager.",
+  "description": "Retrieve content from sync manager ans store/remove it from filesystem.",
   "main": "./dist",
   "homepage": "https://github.com/contentstack/contentstack-content-store-filesystem#readme",
   "directories": {
@@ -10,8 +10,6 @@
   },
   "keywords": [
     "Contentstack",
-    "webhook",
-    "listener",
     "utility",
     "connector"
   ],
@@ -39,7 +37,6 @@
     "bluebird": "3.5.1",
     "lodash": "^4.17.11",
     "mkdirp": "^0.5.1",
-    "mongodb": "^3.1.6",
     "mustache": "^3.0.0",
     "path-to-regexp": "^2.1.0",
     "request": "^2.83.0",
@@ -50,11 +47,8 @@
   "devDependencies": {
     "@types/jest": "^23.3.10",
     "@types/node": "^10.12.2",
-    "chai": "^4.1.2",
     "debug": "^4.1.0",
     "jest": "^23.6.0",
-    "mocha": "^4.1.0",
-    "mochawesome": "^3.0.3",
     "ncp": "^2.0.0",
     "sinon": "^6.3.5",
     "rimraf": "^2.6.2",

@@ -1,11 +1,5 @@
 module.exports = {
   contentstack: {
-    // Small stack
-    // apiKey: 'blt2801eba9629034ca',
-    // token: 'cs21e9179cf620f21c7efaf15e'
-    // Dummy Stack - Ninad
-    // apiKey: 'blte570a8fa36ad8689',
-    // token: 'cse4529445b77da8b162e4b47b'
     apiKey: 'bltd1343376dfba54d2',
     token: 'cs12363bf3654a9b1dbf15a590'
   },

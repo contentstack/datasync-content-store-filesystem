@@ -13,5 +13,6 @@ example/_contents
 !test-utils.js
 !jest.config.js
 !tsconfig.json
+!LICENSE
 !test
 !test/**
