@@ -5,9 +5,9 @@
 */
 
 const contentConnector = require('../dist')
-const assetConnector = require('./mock/asset-connector')
+const assetConnector = require('../../new/contentstack-sync-asset-store/dist')
 const config = require('./mock/config')
-const winston = require('winston')
+//const winston = require('winston')
 
 let asset_data = {
 content_type_uid: '_assets',
@@ -64,7 +64,7 @@ let asset_data3= {
 	content_type_uid: '_assets',
 	action: 'publish',
 	publish_queue_uid: 'bltbbdda2b410005b26a6e6',
-	locale: 'es-es',
+	locale: 'mr-in',
 	data: {
 		uid: 'blt9c4ef3c49f7b18f9',
 		created_at: '2018-06-19T12:06:38.066Z',
@@ -464,30 +464,35 @@ const data = {
 
 
 
-const logger = winston.createLogger({
-	level: 'info',
-	format: winston.format.json(),
-	defaultMeta: {service: 'user-service'},
-	transports: [
-		//
-		// - Write to all logs with level `info` and below to `combined.log` 
-		// - Write all logs error (and below) to `error.log`.
-		//
-		new winston.transports.File({ filename: 'error.log', level: 'error' }),
-		new winston.transports.File({ filename: 'combined.log' })
-	]
-});
+// const logger = winston.createLogger({
+// 	level: 'info',
+// 	format: winston.format.json(),
+// 	defaultMeta: {service: 'user-service'},
+// 	transports: [
+// 		//
+// 		// - Write to all logs with level `info` and below to `combined.log` 
+// 		// - Write all logs error (and below) to `error.log`.
+// 		//
+// 		new winston.transports.File({ filename: 'error.log', level: 'error' }),
+// 		new winston.transports.File({ filename: 'combined.log' })
+// 	]
+// });
 
 assetConnector.start(config)
 .then( assetConnector => {
-    return contentConnector.start(config, assetConnector, logger)
+    return contentConnector.start(config, assetConnector)
 })
 .then( (connector) => {
 	connector.publish(publish_data1)
 	connector.publish(publish_data3)
 	connector.publish(publish_data2)
+	connector.publish(asset_data)
+	connector.publish(asset_data2)
+	setTimeout(()=>{connector.publish(asset_data3)}, 500)
 	setTimeout(()=>{connector.unpublish(publish_data1)}, 500)
-	setTimeout(()=>{connector.delete(publish_data2)}, 1500)
+	setTimeout(()=>{connector.delete(publish_data2)}, 500)
+	setTimeout(()=>{connector.delete(asset_data2)}, 500)
+	setTimeout(()=>{connector.unpublish(asset_data3)}, 2500)
 	setTimeout(()=>{connector.delete({
 		content_type_uid: keys.afct,
 		po_key: 'asset_1',
