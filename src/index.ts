@@ -5,16 +5,15 @@
 */
 "use strict"
 import { debug as Debug } from "debug";
-import Filesystem from './core/filesystem'
+import Filesystem from './filesystem'
 import { merge } from "lodash";
-import LoggerBuilder from "./logger";
-
-let log
+import {setLogger, logger as log} from "./logger";
+import {defaultConfig} from './default'
 let connector = null
-let config: any = {}
+let config =  defaultConfig
 const debug = Debug("content-sotre-filesystem");
-export function start (userConfig: any, assetConnector: any, customLogger? :any ) {
-  log = new LoggerBuilder(customLogger).Logger
+export function start (userConfig: any, assetConnector: any) {
+  
   try {
     return new Promise((resolve, reject) => {
       if (userConfig) {
@@ -24,6 +23,7 @@ export function start (userConfig: any, assetConnector: any, customLogger? :any 
         log.info("Starting connector with default configs");
       }
       connector = new Filesystem(config, assetConnector)
+      setLogger()
       resolve(connector)
     })
   } catch (error) {
