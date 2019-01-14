@@ -12,6 +12,11 @@ import {defaultConfig} from './default'
 let connector = null
 let config =  defaultConfig
 const debug = Debug("content-sotre-filesystem");
+/**
+ * @description to start the content connector
+ * @param  {any} userConfig: configs
+ * @param  {any} assetConnector: asset connector instance
+ */
 export function start (userConfig: any, assetConnector: any) {
   
   try {
@@ -31,7 +36,9 @@ export function start (userConfig: any, assetConnector: any) {
     log.error('Failed to load content-store',error);
   }
 }
-
+/**
+ * @description to get connector instance
+ */
 export function getConnectorInstance () {
 	return connector
 }

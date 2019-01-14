@@ -10,10 +10,8 @@ import * as rimraf from 'rimraf'
 import * as mkdirp from 'mkdirp'
 import * as Mustache from 'mustache'
 import * as filesystem from 'fs'
-import sift from 'sift'
-import {  uniq, cloneDeep, map } from 'lodash'
 import { join } from 'path'
-import { OptionalParams, PublishParams, UnpublishParams, DeleteParams, DeleteContentType, FindParams, DeleteAssetFolder } from './util/interfaces'
+import { PublishParams, UnpublishParams, DeleteParams, DeleteContentType } from './util/interfaces'
 import { defs } from './util/key-definitions'
 import { messages as msg } from './util/messages'
 import {setLogger, logger as log} from "./logger";
@@ -39,7 +37,10 @@ class FileSystem {
     }
     return true
   }
-
+  /**
+   * @description to publish the retrieved data from filesystem
+   * @param  {PublishParams} data: data for publish
+   */
   public publish (data: PublishParams) {
     debug("Publish called with", data)
     return new Promises(async (resolve, reject) => {
@@ -122,7 +123,10 @@ class FileSystem {
     })
   }
 
-
+/**
+   * @description to unpublish the retrieved data from filesystem
+   * @param  {UnpublishParams} data: data for unpublish
+   */
   public unpublish (data: UnpublishParams) {
     debug("unpublish called with", data)
     return new Promises((resolve, reject) => {
@@ -148,6 +152,7 @@ class FileSystem {
                   }
                   return this.asset_mgmt.unpublish(data.data, locale)
                     .then(() => {
+                      
                       return
                     })
                     .catch(error => {
@@ -203,7 +208,10 @@ class FileSystem {
       }
     })
   }
-
+/**
+   * @description to delete the data from filesystem
+   * @param  {DeleteParams} query: data for delete
+   */
   public delete (query: DeleteParams) {
    debug("delete called with", query)
     return new Promises(async (resolve, reject) => {
@@ -213,52 +221,39 @@ class FileSystem {
             return this.deleteContentType(<DeleteContentType>query)
               .then(resolve)
               .catch(reject)
-          } else if (!query.hasOwnProperty(defs.locale) && query.content_type_uid === defs.ct.asset_folder) {
-            return this.deleteAssetFolder(<DeleteAssetFolder>query)
-              .then(resolve)
-              .catch(reject)
-          } else {
+          }
+           else {
             const locale: string = query.locale
             const content_type_uid: string = query.content_type_uid
             const type: string = (content_type_uid === defs.ct.asset) ? defs.asset: defs.entry
             const pth: string = (content_type_uid === defs.ct.asset) ? join('./_contents', locale,'assets', defs.asset_file): join('./_contents', locale, 'data', content_type_uid, defs.index)
-            const d_objs: any[] = (query.data instanceof Array) ? query.data: [query.data]
-            const response: any = {}
             if (!fs.existsSync(pth)) {
-              d_objs.forEach(obj => {
-                response[obj.po_key] = render(msg.success.delete, { type: type })
-              })
-              return resolve(response)
+              return resolve()
             } else {
               return fs.readFileP(pth).then(data => {
                 let objs = JSON.parse(data)
                 if (type === defs.asset) {
-                  return Promises.map(d_objs, asset => {
                     let flag = false
                     for (let i = 0; i < objs.length; i++) {
-                      if (objs[i].uid === asset.uid) {
-                        response[asset.po_key] = render(msg.success.delete, { type: type })
+                      if (objs[i].uid === query.data.uid) {
                         flag = true
                         objs.splice(i, 1)
                         break
                       }
                     }
-                    if (!flag) {
-                      response[asset.po_key] = render(msg.success.delete, { type: type })
-                    }
-                    return this.asset_mgmt.delete(asset, locale)
+                    return this.asset_mgmt.delete(query.data, locale)
                       .then(() => {
                         return
                       })
                       .catch(error => {
                         throw error
                       })
-                  }, { concurrency: 2}).then(() => {
+                  .then(() => {
                     return fs.writeFileP(pth, JSON.stringify(objs))
                       .then(() => {
                         log.info("asset deleted sucessfully", query.data)
                         debug("asset deleted sucessfully",query.data)
-                        resolve(response)
+                        resolve()
                       })
                       .catch(error => {
                         log.error(msg.error.delete)
@@ -267,25 +262,19 @@ class FileSystem {
                       })
                   }).catch(reject)
                 } else {
-                  d_objs.forEach(async obj => {
                     let flag = false
                     for (let i = 0; i < objs.length; i++) {
-                      if (objs[i].uid === obj.uid) {
-                        response[obj.po_key] = render(msg.success.delete, { type: type })
+                      if (objs[i].uid === query.data.uid) {
                         flag = true
                         objs.splice(i, 1)
                         break
                       }
                     }
-                    if (!flag) {
-                      response[obj.po_key] = render(msg.success.delete, { type: type })
-                    }
-                  })
                   return fs.writeFileP(pth, JSON.stringify(objs))
                     .then(() => {
                       log.info("Entry deleted sucessfully",query.data)
                       debug("Entry deleted sucessfully",query.data)
-                      resolve(response)
+                      resolve()
                     })
                     .catch(error => {
                       log.error(msg.error.delete)
@@ -296,10 +285,7 @@ class FileSystem {
                 }
               }).catch(error => {
                 console.error(error)
-                d_objs.forEach(obj => {
-                  response[obj.po_key] = render(msg.error.delete, { type: type, error: error })
-                })
-                return reject(response)
+                return reject()
               })
             }
           }
@@ -315,7 +301,10 @@ class FileSystem {
       }
     })
   }
-
+/**
+   * @description to delete content type the data from filesystem
+   * @param  {DeleteContentType} query: data for  delete content type
+   */
   private deleteContentType(query: DeleteContentType) {
     debug("Delete content type called for ", query)
     return new Promises((resolve, reject) => {
@@ -337,183 +326,6 @@ class FileSystem {
       }
     })
   }
-
-  private deleteAssetFolder(query: DeleteAssetFolder) {
-    debug("delete asset folder called with ", query)
-    return new Promises((resolve, reject) => {
-    
-        return new Promises((_resolve, _reject) => {
-          
-          return this.find({
-            content_type_uid: defs.ct.asset,
-            locale: query.data.locale,
-            query: {
-              parent_uid: query.data.uid
-            }
-          }, {}).then(result => {
-            return this.delete({
-              content_type_uid: defs.ct.asset,
-              locale: query.data.locale,
-              data: result.assets
-            }).then(_resolve).catch(_reject)
-          }).catch(_reject)
-        }
-     
-      , { concurrency: 1 }).then(() => {
-        log.info("deleted asset folder successfully", query.data)
-        return resolve({
-          [query.po_key]: render(msg.success.delete, {type: defs.asset_folder})
-        })
-      }).catch(reject)
-    })
-  }
-
-  public find (query: FindParams, options: OptionalParams, _context?: any, reference_depth?: any) {
-    return new Promises((resolve, reject) => {
-      if (this.validate(query) && typeof options === 'object' && query.hasOwnProperty(defs.locale) && typeof defs.locale === 'string') {
-        const references: any = options.references || {}
-        const parent_id: string | undefined = options.parent_id || undefined
-
-        const content_type_uid: string = query.content_type_uid
-        const locale: string = query.locale
-        const type: string = (content_type_uid === defs.ct.asset) ? defs.asset: defs.entry
-        const key: string = (content_type_uid === defs.ct.asset) ? defs.assets: defs.entries
-        const count_only: boolean | undefined = query.count_only
-        const remove: boolean = query.remove || false
-        const _query: any | undefined = (query.query) ? query.query : undefined
-        const include_reference: boolean = (query.include_reference) ? query.include_reference : false
-        // const specific_reference: boolean = (query.reference) ? query.reference : undefined
-        const include_count: boolean = (query.include_count) ? query.include_count : false
-
-        let context: any = _context || {}
-
-        // if (typeof reference_depth === 'object') {
-        //   reference_depth.current_depth++
-        // } else if (query.reference_depth || this.default_reference_depth) {
-        //   reference_depth = {
-        //     defined_depth: (query.reference_depth) ? query.reference_depth : this.default_reference_depth,
-        //     current_depth: 0
-        //   }
-        // }
-
-        if (typeof context === 'object' && context[content_type_uid]) {
-          let data, _data
-          if (_query) {
-            data = sift(_query, context[content_type_uid])
-          } else {
-            data = context[content_type_uid]
-          }
-          if (data && data.length && (typeof reference_depth === 'undefined' || (reference_depth.current_depth <= reference_depth.defined_depth))) {
-            _data = cloneDeep(data)
-            if (!remove) {
-              _data = {
-                [key]: _data
-              }
-            }
-            // if (include_reference) {
-            //   if (parent_id) {
-            //     references[parent_id] = references[parent_id] || []
-            //     references[parent_id] = uniq(references[parent_id].concat(map(_data, 'uid')))
-            //   }
-            //   return this.includeReferences(_data, locale, references, parent_id, context, reference_depth)
-            //     .then(resolve)
-            //     .catch(reject)
-            // } else if (specific_reference) {
-            //   return this.includeSpecificReferences(_data, locale, context)
-            //     .then(result => resolve(result))
-            //     .catch(error => reject(error))
-            //} else {
-              return resolve(_data)
-            //}
-          } else {
-            return resolve(_data)
-          }
-        } else {
-          const pth: string = (content_type_uid === defs.ct.asset) ? 
-          join('./_contents', locale,'assets',defs.asset_file): 
-            join('./_contents', locale, 'data', content_type_uid, defs.index)
-          const _sort: any | undefined = (options.sort) ? options.sort: undefined
-          let sort_key: string, sort_operator: number
-          if (_sort) {
-            sort_key = Object.keys(_sort)[0]
-            sort_operator = _sort[sort_key]
-          }
-
-          if (fs.existsSync(pth)) {
-            return fs.readFileP(pth).then(content => {
-              let data = JSON.parse(content)
-              // keep a context of the data found during this iteration!
-              context = {
-                [content_type_uid]: cloneDeep(data)
-              }
-              if (_query) {
-                data = sift(_query, data)
-              }
-              if (count_only) {
-                return resolve({
-                  count: data.length
-                })
-              }
-              // if (_sort) {
-              //   data = sort(data, sort_key, sort_operator)
-              // }
-              if (!remove) {
-                data = {
-                  [key]: data
-                }
-              }
-
-              if (include_count) {
-                data.count = (remove) ? data.length : data[key].length
-              }
-              if (key !== defs.assets && include_reference) {
-                if (parent_id) {
-                  references[parent_id] = references[parent_id] || []
-                  references[parent_id] = uniq(references[parent_id].concat(map(((remove) ? data : data[key]), 'uid')))
-                }
-                // return this.includeReferences(data, locale, references, parent_id, context, reference_depth)
-                //   .then(resolve)
-                 // .catch(reject)
-              // } else if (specific_reference) {
-              //   return this.includeSpecificReferences(_entries, locale, context)
-              //     .then(result => resolve(result))
-              //     .catch(error => reject(error))
-              } else {
-                return resolve(data)
-              }
-            }).catch(error => reject(render(msg.error.find, { type: type, error: error })))
-          } else {
-            if (remove) {
-              return resolve([])
-            } else {
-              return resolve({ [key]: [] })
-            }
-          }
-        }
-      } else {
-        return reject(msg.error.invalid_find_keys)
-      }
-    })
-  }
-
-  public findOne (query: FindParams) {
-    return new Promises((resolve, reject) => {
-      const type: string = (query.content_type_uid === defs.ct.asset) ? defs.asset: defs.entry
-      const key: string = (query.content_type_uid === defs.ct.asset) ? defs.assets: defs.entries
-      return this.find(query, {}).then(result => {
-        const response: any = {}
-        if (result[key].length >= 1) {
-          response[type] = result[key][0]
-        } else {
-          response[type] = {}
-        }
-        return resolve(response)
-      }).catch(reject)
-    })
-  }
-
-  
-
  }
 
 export = FileSystem

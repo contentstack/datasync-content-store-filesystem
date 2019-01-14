@@ -5,9 +5,8 @@
 */
 
 const contentConnector = require('../dist')
-const assetConnector = require('../../new/contentstack-sync-asset-store/dist')
+const assetConnector = require('../../contentstack-sync-asset-store/dist')
 const config = require('./mock/config')
-//const winston = require('winston')
 
 let asset_data = {
 content_type_uid: '_assets',
@@ -462,22 +461,6 @@ const data = {
 	]
 }
 
-
-
-// const logger = winston.createLogger({
-// 	level: 'info',
-// 	format: winston.format.json(),
-// 	defaultMeta: {service: 'user-service'},
-// 	transports: [
-// 		//
-// 		// - Write to all logs with level `info` and below to `combined.log` 
-// 		// - Write all logs error (and below) to `error.log`.
-// 		//
-// 		new winston.transports.File({ filename: 'error.log', level: 'error' }),
-// 		new winston.transports.File({ filename: 'combined.log' })
-// 	]
-// });
-
 assetConnector.start(config)
 .then( assetConnector => {
     return contentConnector.start(config, assetConnector)
@@ -492,16 +475,16 @@ assetConnector.start(config)
 	setTimeout(()=>{connector.unpublish(publish_data1)}, 500)
 	setTimeout(()=>{connector.delete(publish_data2)}, 500)
 	setTimeout(()=>{connector.delete(asset_data2)}, 500)
-	setTimeout(()=>{connector.unpublish(asset_data3)}, 2500)
-	setTimeout(()=>{connector.delete({
-		content_type_uid: keys.afct,
-		po_key: 'asset_1',
+	//setTimeout(()=>{connector.unpublish(asset_data3)}, 2500)
+	// setTimeout(()=>{connector.delete({
+	// 	content_type_uid: keys.afct,
+	// 	po_key: 'asset_1',
 		
-		data: {
-			uid: data.key[0].uid,
-			locale: 'en-us',
-		}
-	})}, 1500)
+	// 	data: {
+	// 		uid: data.key[0].uid,
+	// 		locale: 'en-us',
+	// 	}
+	// })}, 1500)
 
 })
 .catch((error) =>{
