@@ -1,13 +1,17 @@
-
-/**
- * @summary Creates a logger instance
- * @example
- *    const log = createLogger(instance)
- *    log.info('Hello world!')
- */
+/*!
+* contentstack-sync-content-store-filesystem
+* copyright (c) Contentstack LLC
+* MIT Licensed
+*/
+"use strict"
 
 let logger;
-
+/**
+ * @description Creates a logger instance
+ * @example
+ *    const log = setLogger(instance)
+ *    log.info('Hello world!')
+ */
 export const setLogger = (customLogger?) => {
     if (logger) {
         return logger
@@ -20,7 +24,10 @@ export const setLogger = (customLogger?) => {
     }
     return logger
 }
-
+/**
+ * @description to validate/check logger has 'info', 'warn', 'log', 'error', 'debug'
+ * @param  {any} logger: logger instance
+ */
 function validateLogger(logger) {
     if (!logger) {
         console.log("found log undefined")
