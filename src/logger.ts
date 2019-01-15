@@ -3,7 +3,6 @@
 * copyright (c) Contentstack LLC
 * MIT Licensed
 */
-"use strict"
 
 let logger;
 /**

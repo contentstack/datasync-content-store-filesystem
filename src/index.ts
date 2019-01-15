@@ -3,42 +3,55 @@
 * copyright (c) Contentstack LLC
 * MIT Licensed
 */
-"use strict"
+
 import { debug as Debug } from "debug";
 import Filesystem from './filesystem'
 import { merge } from "lodash";
-import {setLogger, logger as log} from "./logger";
-import {defaultConfig} from './default'
+import { setLogger , logger as log } from "./logger";
+import { defaultConfig } from './default'
 let connector = null
-let config =  defaultConfig
 const debug = Debug("content-sotre-filesystem");
+
 /**
  * @description to start the content connector
- * @param  {any} userConfig: configs
- * @param  {any} assetConnector: asset connector instance
+ * @param  {} assetConnector: asset connector instance
+ * @param  {} config?: config
+ * @param  {} logger?: logger instance
  */
-export function start (userConfig: any, assetConnector: any) {
-  
-  try {
-    return new Promise((resolve, reject) => {
-      if (userConfig) {
-        config = merge(config, userConfig)
+export function start(assetConnector, config?, logger?) {
+
+
+  return new Promise((resolve, reject) => {
+    try {
+      if (config) {
+        console.log(defaultConfig,"dafaultconf", config,"configgggggggggggggg")
+        config = merge(defaultConfig,config)
+        console.log(config,"config++++++++++")
       } else {
         debug("Starting connector with default configs");
         log.info("Starting connector with default configs");
       }
-      connector = new Filesystem(config, assetConnector)
-      setLogger()
+      setLogger(logger)
+      connector = new Filesystem(assetConnector, config)
       resolve(connector)
-    })
-  } catch (error) {
-    debug('Failed to load content-store due to %O',error);
-    log.error('Failed to load content-store',error);
-  }
+    }
+    catch (error) {
+      debug('Failed to load content-store due to', error);
+      log.error('Failed to load content-store', error);
+      reject(error)
+    }
+  })
 }
 /**
  * @description to get connector instance
  */
-export function getConnectorInstance () {
-	return connector
+export function getConnectorInstance() {
+  return connector
+}
+/**
+ * @description Set custom logger for logging
+ * @param {Object} instance - Custom logger instance
+ */
+export const setCustomLogger = (logger?) => {
+  setLogger(logger)
 }
