@@ -14,5 +14,6 @@ example/_contents
 !jest.config.js
 !tsconfig.json
 !LICENSE
+!.npmignore
 !test
 !test/**
