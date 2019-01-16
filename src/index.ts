@@ -4,13 +4,15 @@
 * MIT Licensed
 */
 
-import { debug as Debug } from "debug";
-import Filesystem from './filesystem'
-import { merge } from "lodash";
-import { setLogger , logger as log } from "./logger";
-import { defaultConfig } from './default'
-let connector = null
-const debug = Debug("content-sotre-filesystem");
+import { debug as Debug } from 'debug';
+import { merge } from 'lodash';
+import { defaultConfig } from './default';
+import fileSystem from './filesystem';
+import { logger as log, setLogger } from './util/logger';
+
+let connector = null;
+const debug = Debug('content-sotre-filesystem');
+
 
 /**
  * @description to start the content connector
@@ -18,40 +20,33 @@ const debug = Debug("content-sotre-filesystem");
  * @param  {} config?: config
  * @param  {} logger?: logger instance
  */
-export function start(assetConnector, config?, logger?) {
-
-
+export function start(assetConnector, config?, customLogger?) {
+  if (customLogger) {
+    setLogger(customLogger);
+  }
   return new Promise((resolve, reject) => {
     try {
       if (config) {
-        console.log(defaultConfig,"dafaultconf", config,"configgggggggggggggg")
-        config = merge(defaultConfig,config)
-        console.log(config,"config++++++++++")
+        config = merge(defaultConfig, config);
       } else {
-        debug("Starting connector with default configs");
-        log.info("Starting connector with default configs");
+        debug('Starting connector with default configs');
+        log.info('Starting connector with default configs');
       }
-      setLogger(logger)
-      connector = new Filesystem(assetConnector, config)
-      resolve(connector)
+      connector = new fileSystem(assetConnector, config);
+      resolve(connector);
     }
     catch (error) {
       debug('Failed to load content-store due to', error);
       log.error('Failed to load content-store', error);
-      reject(error)
+      reject(error);
     }
-  })
+  });
 }
 /**
  * @description to get connector instance
  */
 export function getConnectorInstance() {
-  return connector
+  return connector;
 }
-/**
- * @description Set custom logger for logging
- * @param {Object} instance - Custom logger instance
- */
-export const setCustomLogger = (logger?) => {
-  setLogger(logger)
-}
+
+export { setLogger };
