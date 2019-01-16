@@ -5,105 +5,26 @@
 */
 
 const contentConnector = require('../dist')
-const assetConnector = require('../../contentstack-sync-asset-store/dist')
+const assetConnector = require('./mock/asset-connector')
 const config = require('./mock/config')
+const winston = require('winston')
 
-let asset_data = {
-content_type_uid: '_assets',
-action: 'publish',
-publish_queue_uid: 'bltbbdda2b410005b26a6e6',
-locale: 'fr-fr',
-data: {
-	uid: 'blt9c4ef3c49f7b18e9',
-    created_at: '2018-06-19T12:06:38.066Z',
-    updated_at: '2018-06-19T12:06:38.066Z',
-    created_by: 'blt607b206b64807684',
-    updated_by: 'blt607b206b64807684',
-    content_type: 'image/jpeg',
-    file_size: '14552',
-    tags: [],
-    filename: 'new_blog2.jpg',
-    url:
-     'https://images.contentstack.io/v3/assets/bltd1343376dfba54d2/blt9c4ef3c49f7b18e9/5b28f1cefdee6c3974929dc8/blog2.jpg',
-    ACL: {},
-    is_dir: false,
-    _version: 1,
-    title: 'blog2.jpg',
-    force_load: false,
-	content_type_uid: '_assets' }
-}
+const logger = winston.createLogger({
+	level: 'info',
+	format: winston.format.json(),
+	defaultMeta: {service: 'user-service'},
+	transports: [
+		//
+		// - Write to all logs with level `info` and below to `combined.log` 
+		// - Write all logs error (and below) to `error.log`.
+		//
+		new winston.transports.File({ filename: 'error.log', level: 'error' }),
+		new winston.transports.File({ filename: 'combined.log' })
+	]
+})
 
-
-let asset_data2= {
-	content_type_uid: '_assets',
-	action: 'publish',
-	publish_queue_uid: 'bltbbdda2b410005b26a6e6',
-	locale: 'en-us',
-	data: {
-		uid: 'blt9c4ef3c49f7b18h9',
-		created_at: '2018-06-19T12:06:38.066Z',
-		updated_at: '2018-06-19T12:06:38.066Z',
-		created_by: 'blt607b206b64807684',
-		updated_by: 'blt607b206b64807684',
-		content_type: 'image/jpeg',
-		file_size: '14552',
-		tags: [],
-		filename: 'blog1.jpg',
-		url:
-		 'https://images.contentstack.io/v3/assets/bltd1343376dfba54d2/blt9c4ef3c49f7b18e9/5b28f1cefdee6c3974929dc8/blog2.jpg',
-		ACL: {},
-		is_dir: false,
-		_version: 1,
-		title: 'blog1.jpg',
-		force_load: false,
-		content_type_uid: '_assets' }
-}
-
-let asset_data3= {
-	content_type_uid: '_assets',
-	action: 'publish',
-	publish_queue_uid: 'bltbbdda2b410005b26a6e6',
-	locale: 'mr-in',
-	data: {
-		uid: 'blt9c4ef3c49f7b18f9',
-		created_at: '2018-06-19T12:06:38.066Z',
-		updated_at: '2018-06-19T12:06:38.066Z',
-		created_by: 'blt607b206b64807684',
-		updated_by: 'blt607b206b64807684',
-		content_type: 'image/jpeg',
-		file_size: '14552',
-		tags: [],
-		filename: 'blog3.jpg',
-		url:
-		 'https://images.contentstack.io/v3/assets/bltd1343376dfba54d2/blt9c4ef3c49f7b18e9/5b28f1cefdee6c3974929dc8/blog2.jpg',
-		ACL: {},
-		is_dir: false,
-		_version: 1,
-		title: 'blog3.jpg',
-		force_load: false,
-		content_type_uid: '_assets' }
-}
-
-let unpublish_data = {
-	content_type_uid: 'optimizely',
-	action: 'unpublish',
-	publish_queue_uid: 'blt6f80c4d4a06706502f6d',
-	locale: 'en-us',
-	data: {
-		title: 'optimizely',
-		locale: 'en-us',
-		version: 1,
-		entry_uid: 'blt93da1f4f2f59ec5c',
-		uid: 'blt93da1f4f2f59ec5c',
-		content_type_uid: 'optimizely'
-	},
-	content_type: {
-		form_uid: 'optimizely',
-		title: 'optimizely'
-	}
-}
-
-let publish_data1 = {
+contentConnector.setLogger(logger)
+let data1 = {
 	content_type_uid: 'optimizely',
 	action: 'publish',
 	publish_queue_uid: 'blt67729365be66c4af1b77',
@@ -205,7 +126,7 @@ let publish_data1 = {
 	}
 }
 
-let publish_data2 = {
+let data2 = {
 	content_type_uid: 'youtube_test',
 	action: 'publish',
 	publish_queue_uid: 'bltbbdda2b410005b26a6e6',
@@ -308,26 +229,8 @@ let publish_data2 = {
 		]
 	}
 }
-let delete_data = {
-	content_type_uid: 'youtube_test',
-	action: 'delete',
-	publish_queue_uid: 'bltee7820eeae8c40033580',
-	locale: 'en-us',
-	data: {
-		title: 'youtube',
-		youtube_test : "KMDRAmBceYw",
-		locale: 'en-us',
-		version: 7,
-		entry_uid: 'bltf264961f28f704bd',
-		uid: 'bltf264961f28f704bd',
-		content_type_uid: 'youtube_test'
-	},
-	content_type: {
-		form_uid: 'youtube_test',
-		title: 'youtube_test'
-	}
-}
-let publish_data3 = {
+
+let data3 = {
 	content_type_uid: 'youtube_test_new',
 	action: 'publish',
 	publish_queue_uid: 'bltbbdda2b410005b26a6e6',
@@ -429,63 +332,19 @@ let publish_data3 = {
 		]
 	}
 }
-let find_query = {
-	content_type_uid: 'youtube_test_new',
-	locale:'en-us'	
-}
 
-let find_one = {
-	content_type_uid: 'youtube_test_new',
-	locale:'en-us',
-	query : {
-		'title':'youtube'
-	}	
-
-}
-
-const keys = {
-	act: '_assets',
-	afct: '_asset_folders',
-	locales: {
-		es: 'es-es',
-		fr: 'fr-fr'
-	}
-}
-
-const data = {
-	key: [
-		{
-			uid: 'f1',
-			assets: ['001', '002', '003']
-		}
-	]
-}
 
 assetConnector.start(config)
 .then( assetConnector => {
-    return contentConnector.start(config, assetConnector)
+    return contentConnector.start(assetConnector, config)
 })
 .then( (connector) => {
-	connector.publish(publish_data1)
-	connector.publish(publish_data3)
-	connector.publish(publish_data2)
-	connector.publish(asset_data)
-	connector.publish(asset_data2)
-	setTimeout(()=>{connector.publish(asset_data3)}, 500)
-	setTimeout(()=>{connector.unpublish(publish_data1)}, 500)
-	setTimeout(()=>{connector.delete(publish_data2)}, 500)
-	setTimeout(()=>{connector.delete(asset_data2)}, 500)
-	//setTimeout(()=>{connector.unpublish(asset_data3)}, 2500)
-	// setTimeout(()=>{connector.delete({
-	// 	content_type_uid: keys.afct,
-	// 	po_key: 'asset_1',
-		
-	// 	data: {
-	// 		uid: data.key[0].uid,
-	// 		locale: 'en-us',
-	// 	}
-	// })}, 1500)
-
+	console.log("app started sucessfully!!")
+	connector.publish(data1)
+	connector.publish(data3)
+	connector.publish(data2)
+	setTimeout(()=>{connector.unpublish(data1)}, 500)
+	setTimeout(()=>{connector.delete(data2)}, 1500)
 })
 .catch((error) =>{
 	console.error(error)
