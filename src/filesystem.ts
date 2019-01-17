@@ -62,10 +62,13 @@ class FileSystem {
                 break;
               }
             }
-            if (!flag) {
-              contents.push(data.data);
-            }
-            return this.assetConnector.download(data).then(resolves).catch(rejects);
+            
+            return this.assetConnector.download(data).then((asset)=>{
+              if (!flag) {
+                contents.push(asset);
+              }
+              resolves();
+            }).catch(rejects);
           })
             .then(() => {
               return fs.writeFileP(entityPath, JSON.stringify(contents)).then(() => {
