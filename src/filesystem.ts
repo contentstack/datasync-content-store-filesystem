@@ -13,6 +13,7 @@ import * as rimraf from 'rimraf';
 import { defs } from './util/key-definitions';
 import { logger as log } from './util/logger';
 
+
 const fs: any = Promises.promisifyAll(filesystem, { suffix: 'P' });
 const debug = Debug('content-sotre-filesystem');
 
@@ -131,16 +132,17 @@ class FileSystem {
             return fs.readFileP(pth).then((contents) => {
               const objs = JSON.parse(contents);
               if (type === defs.asset) {
-                let flag = false;
-                for (let i = 0; i < objs.length; i++) {
-                  if (objs[i].uid === data.data.uid) {
-                    flag = true;
-                    objs.splice(i, 1);
-                    break;
+                return new Promise((resolves, rejects) => {
+                  let flag = false;
+                  for (let i = 0; i < objs.length; i++) {
+                    if (objs[i].uid === data.data.uid) {
+                      flag = true;
+                      objs.splice(i, 1);
+                      break;
+                    }
                   }
-                }
-                return this.assetConnector.unpublish(data).then(() => { return; })
-                  .catch(reject)
+                  return this.assetConnector.unpublish(data).then(resolves).catch(rejects)
+                })
                   .then(() => {
                     return fs.writeFileP(pth, JSON.stringify(objs))
                       .then(() => {
@@ -150,7 +152,7 @@ class FileSystem {
                       })
                       .catch((error) => {
                         log.error(`${data.data.uid} asset unpublishing failed`);
-                        return reject(error);
+                        reject(error);
                       });
                   }).catch(reject);
               } else {
@@ -217,21 +219,17 @@ class FileSystem {
               return fs.readFileP(pth).then((data) => {
                 const objs = JSON.parse(data);
                 if (type === defs.asset) {
-                  let flag = false;
-                  for (let i = 0; i < objs.length; i++) {
-                    if (objs[i].uid === query.data.uid) {
-                      flag = true;
-                      objs.splice(i, 1);
-                      break;
+                  return new Promise((resolves, rejects) => {
+                    let flag = false;
+                    for (let i = 0; i < objs.length; i++) {
+                      if (objs[i].uid === query.data.uid) {
+                        flag = true;
+                        objs.splice(i, 1);
+                        break;
+                      }
                     }
-                  }
-                  return this.assetConnector.delete(query)
-                    .then(() => {
-                      return;
-                    })
-                    .catch((error) => {
-                      reject(error);
-                    })
+                    return this.assetConnector.delete(query).then(resolves).catch(rejects)
+                  })
                     .then(() => {
                       return fs.writeFileP(pth, JSON.stringify(objs))
                         .then(() => {
