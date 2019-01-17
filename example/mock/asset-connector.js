@@ -8,7 +8,6 @@ module.exports = {
     return Promise.resolve(asset)
   },
   unpublish: function (asset) {
-    console.log("aalo")
     return Promise.resolve(asset)
   },
   start: function () {
