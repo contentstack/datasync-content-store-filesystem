@@ -7,7 +7,7 @@
 
 const utils = require('../test-utils')
 const contentConnector = require('../dist')
-const assetConnector = require('../../contentstack-sync-asset-store/dist')
+const assetConnector = require('../example/mock/asset-connector')
 const config = require('../example/mock/config')
 let connector = null
 let asset_data = {
@@ -168,8 +168,8 @@ describe('# publish', function () {
 
 describe('# Unpublish', function () {
 
-
-	beforeEach(function loadConnectorMethods() {
+ let connector
+ beforeAll(function loadConnectorMethods() {
 		assetConnector.start(config)
 			.then(assetConnector => {
 				return contentConnector.start(config, assetConnector)
@@ -225,8 +225,10 @@ describe('# Unpublish', function () {
 
 	test('unpublish asset', function(){
 		return connector.unpublish(asset_data).then(function (result) {
+			console.log(result,"res++++++")
 			//expect(result).toHaveProperty("uid",'***REMOVED***')
 		}).catch((error) => {
+			console.log("---------res++++++", error)
 			expect(error).toBe(error)
 		})
 	})
