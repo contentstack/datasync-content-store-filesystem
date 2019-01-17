@@ -1,0 +1,40 @@
+[
+  {
+    "_data": {
+      "a": {
+        "***REMOVED***": {
+          "***REMOVED***": [
+            "file"
+          ]
+        },
+        "***REMOVED***": {}
+      },
+      "assets_only": {
+        "***REMOVED***": {
+          "***REMOVED***": [
+            "group.file_1"
+          ],
+          "***REMOVED***": [
+            "group.file_2"
+          ],
+          "***REMOVED***": [
+            "modular_blocks.block_one.modular_block_group.file_3"
+          ],
+          "***REMOVED***": [
+            "modular_blocks.block_one.modular_block_group.file_4"
+          ]
+        }
+      },
+      "external_reference": {
+        "***REMOVED***": {},
+        "***REMOVED***": {},
+        "***REMOVED***": {}
+      },
+      "b": {
+        "***REMOVED***": {}
+      }
+    },
+    "_content_type_uid": "_assetMapper",
+    "_uid": "assetMapper"
+  }
+]
