@@ -5,3 +5,6 @@
 /jest.config.js
 /.gitignore
 /tslint.json
+/test_content/
+/_contents/
+/test-utils.js
