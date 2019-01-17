@@ -16,13 +16,13 @@ import { logger as log } from './util/logger';
 const fs: any = Promises.promisifyAll(filesystem, { suffix: 'P' });
 const debug = Debug('content-sotre-filesystem');
 
-class fileSystem {
+class FileSystem {
   private assetConnector: any;
   private config: any;
 
   constructor(assetConnector, config) {
-    this.assetConnector = assetConnector,
-      this.config = config;
+    this.assetConnector = assetConnector;
+    this.config = config;
   }
   /**
    * @description to publish the retrieved data in filesystem
@@ -35,8 +35,11 @@ class fileSystem {
         const locale: string = (data.locale) ? data.locale : 'en-us';
         const contentTypeUid: string = data.content_type_uid;
         const type: string = (contentTypeUid === defs.ct.asset) ? defs.asset : defs.entry;
-        const pth: string = (contentTypeUid === defs.ct.asset) ? join(this.config['content-connector'].base_dir, locale, 'assets') : join(this.config['content-connector'].base_dir, locale, 'data', contentTypeUid);
-        const entityPath: string = (contentTypeUid === defs.ct.asset) ? join(pth, defs.asset_file) : join(pth, defs.index);
+        const pth: string = (contentTypeUid === defs.ct.asset) ?
+          join(this.config['content-connector'].base_dir, locale, 'assets') :
+          join(this.config['content-connector'].base_dir, locale, 'data', contentTypeUid);
+        const entityPath: string = (contentTypeUid === defs.ct.asset) ? join(pth, defs.asset_file)
+          : join(pth, defs.index);
         let contents: any = [];
         if (!fs.existsSync(pth)) {
           debug('new path created as', pth);
@@ -49,7 +52,7 @@ class fileSystem {
           contents = JSON.parse(contents);
         }
         if (type === defs.asset) {
-          return new Promises((_resolve, _reject) => {
+          return new Promises((resolves, rejects) => {
             let flag = false;
             for (let i = 0; i < contents.length; i++) {
               if (contents[i].uid === data.data.uid) {
@@ -61,7 +64,7 @@ class fileSystem {
             if (!flag) {
               contents.push(data.data);
             }
-            return this.assetConnector.download(data).then(_resolve).catch(_reject);
+            return this.assetConnector.download(data).then(resolves).catch(rejects);
           })
             .then(() => {
               return fs.writeFileP(entityPath, JSON.stringify(contents)).then(() => {
@@ -108,9 +111,9 @@ class fileSystem {
   }
 
   /**
-     * @description to unpublish the retrieved data from filesystem
-     * @param  {Object} data: data for unpublish
-     */
+   * @description to unpublish the retrieved data from filesystem
+   * @param  {Object} data: data for unpublish
+   */
   public unpublish(data) {
     debug('unpublish called with', data);
     return new Promises((resolve, reject) => {
@@ -119,7 +122,9 @@ class fileSystem {
           const locale: string = data.locale;
           const contentTypeUid: string = data.content_type_uid;
           const type: string = (contentTypeUid === defs.ct.asset) ? defs.asset : defs.entry;
-          const pth: string = (contentTypeUid === defs.ct.asset) ? join(this.config['content-connector'].base_dir, locale, 'assets', defs.asset_file) : join(this.config['content-connector'].base_dir, locale, 'data', contentTypeUid, defs.index);
+          const pth: string = (contentTypeUid === defs.ct.asset) ?
+            join(this.config['content-connector'].base_dir, locale, 'assets', defs.asset_file) :
+            join(this.config['content-connector'].base_dir, locale, 'data', contentTypeUid, defs.index);
           if (!fs.existsSync(pth)) {
             return resolve(data);
           } else {
@@ -134,14 +139,8 @@ class fileSystem {
                     break;
                   }
                 }
-                return this.assetConnector.unpublish(data)
-                  .then(() => {
-
-                    return;
-                  })
-                  .catch((error) => {
-                    reject(error);
-                  })
+                return this.assetConnector.unpublish(data).then(() => { return; })
+                  .catch(reject)
                   .then(() => {
                     return fs.writeFileP(pth, JSON.stringify(objs))
                       .then(() => {
@@ -192,15 +191,15 @@ class fileSystem {
     });
   }
   /**
-     * @description to delete the data from filesystem
-     * @param  {Object} query: data for delete
-     */
+   * @description to delete the data from filesystem
+   * @param  {Object} query: data for delete
+   */
   public delete(query) {
     debug('delete called with', query);
     return new Promises(async (resolve, reject) => {
       try {
         if (this.validate(query)) {
-          if (query.type == 'content_type_deleted' && query.content_type_uid === defs.ct.schema) {
+          if (query.type === 'content_type_deleted' && query.content_type_uid === defs.ct.schema) {
             return this.deleteContentType(query)
               .then(resolve)
               .catch(reject);
@@ -209,7 +208,9 @@ class fileSystem {
             const locale: string = query.locale;
             const contentTypeUid: string = query.content_type_uid;
             const type: string = (contentTypeUid === defs.ct.asset) ? defs.asset : defs.entry;
-            const pth: string = (contentTypeUid === defs.ct.asset) ? join(this.config['content-connector'].base_dir, locale, 'assets', defs.asset_file) : join(this.config['content-connector'].base_dir, locale, 'data', contentTypeUid, defs.index);
+            const pth: string = (contentTypeUid === defs.ct.asset) ?
+              join(this.config['content-connector'].base_dir, locale, 'assets', defs.asset_file) :
+              join(this.config['content-connector'].base_dir, locale, 'data', contentTypeUid, defs.index);
             if (!fs.existsSync(pth)) {
               return resolve();
             } else {
@@ -312,9 +313,9 @@ class fileSystem {
     return true;
   }
   /**
-     * @description to delete content type the data from filesystem
-     * @param  {Object} query: data for  delete content type
-     */
+   * @description to delete content type the data from filesystem
+   * @param  {Object} query: data for  delete content type
+   */
   private deleteContentType(query) {
     debug('Delete content type called for ', query);
     return new Promises((resolve, reject) => {
@@ -339,4 +340,4 @@ class fileSystem {
     });
   }
 }
-export = fileSystem;
+export = FileSystem;

@@ -10,9 +10,8 @@ import { defaultConfig } from './default';
 import fileSystem from './filesystem';
 import { logger as log, setLogger } from './util/logger';
 
-let connector = null;
+let connector;
 const debug = Debug('content-sotre-filesystem');
-
 
 /**
  * @description to start the content connector
@@ -28,16 +27,12 @@ export function start(assetConnector, config?, customLogger?) {
     try {
       if (config) {
         config = merge(defaultConfig, config);
-      } else {
-        debug('Starting connector with default configs');
-        log.info('Starting connector with default configs');
       }
       connector = new fileSystem(assetConnector, config);
       resolve(connector);
     }
     catch (error) {
       debug('Failed to load content-store due to', error);
-      log.error('Failed to load content-store', error);
       reject(error);
     }
   });
