@@ -1,0 +1,52 @@
+[
+	{
+		"uid": "013",
+		"title": "One",
+		"url": "/one",
+		"reference_to_self": {
+			"values": ["001"],
+			"_content_type_id": "self_reference"
+		},
+		"locale": "es-es"
+	},
+	{
+		"uid": "014",
+		"title": "Two",
+		"url": "/one",
+		"reference_to_self": {
+			"values": ["002"],
+			"_content_type_id": "self_reference"
+		},
+		"locale": "es-es"
+	},
+	{
+		"uid": "015",
+		"title": "Three",
+		"url": "/three",
+		"reference_to_self": {
+			"values": ["003"],
+			"_content_type_id": "self_reference"
+		},
+		"locale": "es-es"
+	},
+	{
+		"uid": "016",
+		"title": "Four",
+		"url": "/four",
+		"reference_to_self": {
+			"values": ["004"],
+			"_content_type_id": "self_reference"
+		},
+		"locale": "es-es"
+	},
+	{
+		"uid": "017",
+		"title": "Five",
+		"url": "/five",
+		"reference_to_self": {
+			"values": ["004"],
+			"_content_type_id": "self_reference"
+		},
+		"locale": "es-es"
+	}
+]

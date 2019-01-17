@@ -1,0 +1,40 @@
+[
+  {
+    "_data": {
+      "a": {
+        "blt43227216811d6f19": {
+          "bltaa4c4f41f2e4deec": [
+            "file"
+          ]
+        },
+        "blt79389f87782311ff": {}
+      },
+      "assets_only": {
+        "blt7e4497e9cb2013d3": {
+          "blt2b1e11d6c38ec467": [
+            "group.file_1"
+          ],
+          "blt9fb00299786eedc8": [
+            "group.file_2"
+          ],
+          "bltceed453197b96355": [
+            "modular_blocks.block_one.modular_block_group.file_3"
+          ],
+          "blt296f21716ab3829d": [
+            "modular_blocks.block_one.modular_block_group.file_4"
+          ]
+        }
+      },
+      "external_reference": {
+        "blt2521aab22f0eb54d": {},
+        "bltbe38c315fcf40045": {},
+        "blt3add34176244ab68": {}
+      },
+      "b": {
+        "blt6b46fc7ee0112420": {}
+      }
+    },
+    "_content_type_uid": "_assetMapper",
+    "_uid": "assetMapper"
+  }
+]

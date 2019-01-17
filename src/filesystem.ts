@@ -147,7 +147,7 @@ class FileSystem {
                     return fs.writeFileP(pth, JSON.stringify(objs))
                       .then(() => {
                         debug('asset unpublished succefully');
-                        log.info(` ${data.data.uid} asset unpublished succefully`);
+                        //log.info(` ${data.data.uid} asset unpublished successfully`);
                         resolve(data);
                       })
                       .catch((error) => {

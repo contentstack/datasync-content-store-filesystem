@@ -16,5 +16,7 @@ example/_contents
 !LICENSE
 !tslint.json
 !.npmignore
+!test_content
+!test_content/**
 !test
 !test/**
