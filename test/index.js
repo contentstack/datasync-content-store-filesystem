@@ -125,6 +125,23 @@ describe('# publish', function () {
 
 		})
 	})
+	test('Publish an existing entry', function () {
+
+		return connector.publish({
+			content_type_uid: 'a',
+			locale: 'mr-in',
+			uid:'1234',
+			data: {
+				po_key: 'basic_1',
+				uid: '001'
+			}
+		}, {}).then(function (result) {
+			expect(result).toHaveProperty('uid');
+			expect(result).toHaveProperty('uid', '1234');
+		}).catch(function (error) {
+			expect(error).toBe(error)
+		});
+	});
 	test('publish existent entry test', function () {
 		const content_type = test_data['es-es'].a.content_type
 		let entry = test_data['es-es'].a.entries[0]
@@ -157,6 +174,14 @@ describe('# publish', function () {
 		})
 	})
 
+	test('publish asset', function(){
+		return connector.publish(asset_data2).then(function (result) {
+			expect(result).toHaveProperty("uid",'***REMOVED***')
+		}).catch((error) => {
+			expect(error).toBe("Kindly provide valid parameters for publish")
+		})
+	})
+
 	test('publish existent asset', function(){
 		return connector.publish(asset_data).then(function (result) {
 			expect(result).toHaveProperty("uid",'***REMOVED***')
@@ -172,7 +197,7 @@ describe('# Unpublish', function () {
  beforeAll(function loadConnectorMethods() {
 		assetConnector.start(config)
 			.then(assetConnector => {
-				return contentConnector.start(config, assetConnector)
+				return contentConnector.start(assetConnector, config)
 			})
 			.then((contentconnector) => {
 				connector = contentconnector
@@ -225,10 +250,8 @@ describe('# Unpublish', function () {
 
 	test('unpublish asset', function(){
 		return connector.unpublish(asset_data).then(function (result) {
-			console.log(result,"res++++++")
-			//expect(result).toHaveProperty("uid",'***REMOVED***')
+			expect(result).toHaveProperty("uid",'***REMOVED***')
 		}).catch((error) => {
-			console.log("---------res++++++", error)
 			expect(error).toBe(error)
 		})
 	})
@@ -241,7 +264,7 @@ describe('# Delete', function () {
 	beforeAll(function loadConnectorMethods() {
 		assetConnector.start(config)
 			.then(assetConnector => {
-				return contentConnector.start(config, assetConnector)
+				return contentConnector.start(assetConnector, config)
 			})
 			.then((contentconnector) => {
 				connector = contentconnector
@@ -265,12 +288,30 @@ describe('# Delete', function () {
 			expect(error).toBe(error)
 		});
 	});
+	test('Delete an non existing entry', function () {
+
+		return connector.delete({
+			content_type_uid: 'a',
+			locale: 'ep-es',
+			uid:'12345',
+			data: {
+				po_key: 'basic_1',
+				uid: '001'
+			}
+		}, {}).then(function (result) {
+			expect(result).toHaveProperty('uid');
+			expect(result).toHaveProperty('uid', '12345');
+		}).catch(function (error) {
+			expect(error).toBe(error)
+		});
+	});
 
 	test('Delete a non existent entry', function () {
 
 		return connector.delete({
 			content_type_uid: 'a',
-			locale: 'es-es',
+			locale: 'mr-in',
+			uid:'1234',
 			data: {
 				po_key: 'basic_1',
 				uid: '001'
@@ -290,6 +331,15 @@ describe('# Delete', function () {
 		})
 
 	})
+
+	test('delete asset', function(){
+		return connector.delete(asset_data2).then(function (result) {
+			expect(result).toHaveProperty("uid",'***REMOVED***')
+		}).catch((error) => {
+			expect(error).toBe("Kindly provide valid parameters for publish")
+		})
+	})
+
 	test('Delete a content type', function () {
 
 		return connector.delete({
