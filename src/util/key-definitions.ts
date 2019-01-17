@@ -5,15 +5,15 @@
 */
 
 export const defs = {
-  ct: {
-    schema: '_content_types',
-    asset: '_assets',
-    content_type_id: '_content_type_id',
-  },
-  entry: 'entry',
-  locale: 'locale',
-  schema_file: '_schema.json',
   asset: 'asset',
   asset_file: '_assets.json',
+  ct: {
+    asset: '_assets',
+    content_type_id: '_content_type_id',
+    schema: '_content_types',
+  },
+  entry: 'entry',
   index: 'index.json',
+  locale: 'locale',
+  schema_file: '_schema.json',
 };

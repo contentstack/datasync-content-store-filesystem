@@ -6,7 +6,7 @@
 
 export const defaultConfig = {
   'content-connector': {
-    type: 'filesystem',
     base_dir: './_contents',
+    type: 'filesystem',
   },
 };
