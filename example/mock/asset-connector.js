@@ -1,14 +1,15 @@
 // Build mock asset connector
 module.exports = {
-  delete: function () {
-    return Promise.resolve()
+  delete: function (asset) {
+    return Promise.resolve(asset)
   },
   download: function (asset) {
     asset.key = 'new key added'
     return Promise.resolve(asset)
   },
-  unpublish: function () {
-    return Promise.resolve()
+  unpublish: function (asset) {
+    console.log("aalo")
+    return Promise.resolve(asset)
   },
   start: function () {
     return Promise.resolve(this)
