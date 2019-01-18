@@ -44,7 +44,6 @@ class FileSystem {
         let contents: any = [];
         if (!fs.existsSync(pth)) {
           debug('new path created as', pth);
-          log.info(`${pth} is created`);
           mkdirp.sync(pth, '0755');
         }
 
@@ -56,8 +55,8 @@ class FileSystem {
           return new Promises((resolves, rejects) => {
             let flag = false;
             for (let i = 0; i < contents.length; i++) {
-              if (contents[i].uid === data.data.uid) {
-                contents[i] = data.data;
+              if (contents[i].uid === data.uid) {
+                contents[i] = data;
                 flag = true;
                 break;
               }
@@ -72,7 +71,7 @@ class FileSystem {
           })
             .then(() => {
               return fs.writeFileP(entityPath, JSON.stringify(contents)).then(() => {
-                log.info(`${data.data.uid} Asset published successfullly`);
+                log.info(`${data.uid} Asset published successfullly`);
                 return resolve(data);
               }).catch(reject);
             }).catch(reject);
@@ -80,30 +79,30 @@ class FileSystem {
         else {
           let flag = false;
           for (let i = 0; i < contents.length; i++) {
-            if (contents[i].uid === data.data.uid) {
+            if (contents[i].uid === data.uid) {
               flag = true;
-              contents[i] = data.data;
+              contents[i] = data;
               break;
             }
           }
           if (!flag) {
-            contents.push(data.data);
+            contents.push(data);
           }
           const schemaPath = join(pth, defs.schema_file);
           return fs.writeFileP(schemaPath, JSON.stringify(data.content_type)).then(() => {
             return fs.writeFileP(entityPath, JSON.stringify(contents))
               .then(() => {
-                log.info(`${data.data.uid} Entry published sucessfully`);
+                log.info(`${data.uid} Entry published sucessfully`);
                 debug('Entry published sucessfully');
                 return resolve(data);
               })
               .catch((error) => {
-                log.error(`${data.data.uid} Entry publishing failed`);
+                log.error(`${data.uid} Entry publishing failed`);
                 return reject(error);
               });
           }).catch((error) => {
-            log.error(`${data.data.uid} Entry publishing failed`);
-            return (error);
+            log.error(`${data.uid} Entry publishing failed`);
+            return reject(error);
           });
         }
       } else {
@@ -121,7 +120,6 @@ class FileSystem {
   public unpublish(data) {
     debug('unpublish called with', data);
     return new Promises((resolve, reject) => {
-      try {
         if (this.validate(data) && typeof data.locale === 'string') {
           const locale: string = data.locale;
           const contentTypeUid: string = data.content_type_uid;
@@ -138,7 +136,7 @@ class FileSystem {
                 return new Promise((resolves, rejects) => {
                   let flag = false;
                   for (let i = 0; i < objs.length; i++) {
-                    if (objs[i].uid === data.data.uid) {
+                    if (objs[i].uid === data.uid) {
                       flag = true;
                       objs.splice(i, 1);
                       break;
@@ -154,14 +152,14 @@ class FileSystem {
                         resolve(data);
                       })
                       .catch((error) => {
-                        log.error(`${data.data.uid} asset unpublishing failed`);
-                        reject(error);
+                        log.error(`${data.uid} asset unpublishing failed`);
+                        reject(`${data.uid} asset unpublishing failed`);
                       });
                   }).catch(reject);
               } else {
                 let flag = false;
                 for (let i = 0; i < objs.length; i++) {
-                  if (objs[i].uid === data.data.uid) {
+                  if (objs[i].uid === data.uid) {
                     flag = true;
                     objs.splice(i, 1);
                     break;
@@ -170,29 +168,24 @@ class FileSystem {
                 return fs.writeFileP(pth, JSON.stringify(objs))
                   .then(() => {
                     debug('Entry unpublished successfully');
-                    log.info(`${data.data.uid} Entry unpublished successfully`);
+                    log.info(`${data.uid} Entry unpublished successfully`);
                     resolve(data);
                   })
                   .catch((error) => {
-                    debug(`${data.data.uid} Entry unpublishing failed`);
-                    log.error(`${data.data.uid} Entry unpublishing failed`);
-                    return reject(error);
+                    debug(`${data.uid} Entry unpublishing failed`);
+                    log.error(`${data.uid} Entry unpublishing failed`);
+                    return reject(`${data.uid} Entry unpublishing failed due to ${error}`);
                   });
               }
             }).catch((error) => {
               log.error(error);
-              return resolve(data);
+              return reject(`${data.uid} Entry unpublishing failed`);
             });
           }
         } else {
           debug(`Kindly provide valid parameters for unpublish`);
           return reject(`Kindly provide valid parameters for unpublish`);
         }
-      } catch (error) {
-        debug(`${data.data.uid} Entry unpublishing failed`);
-        log.error(`${data.data.uid} Entry unpublishing failed`);
-        return reject(error);
-      }
     });
   }
   /**
@@ -202,7 +195,6 @@ class FileSystem {
   public delete(query) {
     debug('delete called with', query);
     return new Promises(async (resolve, reject) => {
-      try {
         if (this.validate(query)) {
           if (query.type === 'content_type_deleted' && query.content_type_uid === defs.ct.schema) {
             return this.deleteContentType(query)
@@ -225,7 +217,7 @@ class FileSystem {
                   return new Promise((resolves, rejects) => {
                     let flag = false;
                     for (let i = 0; i < objs.length; i++) {
-                      if (objs[i].uid === query.data.uid) {
+                      if (objs[i].uid === query.uid) {
                         flag = true;
                         objs.splice(i, 1);
                         break;
@@ -241,15 +233,15 @@ class FileSystem {
                           resolve(query);
                         })
                         .catch((error) => {
-                          log.error(`Error occoured while deleting ${query.data.uid} asset`);
-                          debug(`Error occoured while deleting ${query.data.uid} asset`);
+                          log.error(`Error occoured while deleting ${query.uid} asset`);
+                          debug(`Error occoured while deleting ${query.uid} asset`);
                           return reject(error);
                         });
                     }).catch(reject);
                 } else {
                   let flag = false;
                   for (let i = 0; i < objs.length; i++) {
-                    if (objs[i].uid === query.data.uid) {
+                    if (objs[i].uid === query.uid) {
                       flag = true;
                       objs.splice(i, 1);
                       break;
@@ -257,13 +249,13 @@ class FileSystem {
                   }
                   return fs.writeFileP(pth, JSON.stringify(objs))
                     .then(() => {
-                      log.info(`${query.data.uid} Entry deleted sucessfully`);
+                      log.info(`${query.uid} Entry deleted sucessfully`);
                       debug('Entry deleted sucessfully');
                       resolve(query);
                     })
                     .catch((error) => {
-                      log.error(`Error occoured while deleting ${query.data.uid} entry`);
-                      debug(`Error occoured while deleting ${query.data.uid} entry`);
+                      log.error(`Error occoured while deleting ${query.uid} entry`);
+                      debug(`Error occoured while deleting ${query.uid} entry`);
                       return reject(error);
                     });
                 }
@@ -276,11 +268,6 @@ class FileSystem {
           log.error(`Kindly provide valid parameters for delete`);
           return reject(`Kindly provide valid parameters for delete`);
         }
-      } catch (error) {
-        log.error(`Error occoured while deleting ${query.data.uid} entry`);
-        debug(`Error occoured while deleting ${query.data.uid} entry`);
-        return reject(`Error occoured while deleting ${query.data.uid} entry`);
-      }
     });
   }
 
