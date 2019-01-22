@@ -7,6 +7,8 @@ coverage
 example/_contents
 !src
 !src/**
+!dist
+!dist/**
 !.gitignore
 !package.json
 !README.md
