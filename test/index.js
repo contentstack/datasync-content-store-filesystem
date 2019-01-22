@@ -244,317 +244,317 @@ describe('# publish', function () {
 	})
 })
 
-// describe('# Unpublish', function () {
+describe('# Unpublish', function () {
 
-//  let connector, test_data
-//  beforeAll(function loadConnectorMethods() {
-// 		assetConnector.start(config)
-// 			.then(assetConnector => {
-// 				return contentConnector.start(assetConnector, config)
-// 			})
-// 			.then((contentconnector) => {
-// 				connector = contentconnector
-// 			})
-// 	})
+ let connector, test_data
+ beforeAll(function loadConnectorMethods() {
+		assetConnector.start(config)
+			.then(assetConnector => {
+				return contentConnector.start(assetConnector, config)
+			})
+			.then((contentconnector) => {
+				connector = contentconnector
+			})
+	})
 
-// 	beforeAll(function loadContent() {
-// 		test_data = utils.loadTestContents()
-// 	})
+	beforeAll(function loadContent() {
+		test_data = utils.loadTestContents()
+	})
 
-// 	test('publish single entry test', function () {
-// 		const content_type = test_data['es-es'].a.content_type
-// 		let entry = test_data['es-es'].a.entries[0]
-// 		let instance = contentConnector.getConnectorInstance()
-// 		filesystem.chmodSync('./_contents/es-es/data/a/index.json', '777')
-// 		return instance.unpublish({
-// 			content_type_uid: 'a',
-// 			locale: 'es-es',
-// 			uid: entry.uid,
-// 			data: entry,
-// 			content_type: content_type
-// 		}).then(function (result) {
-// 			expect(result).toHaveProperty("uid");
-// 			expect(result).toHaveProperty("uid", "001");
+	test('publish single entry test', function () {
+		const content_type = test_data['es-es'].a.content_type
+		let entry = test_data['es-es'].a.entries[0]
+		let instance = contentConnector.getConnectorInstance()
+		filesystem.chmodSync('./_contents/es-es/data/a/index.json', '777')
+		return instance.unpublish({
+			content_type_uid: 'a',
+			locale: 'es-es',
+			uid: entry.uid,
+			data: entry,
+			content_type: content_type
+		}).then(function (result) {
+			expect(result).toHaveProperty("uid");
+			expect(result).toHaveProperty("uid", "001");
 
-// 		}).catch((error)=>{
-// 			expect(error).toBe(error)
-// 		})
-// 	})
+		}).catch((error)=>{
+			expect(error).toBe(error)
+		})
+	})
 
-// 	test('Unpublish non existing entry', function () {
+	test('Unpublish non existing entry', function () {
 
-// 		return connector.unpublish({
-// 			content_type_uid: 'a',
-// 			locale: 'en-us',
-// 			uid: '123',
-// 			data: {
-// 				po_key: 'basic_1',
-// 				uid: '001'
-// 			}
-// 		}).then(function (result) {
-// 			expect(result).toHaveProperty('uid');
-// 			expect(result).toHaveProperty('uid', '123');
-// 		}).catch(function (error) {
-// 			expect(error).toBe(error)
-// 		});
-// 	});
-// 	test('Unpublish invalid data', function () {
-// 		return connector.unpublish("daatattata").then(function (result) {
+		return connector.unpublish({
+			content_type_uid: 'a',
+			locale: 'en-us',
+			uid: '123',
+			data: {
+				po_key: 'basic_1',
+				uid: '001'
+			}
+		}).then(function (result) {
+			expect(result).toHaveProperty('uid');
+			expect(result).toHaveProperty('uid', '123');
+		}).catch(function (error) {
+			expect(error).toBe(error)
+		});
+	});
+	test('Unpublish invalid data', function () {
+		return connector.unpublish("daatattata").then(function (result) {
 			
-// 		}).catch((error) => {
-// 			expect(error).toBe("Kindly provide valid parameters for unpublish")
-// 		})
+		}).catch((error) => {
+			expect(error).toBe("Kindly provide valid parameters for unpublish")
+		})
 
-// 	})
+	})
 
-// 	test('unpublish asset', function(){
-// 		return connector.unpublish(asset_data).then(function (result) {
-// 			expect(result).toHaveProperty("uid",'blt9c4ef3c49f7b18e9')
-// 		}).catch((error) => {
-// 			expect(error).toBe(error)
-// 		})
-// 	})
+	test('unpublish asset', function(){
+		return connector.unpublish(asset_data).then(function (result) {
+			expect(result).toHaveProperty("uid",'blt9c4ef3c49f7b18e9')
+		}).catch((error) => {
+			expect(error).toBe(error)
+		})
+	})
 	
-// 	test('unpublish asset failed test', function(){
-// 		filesystem.chmodSync('./_contents/mr-in/assets/_assets.json', '444')
-// 		return connector.unpublish(asset_data3).then(function (result) {
-// 			//expect(result).toHaveProperty("uid",'blt9c4ef3c49f7b18f9')
-// 		}).catch((error) => {
-// 			expect(error).toBe(error)
-// 		})
-// 	})
+	test('unpublish asset failed test', function(){
+		filesystem.chmodSync('./_contents/mr-in/assets/_assets.json', '444')
+		return connector.unpublish(asset_data3).then(function (result) {
+			//expect(result).toHaveProperty("uid",'blt9c4ef3c49f7b18f9')
+		}).catch((error) => {
+			expect(error).toBe(error)
+		})
+	})
 
-// 	test('unpublish entry failed test', function () {
-// 		filesystem.chmodSync('./_contents/mr-en/data/abcd/index.json', '444')
-// 		return connector.unpublish({
-// 			content_type_uid: 'abcd',
-// 			locale: 'mr-en',
-// 			uid: "888888",
-// 			data: {"tp":"tp"}
-// 		}).catch((error)=>{
-// 			expect(error).toBe(error)
-// 		})
-// 	})
+	test('unpublish entry failed test', function () {
+		filesystem.chmodSync('./_contents/mr-en/data/abcd/index.json', '444')
+		return connector.unpublish({
+			content_type_uid: 'abcd',
+			locale: 'mr-en',
+			uid: "888888",
+			data: {"tp":"tp"}
+		}).catch((error)=>{
+			expect(error).toBe(error)
+		})
+	})
 
-// 	test('unpublish entry failed test', function () {
-// 		filesystem.chmodSync('./_contents/mr-en/data/abcd/index.json', '000')
-// 		return connector.unpublish({
-// 			content_type_uid: 'abcd',
-// 			locale: 'mr-en',
-// 			uid: "888888",
-// 			data: {"tp":"tp"}
-// 		}).catch((error)=>{
-// 			expect(error).toBe(error)
-// 		})
-// 	})
+	test('unpublish entry failed test', function () {
+		filesystem.chmodSync('./_contents/mr-en/data/abcd/index.json', '000')
+		return connector.unpublish({
+			content_type_uid: 'abcd',
+			locale: 'mr-en',
+			uid: "888888",
+			data: {"tp":"tp"}
+		}).catch((error)=>{
+			expect(error).toBe(error)
+		})
+	})
 
 	
-// });
+});
 
-// describe('# Delete', function () {
+describe('# Delete', function () {
 
-// 	beforeAll(function loadConnectorMethods() {
-// 		assetConnector.start(config)
-// 			.then(assetConnector => {
-// 				return contentConnector.start(assetConnector, config)
-// 			})
-// 			.then((contentconnector) => {
-// 				connector = contentconnector
-// 			})
-// 	})
-// 	test('Delete an existing entry', function () {
-// 		filesystem.chmodSync('./_contents/es-es/data/a/index.json', '444')
-// 		return connector.delete({
-// 			content_type_uid: 'a',
-// 			locale: 'es-es',
-// 			uid:'1234',
-// 			data: {
-// 				po_key: 'basic_1',
-// 				uid: '001'
-// 			}
-// 		}, {}).then(function (result) {
-// 			expect(result).toHaveProperty('uid');
-// 			expect(result).toHaveProperty('uid', '1234');
-// 		}).catch(function (error) {
-// 			expect(error).toBe(error)
-// 		});
-// 	});
+	beforeAll(function loadConnectorMethods() {
+		assetConnector.start(config)
+			.then(assetConnector => {
+				return contentConnector.start(assetConnector, config)
+			})
+			.then((contentconnector) => {
+				connector = contentconnector
+			})
+	})
+	test('Delete an existing entry', function () {
+		filesystem.chmodSync('./_contents/es-es/data/a/index.json', '444')
+		return connector.delete({
+			content_type_uid: 'a',
+			locale: 'es-es',
+			uid:'1234',
+			data: {
+				po_key: 'basic_1',
+				uid: '001'
+			}
+		}, {}).then(function (result) {
+			expect(result).toHaveProperty('uid');
+			expect(result).toHaveProperty('uid', '1234');
+		}).catch(function (error) {
+			expect(error).toBe(error)
+		});
+	});
 
-// 	test('Delete an existing entry', function () {
-// 		filesystem.chmodSync('./_contents/es-es/data/a/index.json', '777')
-// 		return connector.delete({
-// 			content_type_uid: 'a',
-// 			locale: 'es-es',
-// 			uid:'1234',
-// 			data: {
-// 				po_key: 'basic_1',
-// 				uid: '001'
-// 			}
-// 		}, {}).then(function (result) {
-// 			expect(result).toHaveProperty('uid');
-// 			expect(result).toHaveProperty('uid', '1234');
-// 		}).catch(function (error) {
-// 			expect(error).toBe(error)
-// 		});
-// 	});
-// 	test('Delete an non existing entry', function () {
+	test('Delete an existing entry', function () {
+		filesystem.chmodSync('./_contents/es-es/data/a/index.json', '777')
+		return connector.delete({
+			content_type_uid: 'a',
+			locale: 'es-es',
+			uid:'1234',
+			data: {
+				po_key: 'basic_1',
+				uid: '001'
+			}
+		}, {}).then(function (result) {
+			expect(result).toHaveProperty('uid');
+			expect(result).toHaveProperty('uid', '1234');
+		}).catch(function (error) {
+			expect(error).toBe(error)
+		});
+	});
+	test('Delete an non existing entry', function () {
 
-// 		return connector.delete({
-// 			content_type_uid: 'a',
-// 			locale: 'ep-es',
-// 			uid:'12345',
-// 			data: {
-// 				po_key: 'basic_1',
-// 				uid: '001'
-// 			}
-// 		}, {}).then(function (result) {
-// 			expect(result).toHaveProperty('uid');
-// 			expect(result).toHaveProperty('uid', '12345');
-// 		}).catch(function (error) {
-// 			expect(error).toBe(error)
-// 		});
-// 	});
+		return connector.delete({
+			content_type_uid: 'a',
+			locale: 'ep-es',
+			uid:'12345',
+			data: {
+				po_key: 'basic_1',
+				uid: '001'
+			}
+		}, {}).then(function (result) {
+			expect(result).toHaveProperty('uid');
+			expect(result).toHaveProperty('uid', '12345');
+		}).catch(function (error) {
+			expect(error).toBe(error)
+		});
+	});
 
-// 	test('Delete a non existent entry', function () {
+	test('Delete a non existent entry', function () {
 
-// 		return connector.delete({
-// 			content_type_uid: 'a',
-// 			locale: 'mr-in',
-// 			uid:'1234',
-// 			data: {
-// 				po_key: 'basic_1',
-// 				uid: '001'
-// 			}
-// 		}, {}).then(function (result) {
-// 			expect(result).toHaveProperty('basic_1');
-// 			expect(result).toHaveProperty('basic_1', delete_success);
-// 		}).catch(function (error) {
-// 			expect(error).toBe(error)
-// 		});
-// 	});
-//     test(' Delete asset', function(){
-// 		return connector.delete(asset_data).then(function (result) {
-// 			//expect(result).toHaveProperty("uid",'blt9c4ef3c49f7b18e9')
-// 		}).catch((error) => {
-// 			expect(error).toBe(error)
-// 		})
+		return connector.delete({
+			content_type_uid: 'a',
+			locale: 'mr-in',
+			uid:'1234',
+			data: {
+				po_key: 'basic_1',
+				uid: '001'
+			}
+		}, {}).then(function (result) {
+			expect(result).toHaveProperty('basic_1');
+			expect(result).toHaveProperty('basic_1', delete_success);
+		}).catch(function (error) {
+			expect(error).toBe(error)
+		});
+	});
+    test(' Delete asset', function(){
+		return connector.delete(asset_data).then(function (result) {
+			//expect(result).toHaveProperty("uid",'blt9c4ef3c49f7b18e9')
+		}).catch((error) => {
+			expect(error).toBe(error)
+		})
 
-// 	})
-// 	test('delete invalid data test', function(){
+	})
+	test('delete invalid data test', function(){
 		
-// 		return connector.delete("datadttadtat").then(function (result) {
-// 			//expect(result).toHaveProperty("uid",'blt9c4ef3c49f7b18h9')
-// 		}).catch((error) => {
-// 			expect(error).toBe(error)
-// 		})
-// 	})
+		return connector.delete("datadttadtat").then(function (result) {
+			//expect(result).toHaveProperty("uid",'blt9c4ef3c49f7b18h9')
+		}).catch((error) => {
+			expect(error).toBe(error)
+		})
+	})
 
-// 	test('delete asset failed test', function(){
-// 		filesystem.chmodSync('./_contents/en-us/assets/_assets.json', '444')
-// 		return connector.delete(asset_data2).then(function (result) {
-// 			//expect(result).toHaveProperty("uid",'blt9c4ef3c49f7b18h9')
-// 		}).catch((error) => {
-// 			expect(error).toBe(error)
-// 		})
-// 	})
+	test('delete asset failed test', function(){
+		filesystem.chmodSync('./_contents/en-us/assets/_assets.json', '444')
+		return connector.delete(asset_data2).then(function (result) {
+			//expect(result).toHaveProperty("uid",'blt9c4ef3c49f7b18h9')
+		}).catch((error) => {
+			expect(error).toBe(error)
+		})
+	})
 
-// 	test('delete asset failed test', function(){
-// 		filesystem.chmodSync('./_contents/en-us/assets/_assets.json', '777')
-// 		return connector.delete(asset_data2).then(function (result) {
-// 			//expect(result).toHaveProperty("uid",'blt9c4ef3c49f7b18h9')
-// 		}).catch((error) => {
-// 			expect(error).toBe(error)
-// 		})
-// 	})
-// 	test('delete asset failed test', function(){
-// 		filesystem.chmodSync('./_contents/en-us/assets/_assets.json', '000')
-// 		return connector.delete(asset_data2).then(function (result) {
-// 			//expect(result).toHaveProperty("uid",'blt9c4ef3c49f7b18h9')
-// 		}).catch((error) => {
-// 			expect(error).toBe(error)
-// 		})
-// 	})
+	test('delete asset failed test', function(){
+		filesystem.chmodSync('./_contents/en-us/assets/_assets.json', '777')
+		return connector.delete(asset_data2).then(function (result) {
+			//expect(result).toHaveProperty("uid",'blt9c4ef3c49f7b18h9')
+		}).catch((error) => {
+			expect(error).toBe(error)
+		})
+	})
+	test('delete asset failed test', function(){
+		filesystem.chmodSync('./_contents/en-us/assets/_assets.json', '000')
+		return connector.delete(asset_data2).then(function (result) {
+			//expect(result).toHaveProperty("uid",'blt9c4ef3c49f7b18h9')
+		}).catch((error) => {
+			expect(error).toBe(error)
+		})
+	})
 
-// 	test('Delete a content type', function () {
+	test('Delete a content type', function () {
 
-// 		return connector.delete({
-// 			content_type_uid: '_content_types',
-// 			type:'content_type_deleted',
-// 			uid:'a',
-// 			data: {
-// 				uid: 'a',
-// 				locale: 'en-us',
-// 			},
-// 			po_key: 'basic_1'
-// 		}, {}).then(function (result) {
-// 			expect(result).toHaveProperty('uid');
-// 			expect(result).toHaveProperty('uid', `a`);
-// 		}).catch(function (error) {
-// 			expect(error).toBe(error)
-// 		});
-// 	});
-// 	test('Delete non existent content type', function () {
+		return connector.delete({
+			content_type_uid: '_content_types',
+			type:'content_type_deleted',
+			uid:'a',
+			data: {
+				uid: 'a',
+				locale: 'en-us',
+			},
+			po_key: 'basic_1'
+		}, {}).then(function (result) {
+			expect(result).toHaveProperty('uid');
+			expect(result).toHaveProperty('uid', `a`);
+		}).catch(function (error) {
+			expect(error).toBe(error)
+		});
+	});
+	test('Delete non existent content type', function () {
 
-// 		return connector.delete({
-// 			content_type_uid: '_content_types',
-// 			type:'content_type_deleted',
-// 			uid:'ab',
-// 			data: {
-// 				uid: 'a',
-// 				locale: 'en-us',
-// 			},
-// 			po_key: 'basic_1'
-// 		}, {}).then(function (result) {
-// 			expect(result).toHaveProperty('uid');
-// 			expect(result).toHaveProperty('uid', `ab`);
-// 		}).catch(function (error) {
-// 			expect(error).toBe(error)
-// 		});
-// 	});
-
-	
-// });
-
-// describe('# Find and Findone', function () {
-
-// 	beforeAll(function loadConnectorMethods() {
-// 		assetConnector.start(config)
-// 			.then(assetConnector => {
-// 				return contentConnector.start(config, assetConnector)
-// 			})
-// 			.then((contentconnector) => {
-// 				connector = contentconnector
-// 			})
-// 	})
-
-
-// 	test('Find', function () {
-// 		return connector.find({
-// 			content_type_uid: 'abcd',
-// 			locale: 'es-es'
-// 		}).then(function (result) {
-// 			expect(result).toHaveProperty('content_type_uid');
-// 			expect(result).toHaveProperty('content_type_uid', 'abcd');
-// 		}).catch(function (error) {
-// 			expect(error).toBe(error)
-// 		});
-// 	});
-
-// 	test('findOne', function () {
-// 		return connector.findOne({
-// 			content_type_uid: 'b',
-// 			locale: 'es-es',
-// 			query: {
-// 				'uid': '005'
-// 			}
-// 		}).then(function (result) {
-// 			expect(result).toHaveProperty('content_type_uid');
-// 			expect(result).toHaveProperty('content_type_uid', 'b');
-// 		}).catch(function (error) {
-// 			expect(error).toBe(error)
-// 		});
-// 	});
+		return connector.delete({
+			content_type_uid: '_content_types',
+			type:'content_type_deleted',
+			uid:'ab',
+			data: {
+				uid: 'a',
+				locale: 'en-us',
+			},
+			po_key: 'basic_1'
+		}, {}).then(function (result) {
+			expect(result).toHaveProperty('uid');
+			expect(result).toHaveProperty('uid', `ab`);
+		}).catch(function (error) {
+			expect(error).toBe(error)
+		});
+	});
 
 	
-// });
+});
+
+describe('# Find and Findone', function () {
+
+	beforeAll(function loadConnectorMethods() {
+		assetConnector.start(config)
+			.then(assetConnector => {
+				return contentConnector.start(config, assetConnector)
+			})
+			.then((contentconnector) => {
+				connector = contentconnector
+			})
+	})
+
+
+	test('Find', function () {
+		return connector.find({
+			content_type_uid: 'abcd',
+			locale: 'es-es'
+		}).then(function (result) {
+			expect(result).toHaveProperty('content_type_uid');
+			expect(result).toHaveProperty('content_type_uid', 'abcd');
+		}).catch(function (error) {
+			expect(error).toBe(error)
+		});
+	});
+
+	test('findOne', function () {
+		return connector.findOne({
+			content_type_uid: 'b',
+			locale: 'es-es',
+			query: {
+				'uid': '005'
+			}
+		}).then(function (result) {
+			expect(result).toHaveProperty('content_type_uid');
+			expect(result).toHaveProperty('content_type_uid', 'b');
+		}).catch(function (error) {
+			expect(error).toBe(error)
+		});
+	});
+
+	
+});
 

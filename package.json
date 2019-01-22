@@ -35,7 +35,6 @@
   "license": "MIT",
   "dependencies": {
     "@types/rimraf": "^2.0.2",
-    "bluebird": "3.5.1",
     "lodash": "^4.17.11",
     "mkdirp": "^0.5.1",
     "rimraf": "2.6.2",

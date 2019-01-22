@@ -4,17 +4,19 @@
 * MIT Licensed
 */
 
-import { Promise as Promises } from 'bluebird';
+
 import { debug as Debug } from 'debug';
-import * as filesystem from 'fs';
+import * as fs from 'fs';
 import * as mkdirp from 'mkdirp';
 import { join } from 'path';
 import * as rimraf from 'rimraf';
 import { defs } from './util/key-definitions';
 import { logger as log } from './util/logger';
+import { promisify } from 'util';
 
 
-const fs: any = Promises.promisifyAll(filesystem, { suffix: 'P' });
+const readFile: any = promisify(fs.readFile);
+const writeFile: any = promisify(fs.writeFile);
 const debug = Debug('content-sotre-filesystem');
 
 class FileSystem {
@@ -31,7 +33,7 @@ class FileSystem {
    */
   public publish(data) {
     debug('Publish called with', data);
-    return new Promises(async (resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       if (this.validate(data) && typeof defs.locale === 'string') {
         const locale: string = (data.locale) ? data.locale : 'en-us';
         const contentTypeUid: string = data.content_type_uid;
@@ -48,11 +50,11 @@ class FileSystem {
         }
 
         if (fs.existsSync(entityPath)) {
-          contents = await fs.readFileP(entityPath);
+          contents = await readFile(entityPath);
           contents = JSON.parse(contents);
         }
         if (type === defs.asset) {
-          return new Promises((resolves, rejects) => {
+          return new Promise((resolves, rejects) => {
             let flag = false;
             for (let i = 0; i < contents.length; i++) {
               if (contents[i].uid === data.uid) {
@@ -61,8 +63,8 @@ class FileSystem {
                 break;
               }
             }
-            
-            return this.assetConnector.download(data).then((asset)=>{
+
+            return this.assetConnector.download(data).then((asset) => {
               if (!flag) {
                 contents.push(asset);
               }
@@ -70,7 +72,7 @@ class FileSystem {
             }).catch(rejects);
           })
             .then(() => {
-              return fs.writeFileP(entityPath, JSON.stringify(contents)).then(() => {
+              return writeFile(entityPath, JSON.stringify(contents)).then(() => {
                 log.info(`${data.uid} Asset published successfullly`);
                 return resolve(data);
               }).catch(reject);
@@ -89,8 +91,8 @@ class FileSystem {
             contents.push(data);
           }
           const schemaPath = join(pth, defs.schema_file);
-          return fs.writeFileP(schemaPath, JSON.stringify(data.content_type)).then(() => {
-            return fs.writeFileP(entityPath, JSON.stringify(contents))
+          return writeFile(schemaPath, JSON.stringify(data.content_type)).then(() => {
+            return writeFile(entityPath, JSON.stringify(contents))
               .then(() => {
                 log.info(`${data.uid} Entry published sucessfully`);
                 debug('Entry published sucessfully');
@@ -119,44 +121,21 @@ class FileSystem {
    */
   public unpublish(data) {
     debug('unpublish called with', data);
-    return new Promises((resolve, reject) => {
-        if (this.validate(data) && typeof data.locale === 'string') {
-          const locale: string = data.locale;
-          const contentTypeUid: string = data.content_type_uid;
-          const type: string = (contentTypeUid === defs.ct.asset) ? defs.asset : defs.entry;
-          const pth: string = (contentTypeUid === defs.ct.asset) ?
-            join(this.config['content-connector'].base_dir, locale, 'assets', defs.asset_file) :
-            join(this.config['content-connector'].base_dir, locale, 'data', contentTypeUid, defs.index);
-          if (!fs.existsSync(pth)) {
-            return resolve(data);
-          } else {
-            return fs.readFileP(pth).then((contents) => {
-              const objs = JSON.parse(contents);
-              if (type === defs.asset) {
-                return new Promise((resolves, rejects) => {
-                  let flag = false;
-                  for (let i = 0; i < objs.length; i++) {
-                    if (objs[i].uid === data.uid) {
-                      flag = true;
-                      objs.splice(i, 1);
-                      break;
-                    }
-                  }
-                  return this.assetConnector.unpublish(data).then(resolves).catch(rejects)
-                })
-                  .then(() => {
-                    return fs.writeFileP(pth, JSON.stringify(objs))
-                      .then(() => {
-                        debug('asset unpublished succefully');
-                        //log.info(` ${data.data.uid} asset unpublished successfully`);
-                        resolve(data);
-                      })
-                      .catch((error) => {
-                        log.error(`${data.uid} asset unpublishing failed`);
-                        reject(`${data.uid} asset unpublishing failed`);
-                      });
-                  }).catch(reject);
-              } else {
+    return new Promise((resolve, reject) => {
+      if (this.validate(data) && typeof data.locale === 'string') {
+        const locale: string = data.locale;
+        const contentTypeUid: string = data.content_type_uid;
+        const type: string = (contentTypeUid === defs.ct.asset) ? defs.asset : defs.entry;
+        const pth: string = (contentTypeUid === defs.ct.asset) ?
+          join(this.config['content-connector'].base_dir, locale, 'assets', defs.asset_file) :
+          join(this.config['content-connector'].base_dir, locale, 'data', contentTypeUid, defs.index);
+        if (!fs.existsSync(pth)) {
+          return resolve(data);
+        } else {
+          return readFile(pth).then((contents) => {
+            const objs = JSON.parse(contents);
+            if (type === defs.asset) {
+              return new Promise((resolves, rejects) => {
                 let flag = false;
                 for (let i = 0; i < objs.length; i++) {
                   if (objs[i].uid === data.uid) {
@@ -165,27 +144,50 @@ class FileSystem {
                     break;
                   }
                 }
-                return fs.writeFileP(pth, JSON.stringify(objs))
-                  .then(() => {
-                    debug('Entry unpublished successfully');
-                    log.info(`${data.uid} Entry unpublished successfully`);
-                    resolve(data);
-                  })
-                  .catch((error) => {
-                    debug(`${data.uid} Entry unpublishing failed`);
-                    log.error(`${data.uid} Entry unpublishing failed`);
-                    return reject(`${data.uid} Entry unpublishing failed due to ${error}`);
-                  });
+                return this.assetConnector.unpublish(data).then(resolves).catch(rejects)
+              })
+                .then(() => {
+                  return writeFile(pth, JSON.stringify(objs))
+                    .then(() => {
+                      debug('asset unpublished succefully');
+                      //log.info(` ${data.data.uid} asset unpublished successfully`);
+                      resolve(data);
+                    })
+                    .catch((error) => {
+                      log.error(`${data.uid} asset unpublishing failed`);
+                      reject(`${data.uid} asset unpublishing failed`);
+                    });
+                }).catch(reject);
+            } else {
+              let flag = false;
+              for (let i = 0; i < objs.length; i++) {
+                if (objs[i].uid === data.uid) {
+                  flag = true;
+                  objs.splice(i, 1);
+                  break;
+                }
               }
-            }).catch((error) => {
-              log.error(error);
-              return reject(`${data.uid} Entry unpublishing failed`);
-            });
-          }
-        } else {
-          debug(`Kindly provide valid parameters for unpublish`);
-          return reject(`Kindly provide valid parameters for unpublish`);
+              return writeFile(pth, JSON.stringify(objs))
+                .then(() => {
+                  debug('Entry unpublished successfully');
+                  log.info(`${data.uid} Entry unpublished successfully`);
+                  resolve(data);
+                })
+                .catch((error) => {
+                  debug(`${data.uid} Entry unpublishing failed`);
+                  log.error(`${data.uid} Entry unpublishing failed`);
+                  return reject(`${data.uid} Entry unpublishing failed due to ${error}`);
+                });
+            }
+          }).catch((error) => {
+            log.error(error);
+            return reject(`${data.uid} Entry unpublishing failed`);
+          });
         }
+      } else {
+        debug(`Kindly provide valid parameters for unpublish`);
+        return reject(`Kindly provide valid parameters for unpublish`);
+      }
     });
   }
   /**
@@ -194,51 +196,27 @@ class FileSystem {
    */
   public delete(query) {
     debug('delete called with', query);
-    return new Promises(async (resolve, reject) => {
-        if (this.validate(query)) {
-          if (query.type === 'content_type_deleted' && query.content_type_uid === defs.ct.schema) {
-            return this.deleteContentType(query)
-              .then(resolve)
-              .catch(reject);
-          }
-          else {
-            const locale: string = query.locale;
-            const contentTypeUid: string = query.content_type_uid;
-            const type: string = (contentTypeUid === defs.ct.asset) ? defs.asset : defs.entry;
-            const pth: string = (contentTypeUid === defs.ct.asset) ?
-              join(this.config['content-connector'].base_dir, locale, 'assets', defs.asset_file) :
-              join(this.config['content-connector'].base_dir, locale, 'data', contentTypeUid, defs.index);
-            if (!fs.existsSync(pth)) {
-              return resolve();
-            } else {
-              return fs.readFileP(pth).then((data) => {
-                const objs = JSON.parse(data);
-                if (type === defs.asset) {
-                  return new Promise((resolves, rejects) => {
-                    let flag = false;
-                    for (let i = 0; i < objs.length; i++) {
-                      if (objs[i].uid === query.uid) {
-                        flag = true;
-                        objs.splice(i, 1);
-                        break;
-                      }
-                    }
-                    return this.assetConnector.delete(query).then(resolves).catch(rejects)
-                  })
-                    .then(() => {
-                      return fs.writeFileP(pth, JSON.stringify(objs))
-                        .then(() => {
-                          log.info(`${query.data.uid} asset deleted sucessfully`);
-                          debug('asset deleted sucessfully');
-                          resolve(query);
-                        })
-                        .catch((error) => {
-                          log.error(`Error occoured while deleting ${query.uid} asset`);
-                          debug(`Error occoured while deleting ${query.uid} asset`);
-                          return reject(error);
-                        });
-                    }).catch(reject);
-                } else {
+    return new Promise(async (resolve, reject) => {
+      if (this.validate(query)) {
+        if (query.type === 'content_type_deleted' && query.content_type_uid === defs.ct.schema) {
+          return this.deleteContentType(query)
+            .then(resolve)
+            .catch(reject);
+        }
+        else {
+          const locale: string = query.locale;
+          const contentTypeUid: string = query.content_type_uid;
+          const type: string = (contentTypeUid === defs.ct.asset) ? defs.asset : defs.entry;
+          const pth: string = (contentTypeUid === defs.ct.asset) ?
+            join(this.config['content-connector'].base_dir, locale, 'assets', defs.asset_file) :
+            join(this.config['content-connector'].base_dir, locale, 'data', contentTypeUid, defs.index);
+          if (!fs.existsSync(pth)) {
+            return resolve();
+          } else {
+            return readFile(pth).then((data) => {
+              const objs = JSON.parse(data);
+              if (type === defs.asset) {
+                return new Promise((resolves, rejects) => {
                   let flag = false;
                   for (let i = 0; i < objs.length; i++) {
                     if (objs[i].uid === query.uid) {
@@ -247,27 +225,51 @@ class FileSystem {
                       break;
                     }
                   }
-                  return fs.writeFileP(pth, JSON.stringify(objs))
-                    .then(() => {
-                      log.info(`${query.uid} Entry deleted sucessfully`);
-                      debug('Entry deleted sucessfully');
-                      resolve(query);
-                    })
-                    .catch((error) => {
-                      log.error(`Error occoured while deleting ${query.uid} entry`);
-                      debug(`Error occoured while deleting ${query.uid} entry`);
-                      return reject(error);
-                    });
+                  return this.assetConnector.delete(query).then(resolves).catch(rejects)
+                })
+                  .then(() => {
+                    return writeFile(pth, JSON.stringify(objs))
+                      .then(() => {
+                        log.info(`${query.data.uid} asset deleted sucessfully`);
+                        debug('asset deleted sucessfully');
+                        resolve(query);
+                      })
+                      .catch((error) => {
+                        log.error(`Error occoured while deleting ${query.uid} asset`);
+                        debug(`Error occoured while deleting ${query.uid} asset`);
+                        return reject(error);
+                      });
+                  }).catch(reject);
+              } else {
+                let flag = false;
+                for (let i = 0; i < objs.length; i++) {
+                  if (objs[i].uid === query.uid) {
+                    flag = true;
+                    objs.splice(i, 1);
+                    break;
+                  }
                 }
-              }).catch((error) => {
-                return reject(error);
-              });
-            }
+                return writeFile(pth, JSON.stringify(objs))
+                  .then(() => {
+                    log.info(`${query.uid} Entry deleted sucessfully`);
+                    debug('Entry deleted sucessfully');
+                    resolve(query);
+                  })
+                  .catch((error) => {
+                    log.error(`Error occoured while deleting ${query.uid} entry`);
+                    debug(`Error occoured while deleting ${query.uid} entry`);
+                    return reject(error);
+                  });
+              }
+            }).catch((error) => {
+              return reject(error);
+            });
           }
-        } else {
-          log.error(`Kindly provide valid parameters for delete`);
-          return reject(`Kindly provide valid parameters for delete`);
         }
+      } else {
+        log.error(`Kindly provide valid parameters for delete`);
+        return reject(`Kindly provide valid parameters for delete`);
+      }
     });
   }
 
@@ -306,7 +308,7 @@ class FileSystem {
    */
   private deleteContentType(query) {
     debug('Delete content type called for ', query);
-    return new Promises((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       try {
         fs.readdir(this.config['content-connector'].base_dir, (err, files) => {
           if (err) {
