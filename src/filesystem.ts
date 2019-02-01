@@ -33,6 +33,7 @@ class FileSystem {
    */
   public publish(data) {
     debug('Publish called with', data);
+   
     return new Promise(async (resolve, reject) => {
       if (this.validate(data) && typeof defs.locale === 'string') {
         const locale: string = (data.locale) ? data.locale : 'en-us';
@@ -79,16 +80,25 @@ class FileSystem {
             }).catch(reject);
         }
         else {
+          var filter:any = (filterKeys) =>{
+            var result = {};
+            for (var type in data)
+                if (filterKeys.indexOf(type) == -1) 
+                    result[type] = data[type];
+            return result;
+          }
+
+          let filterData =  filter(['content_type'])
           let flag = false;
           for (let i = 0; i < contents.length; i++) {
-            if (contents[i].uid === data.uid) {
+            if (contents[i].uid === filterData.uid) {
               flag = true;
-              contents[i] = data;
+              contents[i] = filterData;
               break;
             }
           }
           if (!flag) {
-            contents.push(data);
+            contents.push(filterData);
           }
           const schemaPath = join(pth, defs.schema_file);
           return writeFile(schemaPath, JSON.stringify(data.content_type)).then(() => {
