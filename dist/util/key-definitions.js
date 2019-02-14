@@ -18,4 +18,3 @@ exports.defs = {
     locale: 'locale',
     schema_file: '_schema.json',
 };
-//# sourceMappingURL=key-definitions.js.map

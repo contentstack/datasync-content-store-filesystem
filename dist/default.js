@@ -10,4 +10,3 @@ exports.defaultConfig = {
         base_dir: './_contents'
     },
 };
-//# sourceMappingURL=default.js.map
