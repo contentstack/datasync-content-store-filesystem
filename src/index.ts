@@ -25,9 +25,7 @@ export function start(assetConnector, config?, customLogger?) {
   }
   return new Promise((resolve, reject) => {
     try {
-      if (config) {
-        config = merge(defaultConfig, config);
-      }
+      config = (config)? merge(defaultConfig, config) : defaultConfig
       connector = new fileSystem(assetConnector, config);
       resolve(connector);
     }

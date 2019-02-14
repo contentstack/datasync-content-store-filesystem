@@ -107,7 +107,15 @@ describe('# publish', function () {
 		test_data = utils.loadTestContents()
 	})
 
-
+	test('',()=>{
+		assetConnector.start()
+			.then(assetConnector => {
+				return contentConnector.start(assetConnector)
+			})
+			.then((_connector) => {
+				connector = _connector
+			})
+	})
 
 	test('publish single entry test', function () {
 		const content_type = test_data['es-es'].a.content_type
@@ -156,6 +164,14 @@ describe('# publish', function () {
 		})
 	})
 
+	test('Publish an existing entry', function () {
+
+		return connector.publish({"sfgfdg":"sdads",'data':"adada"}).then(function (result) {
+			
+		}).catch(function (error) {
+			expect(error).toBe(error)
+		});
+	});
 	
 	test('Publish an existing entry', function () {
 
@@ -480,10 +496,10 @@ describe('# Delete', function () {
 		return connector.delete({
 			content_type_uid: '_content_types',
 			type:'content_type_deleted',
-			uid:'a',
+			uid:'abcd',
 			data: {
-				uid: 'a',
-				locale: 'en-us',
+				uid: 'abcd',
+				locale: 'mr-en',
 			},
 			po_key: 'basic_1'
 		}, {}).then(function (result) {

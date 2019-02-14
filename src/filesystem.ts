@@ -6,10 +6,10 @@
 
 
 import { debug as Debug } from 'debug';
-import * as fs from 'fs';
-import * as mkdirp from 'mkdirp';
+import fs from 'fs';
+import mkdirp from 'mkdirp';
 import { join } from 'path';
-import * as rimraf from 'rimraf';
+import rimraf from 'rimraf';
 import { defs } from './util/key-definitions';
 import { logger as log } from './util/logger';
 import { promisify } from 'util';
@@ -36,7 +36,7 @@ class FileSystem {
    
     return new Promise(async (resolve, reject) => {
       if (this.validate(data) && typeof defs.locale === 'string') {
-        const locale: string = (data.locale) ? data.locale : 'en-us';
+        const locale: string = data.locale;
         const contentTypeUid: string = data.content_type_uid;
         const type: string = (contentTypeUid === defs.ct.asset) ? defs.asset : defs.entry;
         const pth: string = (contentTypeUid === defs.ct.asset) ?
@@ -304,7 +304,7 @@ class FileSystem {
   }
 
   private validate(data: any) {
-    if (typeof data !== 'object' && typeof data.data === 'object') {
+    if (typeof data === 'object' && typeof data.data !== 'object') {
       return false;
     }
     if (typeof data.content_type_uid !== 'string') {
@@ -320,16 +320,12 @@ class FileSystem {
     debug('Delete content type called for ', query);
     return new Promise((resolve, reject) => {
       try {
-        fs.readdir(this.config['content-connector'].base_dir, (err, files) => {
-          if (err) {
-            log.error('Folder did not exist!');
+        let files = fs.readdirSync(this.config['content-connector'].base_dir)
+        files.forEach((file) => {
+          const pth = join(this.config['content-connector'].base_dir, file, 'data', query.uid);
+          if (fs.existsSync(pth)) {
+            rimraf.sync(pth);
           }
-          files.forEach((file) => {
-            const pth = join(this.config['content-connector'].base_dir, file, 'data', query.uid);
-            if (fs.existsSync(pth)) {
-              rimraf.sync(pth);
-            }
-          });
         });
         log.info(`${query.uid} content type deleted successfully`);
         return resolve(query);

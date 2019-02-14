@@ -12,23 +12,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 const debug_1 = require("debug");
-const fs = __importStar(require("fs"));
-const mkdirp = __importStar(require("mkdirp"));
+const fs_1 = __importDefault(require("fs"));
+const mkdirp_1 = __importDefault(require("mkdirp"));
 const path_1 = require("path");
-const rimraf = __importStar(require("rimraf"));
+const rimraf_1 = __importDefault(require("rimraf"));
 const key_definitions_1 = require("./util/key-definitions");
 const logger_1 = require("./util/logger");
 const util_1 = require("util");
-const readFile = util_1.promisify(fs.readFile);
-const writeFile = util_1.promisify(fs.writeFile);
+const readFile = util_1.promisify(fs_1.default.readFile);
+const writeFile = util_1.promisify(fs_1.default.writeFile);
 const debug = debug_1.debug('content-sotre-filesystem');
 class FileSystem {
     constructor(assetConnector, config) {
@@ -43,7 +39,7 @@ class FileSystem {
         debug('Publish called with', data);
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             if (this.validate(data) && typeof key_definitions_1.defs.locale === 'string') {
-                const locale = (data.locale) ? data.locale : 'en-us';
+                const locale = data.locale;
                 const contentTypeUid = data.content_type_uid;
                 const type = (contentTypeUid === key_definitions_1.defs.ct.asset) ? key_definitions_1.defs.asset : key_definitions_1.defs.entry;
                 const pth = (contentTypeUid === key_definitions_1.defs.ct.asset) ?
@@ -52,11 +48,11 @@ class FileSystem {
                 const entityPath = (contentTypeUid === key_definitions_1.defs.ct.asset) ? path_1.join(pth, key_definitions_1.defs.asset_file)
                     : path_1.join(pth, key_definitions_1.defs.index);
                 let contents = [];
-                if (!fs.existsSync(pth)) {
+                if (!fs_1.default.existsSync(pth)) {
                     debug('new path created as', pth);
-                    mkdirp.sync(pth, '0755');
+                    mkdirp_1.default.sync(pth, '0755');
                 }
-                if (fs.existsSync(entityPath)) {
+                if (fs_1.default.existsSync(entityPath)) {
                     contents = yield readFile(entityPath);
                     contents = JSON.parse(contents);
                 }
@@ -143,7 +139,7 @@ class FileSystem {
                 const pth = (contentTypeUid === key_definitions_1.defs.ct.asset) ?
                     path_1.join(this.config['content-connector'].base_dir, locale, 'assets', key_definitions_1.defs.asset_file) :
                     path_1.join(this.config['content-connector'].base_dir, locale, 'data', contentTypeUid, key_definitions_1.defs.index);
-                if (!fs.existsSync(pth)) {
+                if (!fs_1.default.existsSync(pth)) {
                     return resolve(data);
                 }
                 else {
@@ -227,7 +223,7 @@ class FileSystem {
                     const pth = (contentTypeUid === key_definitions_1.defs.ct.asset) ?
                         path_1.join(this.config['content-connector'].base_dir, locale, 'assets', key_definitions_1.defs.asset_file) :
                         path_1.join(this.config['content-connector'].base_dir, locale, 'data', contentTypeUid, key_definitions_1.defs.index);
-                    if (!fs.existsSync(pth)) {
+                    if (!fs_1.default.existsSync(pth)) {
                         return resolve();
                     }
                     else {
@@ -313,7 +309,7 @@ class FileSystem {
         });
     }
     validate(data) {
-        if (typeof data !== 'object' && typeof data.data === 'object') {
+        if (typeof data === 'object' && typeof data.data !== 'object') {
             return false;
         }
         if (typeof data.content_type_uid !== 'string') {
@@ -329,16 +325,12 @@ class FileSystem {
         debug('Delete content type called for ', query);
         return new Promise((resolve, reject) => {
             try {
-                fs.readdir(this.config['content-connector'].base_dir, (err, files) => {
-                    if (err) {
-                        logger_1.logger.error('Folder did not exist!');
+                let files = fs_1.default.readdirSync(this.config['content-connector'].base_dir);
+                files.forEach((file) => {
+                    const pth = path_1.join(this.config['content-connector'].base_dir, file, 'data', query.uid);
+                    if (fs_1.default.existsSync(pth)) {
+                        rimraf_1.default.sync(pth);
                     }
-                    files.forEach((file) => {
-                        const pth = path_1.join(this.config['content-connector'].base_dir, file, 'data', query.uid);
-                        if (fs.existsSync(pth)) {
-                            rimraf.sync(pth);
-                        }
-                    });
                 });
                 logger_1.logger.info(`${query.uid} content type deleted successfully`);
                 return resolve(query);
@@ -351,4 +343,3 @@ class FileSystem {
     }
 }
 module.exports = FileSystem;
-//# sourceMappingURL=filesystem.js.map

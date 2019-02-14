@@ -28,9 +28,7 @@ function start(assetConnector, config, customLogger) {
     }
     return new Promise((resolve, reject) => {
         try {
-            if (config) {
-                config = lodash_1.merge(default_1.defaultConfig, config);
-            }
+            config = (config) ? lodash_1.merge(default_1.defaultConfig, config) : default_1.defaultConfig;
             connector = new filesystem_1.default(assetConnector, config);
             resolve(connector);
         }
@@ -48,4 +46,3 @@ function getConnectorInstance() {
     return connector;
 }
 exports.getConnectorInstance = getConnectorInstance;
-//# sourceMappingURL=index.js.map
