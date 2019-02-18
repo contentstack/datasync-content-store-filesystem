@@ -40,8 +40,8 @@ class FileSystem {
         const contentTypeUid: string = data.content_type_uid;
         const type: string = (contentTypeUid === defs.ct.asset) ? defs.asset : defs.entry;
         const pth: string = (contentTypeUid === defs.ct.asset) ?
-          join(this.config['content-connector'].base_dir, locale, 'assets') :
-          join(this.config['content-connector'].base_dir, locale, 'data', contentTypeUid);
+          join(this.config['contentStore'].baseDir, locale, 'assets') :
+          join(this.config['contentStore'].baseDir, locale, 'data', contentTypeUid);
         const entityPath: string = (contentTypeUid === defs.ct.asset) ? join(pth, defs.asset_file)
           : join(pth, defs.index);
         let contents: any = [];
@@ -137,8 +137,8 @@ class FileSystem {
         const contentTypeUid: string = data.content_type_uid;
         const type: string = (contentTypeUid === defs.ct.asset) ? defs.asset : defs.entry;
         const pth: string = (contentTypeUid === defs.ct.asset) ?
-          join(this.config['content-connector'].base_dir, locale, 'assets', defs.asset_file) :
-          join(this.config['content-connector'].base_dir, locale, 'data', contentTypeUid, defs.index);
+          join(this.config['contentStore'].baseDir, locale, 'assets', defs.asset_file) :
+          join(this.config['contentStore'].baseDir, locale, 'data', contentTypeUid, defs.index);
         if (!fs.existsSync(pth)) {
           return resolve(data);
         } else {
@@ -218,8 +218,8 @@ class FileSystem {
           const contentTypeUid: string = query.content_type_uid;
           const type: string = (contentTypeUid === defs.ct.asset) ? defs.asset : defs.entry;
           const pth: string = (contentTypeUid === defs.ct.asset) ?
-            join(this.config['content-connector'].base_dir, locale, 'assets', defs.asset_file) :
-            join(this.config['content-connector'].base_dir, locale, 'data', contentTypeUid, defs.index);
+            join(this.config['contentStore'].baseDir, locale, 'assets', defs.asset_file) :
+            join(this.config['contentStore'].baseDir, locale, 'data', contentTypeUid, defs.index);
           if (!fs.existsSync(pth)) {
             return resolve();
           } else {
@@ -320,9 +320,9 @@ class FileSystem {
     debug('Delete content type called for ', query);
     return new Promise((resolve, reject) => {
       try {
-        let files = fs.readdirSync(this.config['content-connector'].base_dir)
+        let files = fs.readdirSync(this.config['contentStore'].baseDir)
         files.forEach((file) => {
-          const pth = join(this.config['content-connector'].base_dir, file, 'data', query.uid);
+          const pth = join(this.config['contentStore'].baseDir, file, 'data', query.uid);
           if (fs.existsSync(pth)) {
             rimraf.sync(pth);
           }
