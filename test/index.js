@@ -89,14 +89,14 @@ let asset_data3 = {
 	}
 }
 
-let logger = console
+
 describe('# publish', function () {
 
 	let test_data
 	beforeAll(function loadConnectorMethods() {
 		assetConnector.start(config)
 			.then(assetConnector => {
-				return contentConnector.start(assetConnector, config, logger)
+				return contentConnector.start(assetConnector, config)
 			})
 			.then((_connector) => {
 				connector = _connector

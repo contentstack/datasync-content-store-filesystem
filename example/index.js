@@ -7,23 +7,9 @@
 const contentConnector = require('../dist')
 const assetConnector = require('./mock/asset-connector')
 const config = require('./mock/config')
-const winston = require('winston')
 
-const logger = winston.createLogger({
-	level: 'info',
-	format: winston.format.json(),
-	defaultMeta: {service: 'user-service'},
-	transports: [
-		//
-		// - Write to all logs with level `info` and below to `combined.log` 
-		// - Write all logs error (and below) to `error.log`.
-		//
-		new winston.transports.File({ filename: 'error.log', level: 'error' }),
-		new winston.transports.File({ filename: 'combined.log' })
-	]
-})
 
-contentConnector.setLogger(logger)
+
 let data1 = {
 	content_type_uid: 'optimizely',
 	action: 'publish',
