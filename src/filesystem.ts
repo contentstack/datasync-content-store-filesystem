@@ -4,16 +4,13 @@
 * MIT Licensed
 */
 
-
 import { debug as Debug } from 'debug';
 import fs from 'fs';
 import mkdirp from 'mkdirp';
 import { join } from 'path';
 import rimraf from 'rimraf';
-import { defs } from './util/key-definitions';
-import { logger as log } from './util/logger';
 import { promisify } from 'util';
-
+import { defs } from './util/key-definitions';
 
 const readFile: any = promisify(fs.readFile);
 const writeFile: any = promisify(fs.writeFile);
@@ -33,15 +30,15 @@ class FileSystem {
    */
   public publish(data) {
     debug('Publish called with', data);
-   
+
     return new Promise(async (resolve, reject) => {
       if (this.validate(data) && typeof defs.locale === 'string') {
         const locale: string = data.locale;
         const contentTypeUid: string = data.content_type_uid;
         const type: string = (contentTypeUid === defs.ct.asset) ? defs.asset : defs.entry;
         const pth: string = (contentTypeUid === defs.ct.asset) ?
-          join(this.config['contentStore'].baseDir, locale, 'assets') :
-          join(this.config['contentStore'].baseDir, locale, 'data', contentTypeUid);
+          join(this.config.contentStore.baseDir, locale, 'assets') :
+          join(this.config.contentStore.baseDir, locale, 'data', contentTypeUid);
         const entityPath: string = (contentTypeUid === defs.ct.asset) ? join(pth, defs.asset_file)
           : join(pth, defs.index);
         let contents: any = [];
@@ -74,21 +71,22 @@ class FileSystem {
           })
             .then(() => {
               return writeFile(entityPath, JSON.stringify(contents)).then(() => {
-                log.info(`${data.uid} Asset published successfullly`);
                 return resolve(data);
               }).catch(reject);
             }).catch(reject);
         }
         else {
-          var filter:any = (filterKeys) =>{
-            var result = {};
-            for (var type in data)
-                if (filterKeys.indexOf(type) == -1) 
-                    result[type] = data[type];
+          const filter: any = (filterKeys) => {
+            const result = {};
+            for (const key in data) {
+                if (filterKeys.indexOf(key) === -1) {
+                    result[key] = data[key];
+                }
+            }
             return result;
-          }
+          };
 
-          let filterData =  filter(['content_type'])
+          const filterData =  filter(['content_type']);
           let flag = false;
           for (let i = 0; i < contents.length; i++) {
             if (contents[i].uid === filterData.uid) {
@@ -104,21 +102,17 @@ class FileSystem {
           return writeFile(schemaPath, JSON.stringify(data.content_type)).then(() => {
             return writeFile(entityPath, JSON.stringify(contents))
               .then(() => {
-                log.info(`${data.uid} Entry published sucessfully`);
                 debug('Entry published sucessfully');
                 return resolve(data);
               })
               .catch((error) => {
-                log.error(`${data.uid} Entry publishing failed`);
                 return reject(error);
               });
           }).catch((error) => {
-            log.error(`${data.uid} Entry publishing failed`);
             return reject(error);
           });
         }
       } else {
-        log.error(`Kindly provide valid parameters for publish`);
         debug(`Kindly provide valid parameters for publish`);
         return reject(`Kindly provide valid parameters for publish`);
       }
@@ -137,8 +131,8 @@ class FileSystem {
         const contentTypeUid: string = data.content_type_uid;
         const type: string = (contentTypeUid === defs.ct.asset) ? defs.asset : defs.entry;
         const pth: string = (contentTypeUid === defs.ct.asset) ?
-          join(this.config['contentStore'].baseDir, locale, 'assets', defs.asset_file) :
-          join(this.config['contentStore'].baseDir, locale, 'data', contentTypeUid, defs.index);
+          join(this.config.contentStore.baseDir, locale, 'assets', defs.asset_file) :
+          join(this.config.contentStore.baseDir, locale, 'data', contentTypeUid, defs.index);
         if (!fs.existsSync(pth)) {
           return resolve(data);
         } else {
@@ -154,17 +148,15 @@ class FileSystem {
                     break;
                   }
                 }
-                return this.assetConnector.unpublish(data).then(resolves).catch(rejects)
+                return this.assetConnector.unpublish(data).then(resolves).catch(rejects);
               })
                 .then(() => {
                   return writeFile(pth, JSON.stringify(objs))
                     .then(() => {
                       debug('asset unpublished succefully');
-                      //log.info(` ${data.data.uid} asset unpublished successfully`);
                       resolve(data);
                     })
                     .catch((error) => {
-                      log.error(`${data.uid} asset unpublishing failed`);
                       reject(`${data.uid} asset unpublishing failed`);
                     });
                 }).catch(reject);
@@ -180,17 +172,14 @@ class FileSystem {
               return writeFile(pth, JSON.stringify(objs))
                 .then(() => {
                   debug('Entry unpublished successfully');
-                  log.info(`${data.uid} Entry unpublished successfully`);
                   resolve(data);
                 })
                 .catch((error) => {
                   debug(`${data.uid} Entry unpublishing failed`);
-                  log.error(`${data.uid} Entry unpublishing failed`);
                   return reject(`${data.uid} Entry unpublishing failed due to ${error}`);
                 });
             }
           }).catch((error) => {
-            log.error(error);
             return reject(`${data.uid} Entry unpublishing failed`);
           });
         }
@@ -218,8 +207,8 @@ class FileSystem {
           const contentTypeUid: string = query.content_type_uid;
           const type: string = (contentTypeUid === defs.ct.asset) ? defs.asset : defs.entry;
           const pth: string = (contentTypeUid === defs.ct.asset) ?
-            join(this.config['contentStore'].baseDir, locale, 'assets', defs.asset_file) :
-            join(this.config['contentStore'].baseDir, locale, 'data', contentTypeUid, defs.index);
+            join(this.config.contentStore.baseDir, locale, 'assets', defs.asset_file) :
+            join(this.config.contentStore.baseDir, locale, 'data', contentTypeUid, defs.index);
           if (!fs.existsSync(pth)) {
             return resolve();
           } else {
@@ -235,17 +224,15 @@ class FileSystem {
                       break;
                     }
                   }
-                  return this.assetConnector.delete(query).then(resolves).catch(rejects)
+                  return this.assetConnector.delete(query).then(resolves).catch(rejects);
                 })
                   .then(() => {
                     return writeFile(pth, JSON.stringify(objs))
                       .then(() => {
-                        log.info(`${query.data.uid} asset deleted sucessfully`);
                         debug('asset deleted sucessfully');
                         resolve(query);
                       })
                       .catch((error) => {
-                        log.error(`Error occoured while deleting ${query.uid} asset`);
                         debug(`Error occoured while deleting ${query.uid} asset`);
                         return reject(error);
                       });
@@ -261,12 +248,10 @@ class FileSystem {
                 }
                 return writeFile(pth, JSON.stringify(objs))
                   .then(() => {
-                    log.info(`${query.uid} Entry deleted sucessfully`);
                     debug('Entry deleted sucessfully');
                     resolve(query);
                   })
                   .catch((error) => {
-                    log.error(`Error occoured while deleting ${query.uid} entry`);
                     debug(`Error occoured while deleting ${query.uid} entry`);
                     return reject(error);
                   });
@@ -277,7 +262,6 @@ class FileSystem {
           }
         }
       } else {
-        log.error(`Kindly provide valid parameters for delete`);
         return reject(`Kindly provide valid parameters for delete`);
       }
     });
@@ -320,17 +304,15 @@ class FileSystem {
     debug('Delete content type called for ', query);
     return new Promise((resolve, reject) => {
       try {
-        let files = fs.readdirSync(this.config['contentStore'].baseDir)
+        const files = fs.readdirSync(this.config.contentStore.baseDir);
         files.forEach((file) => {
-          const pth = join(this.config['contentStore'].baseDir, file, 'data', query.uid);
+          const pth = join(this.config.contentStore.baseDir, file, 'data', query.uid);
           if (fs.existsSync(pth)) {
             rimraf.sync(pth);
           }
         });
-        log.info(`${query.uid} content type deleted successfully`);
         return resolve(query);
       } catch (error) {
-        log.error('failed to delete content type due to', error);
         return reject(error);
       }
     });

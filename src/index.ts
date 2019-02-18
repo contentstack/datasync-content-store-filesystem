@@ -8,7 +8,6 @@ import { debug as Debug } from 'debug';
 import { merge } from 'lodash';
 import { defaultConfig } from './default';
 import fileSystem from './filesystem';
-import { logger as log, setLogger } from './util/logger';
 
 let connector;
 const debug = Debug('content-sotre-filesystem');
@@ -19,13 +18,11 @@ const debug = Debug('content-sotre-filesystem');
  * @param  {} config?: config
  * @param  {} logger?: logger instance
  */
-export function start(assetConnector, config?, customLogger?) {
-  if (customLogger) {
-    setLogger(customLogger);
-  }
+export function start(assetConnector, config?) {
+
   return new Promise((resolve, reject) => {
     try {
-      config = (config)? merge(defaultConfig, config) : defaultConfig
+      config = (config) ? merge(defaultConfig, config) : defaultConfig;
       connector = new fileSystem(assetConnector, config);
       resolve(connector);
     }
@@ -41,5 +38,3 @@ export function start(assetConnector, config?, customLogger?) {
 export function getConnectorInstance() {
   return connector;
 }
-
-export { setLogger };

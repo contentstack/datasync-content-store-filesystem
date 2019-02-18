@@ -5,7 +5,7 @@
 */
 
 export const defaultConfig = {
-  'contentStore': {
-    baseDir: './_contents'
+  contentStore: {
+    baseDir: './_contents',
   },
 };

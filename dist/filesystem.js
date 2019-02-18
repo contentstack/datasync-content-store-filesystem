@@ -20,9 +20,8 @@ const fs_1 = __importDefault(require("fs"));
 const mkdirp_1 = __importDefault(require("mkdirp"));
 const path_1 = require("path");
 const rimraf_1 = __importDefault(require("rimraf"));
-const key_definitions_1 = require("./util/key-definitions");
-const logger_1 = require("./util/logger");
 const util_1 = require("util");
+const key_definitions_1 = require("./util/key-definitions");
 const readFile = util_1.promisify(fs_1.default.readFile);
 const writeFile = util_1.promisify(fs_1.default.writeFile);
 const debug = debug_1.debug('content-sotre-filesystem');
@@ -43,8 +42,8 @@ class FileSystem {
                 const contentTypeUid = data.content_type_uid;
                 const type = (contentTypeUid === key_definitions_1.defs.ct.asset) ? key_definitions_1.defs.asset : key_definitions_1.defs.entry;
                 const pth = (contentTypeUid === key_definitions_1.defs.ct.asset) ?
-                    path_1.join(this.config['contentStore'].baseDir, locale, 'assets') :
-                    path_1.join(this.config['contentStore'].baseDir, locale, 'data', contentTypeUid);
+                    path_1.join(this.config.contentStore.baseDir, locale, 'assets') :
+                    path_1.join(this.config.contentStore.baseDir, locale, 'data', contentTypeUid);
                 const entityPath = (contentTypeUid === key_definitions_1.defs.ct.asset) ? path_1.join(pth, key_definitions_1.defs.asset_file)
                     : path_1.join(pth, key_definitions_1.defs.index);
                 let contents = [];
@@ -75,20 +74,21 @@ class FileSystem {
                     })
                         .then(() => {
                         return writeFile(entityPath, JSON.stringify(contents)).then(() => {
-                            logger_1.logger.info(`${data.uid} Asset published successfullly`);
                             return resolve(data);
                         }).catch(reject);
                     }).catch(reject);
                 }
                 else {
-                    var filter = (filterKeys) => {
-                        var result = {};
-                        for (var type in data)
-                            if (filterKeys.indexOf(type) == -1)
-                                result[type] = data[type];
+                    const filter = (filterKeys) => {
+                        const result = {};
+                        for (const key in data) {
+                            if (filterKeys.indexOf(key) === -1) {
+                                result[key] = data[key];
+                            }
+                        }
                         return result;
                     };
-                    let filterData = filter(['content_type']);
+                    const filterData = filter(['content_type']);
                     let flag = false;
                     for (let i = 0; i < contents.length; i++) {
                         if (contents[i].uid === filterData.uid) {
@@ -104,22 +104,18 @@ class FileSystem {
                     return writeFile(schemaPath, JSON.stringify(data.content_type)).then(() => {
                         return writeFile(entityPath, JSON.stringify(contents))
                             .then(() => {
-                            logger_1.logger.info(`${data.uid} Entry published sucessfully`);
                             debug('Entry published sucessfully');
                             return resolve(data);
                         })
                             .catch((error) => {
-                            logger_1.logger.error(`${data.uid} Entry publishing failed`);
                             return reject(error);
                         });
                     }).catch((error) => {
-                        logger_1.logger.error(`${data.uid} Entry publishing failed`);
                         return reject(error);
                     });
                 }
             }
             else {
-                logger_1.logger.error(`Kindly provide valid parameters for publish`);
                 debug(`Kindly provide valid parameters for publish`);
                 return reject(`Kindly provide valid parameters for publish`);
             }
@@ -137,8 +133,8 @@ class FileSystem {
                 const contentTypeUid = data.content_type_uid;
                 const type = (contentTypeUid === key_definitions_1.defs.ct.asset) ? key_definitions_1.defs.asset : key_definitions_1.defs.entry;
                 const pth = (contentTypeUid === key_definitions_1.defs.ct.asset) ?
-                    path_1.join(this.config['contentStore'].baseDir, locale, 'assets', key_definitions_1.defs.asset_file) :
-                    path_1.join(this.config['contentStore'].baseDir, locale, 'data', contentTypeUid, key_definitions_1.defs.index);
+                    path_1.join(this.config.contentStore.baseDir, locale, 'assets', key_definitions_1.defs.asset_file) :
+                    path_1.join(this.config.contentStore.baseDir, locale, 'data', contentTypeUid, key_definitions_1.defs.index);
                 if (!fs_1.default.existsSync(pth)) {
                     return resolve(data);
                 }
@@ -161,11 +157,9 @@ class FileSystem {
                                 return writeFile(pth, JSON.stringify(objs))
                                     .then(() => {
                                     debug('asset unpublished succefully');
-                                    //log.info(` ${data.data.uid} asset unpublished successfully`);
                                     resolve(data);
                                 })
                                     .catch((error) => {
-                                    logger_1.logger.error(`${data.uid} asset unpublishing failed`);
                                     reject(`${data.uid} asset unpublishing failed`);
                                 });
                             }).catch(reject);
@@ -182,17 +176,14 @@ class FileSystem {
                             return writeFile(pth, JSON.stringify(objs))
                                 .then(() => {
                                 debug('Entry unpublished successfully');
-                                logger_1.logger.info(`${data.uid} Entry unpublished successfully`);
                                 resolve(data);
                             })
                                 .catch((error) => {
                                 debug(`${data.uid} Entry unpublishing failed`);
-                                logger_1.logger.error(`${data.uid} Entry unpublishing failed`);
                                 return reject(`${data.uid} Entry unpublishing failed due to ${error}`);
                             });
                         }
                     }).catch((error) => {
-                        logger_1.logger.error(error);
                         return reject(`${data.uid} Entry unpublishing failed`);
                     });
                 }
@@ -221,8 +212,8 @@ class FileSystem {
                     const contentTypeUid = query.content_type_uid;
                     const type = (contentTypeUid === key_definitions_1.defs.ct.asset) ? key_definitions_1.defs.asset : key_definitions_1.defs.entry;
                     const pth = (contentTypeUid === key_definitions_1.defs.ct.asset) ?
-                        path_1.join(this.config['contentStore'].baseDir, locale, 'assets', key_definitions_1.defs.asset_file) :
-                        path_1.join(this.config['contentStore'].baseDir, locale, 'data', contentTypeUid, key_definitions_1.defs.index);
+                        path_1.join(this.config.contentStore.baseDir, locale, 'assets', key_definitions_1.defs.asset_file) :
+                        path_1.join(this.config.contentStore.baseDir, locale, 'data', contentTypeUid, key_definitions_1.defs.index);
                     if (!fs_1.default.existsSync(pth)) {
                         return resolve();
                     }
@@ -244,12 +235,10 @@ class FileSystem {
                                     .then(() => {
                                     return writeFile(pth, JSON.stringify(objs))
                                         .then(() => {
-                                        logger_1.logger.info(`${query.data.uid} asset deleted sucessfully`);
                                         debug('asset deleted sucessfully');
                                         resolve(query);
                                     })
                                         .catch((error) => {
-                                        logger_1.logger.error(`Error occoured while deleting ${query.uid} asset`);
                                         debug(`Error occoured while deleting ${query.uid} asset`);
                                         return reject(error);
                                     });
@@ -266,12 +255,10 @@ class FileSystem {
                                 }
                                 return writeFile(pth, JSON.stringify(objs))
                                     .then(() => {
-                                    logger_1.logger.info(`${query.uid} Entry deleted sucessfully`);
                                     debug('Entry deleted sucessfully');
                                     resolve(query);
                                 })
                                     .catch((error) => {
-                                    logger_1.logger.error(`Error occoured while deleting ${query.uid} entry`);
                                     debug(`Error occoured while deleting ${query.uid} entry`);
                                     return reject(error);
                                 });
@@ -283,7 +270,6 @@ class FileSystem {
                 }
             }
             else {
-                logger_1.logger.error(`Kindly provide valid parameters for delete`);
                 return reject(`Kindly provide valid parameters for delete`);
             }
         }));
@@ -325,18 +311,16 @@ class FileSystem {
         debug('Delete content type called for ', query);
         return new Promise((resolve, reject) => {
             try {
-                let files = fs_1.default.readdirSync(this.config['contentStore'].baseDir);
+                const files = fs_1.default.readdirSync(this.config.contentStore.baseDir);
                 files.forEach((file) => {
-                    const pth = path_1.join(this.config['contentStore'].baseDir, file, 'data', query.uid);
+                    const pth = path_1.join(this.config.contentStore.baseDir, file, 'data', query.uid);
                     if (fs_1.default.existsSync(pth)) {
                         rimraf_1.default.sync(pth);
                     }
                 });
-                logger_1.logger.info(`${query.uid} content type deleted successfully`);
                 return resolve(query);
             }
             catch (error) {
-                logger_1.logger.error('failed to delete content type due to', error);
                 return reject(error);
             }
         });
