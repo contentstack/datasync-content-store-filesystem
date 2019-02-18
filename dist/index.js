@@ -12,8 +12,6 @@ const debug_1 = require("debug");
 const lodash_1 = require("lodash");
 const default_1 = require("./default");
 const filesystem_1 = __importDefault(require("./filesystem"));
-const logger_1 = require("./util/logger");
-exports.setLogger = logger_1.setLogger;
 let connector;
 const debug = debug_1.debug('content-sotre-filesystem');
 /**
@@ -22,10 +20,7 @@ const debug = debug_1.debug('content-sotre-filesystem');
  * @param  {} config?: config
  * @param  {} logger?: logger instance
  */
-function start(assetConnector, config, customLogger) {
-    if (customLogger) {
-        logger_1.setLogger(customLogger);
-    }
+function start(assetConnector, config) {
     return new Promise((resolve, reject) => {
         try {
             config = (config) ? lodash_1.merge(default_1.defaultConfig, config) : default_1.defaultConfig;
