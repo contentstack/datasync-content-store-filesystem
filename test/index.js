@@ -5,7 +5,7 @@
 */
 
 const filesystem = require("fs")
-const utils = require('../test-utils')
+const utils = require('./test-utils')
 const contentConnector = require('../dist')
 const assetConnector = require('../example/mock/asset-connector')
 const config = require('../example/mock/config')
