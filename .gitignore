@@ -1,24 +1,13 @@
-*
+# IDE config
+.vscode
+
+# Dependency directories
+node_modules
+
+# Coverage directories
 coverage
-!example
-!example/index.js
-!example/mock/
-!example/mock/**
-example/_contents
-!src
-!src/**
-!dist
-!dist/**
-!.gitignore
-!package.json
-!README.md
-!test-utils.js
-!jest.config.js
-!tsconfig.json
-!LICENSE
-!tslint.json
-!.npmignore
-!test_content
-!test_content/**
-!test
-!test/**
+
+# Data
+_contents
+example/_contents/
+
