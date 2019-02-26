@@ -1,10 +1,20 @@
-/src/
-/coverage/
-/.vscode/
-/test/
-/jest.config.js
-/.gitignore
-/tslint.json
-/test_content/
-/_contents/
-/test-utils.js
+# Source files
+src
+
+# Typescript configurations
+tsconfig.json
+
+# Typescript linting
+tslint.json
+
+# Test configurations
+jest.config.js
+
+# Data
+_contents
+
+# Samples
+example
+
+# Node module dependencies
+node_modules
