@@ -11,9 +11,9 @@ import { join } from 'path';
 import rimraf from 'rimraf';
 import { promisify } from 'util';
 import { defs } from './util/key-definitions';
-
+import writeFileAtomic  from 'write-file-atomic'
 const readFile: any = promisify(fs.readFile);
-const writeFile: any = promisify(fs.writeFile);
+const writeFile: any = promisify(writeFileAtomic);
 const debug = Debug('content-sotre-filesystem');
 
 class FileSystem {

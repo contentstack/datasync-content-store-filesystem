@@ -22,8 +22,9 @@ const path_1 = require("path");
 const rimraf_1 = __importDefault(require("rimraf"));
 const util_1 = require("util");
 const key_definitions_1 = require("./util/key-definitions");
+const write_file_atomic_1 = __importDefault(require("write-file-atomic"));
 const readFile = util_1.promisify(fs_1.default.readFile);
-const writeFile = util_1.promisify(fs_1.default.writeFile);
+const writeFile = util_1.promisify(write_file_atomic_1.default);
 const debug = debug_1.debug('content-sotre-filesystem');
 class FileSystem {
     constructor(assetConnector, config) {
