@@ -28,9 +28,5 @@ assetConnector.start(config)
 ```
 ### Config
 
-#### 1. type
--   type of storage for storing the contents. By defaults its value is  **filesystem**
-
-
-#### 2. base_dir:
+#### 1. base_dir:
 -   file location to store contents. By defaults its value is  **./_contents**
