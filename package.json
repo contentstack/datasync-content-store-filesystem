@@ -1,5 +1,5 @@
 {
-  "name": "contentstack-content-store-filesystem",
+  "name": "@contentstack/datasync-content-store-filesystem",
   "version": "1.0.0",
   "description": "Retrieve content from sync manager ans store/remove it from filesystem.",
   "main": "./dist",
