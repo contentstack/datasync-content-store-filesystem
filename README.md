@@ -29,6 +29,7 @@ This module is basically a Filesystem database where the Sync Manager stores the
   
 
 ## Usage
+This is how the datasync-content-store-filesystem is defined in the boilerplate:
 
 ```js
 const  assetStore = require('@contentstack/datasync-asset-store-filesystem')
