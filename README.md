@@ -23,8 +23,8 @@ This module is basically a Filesystem database where the Sync Manager stores the
 
 ## Prerequisite
 
-Node.js 8+
-Contentstack Data Sync Asset Store.
+ - Node.js 8+  
+ - Contentstack Data Sync Asset Store.
 
   
 
