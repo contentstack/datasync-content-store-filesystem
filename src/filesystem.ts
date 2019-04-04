@@ -143,10 +143,15 @@ class FileSystem {
                 let flag = false;
                 for (let i = 0; i < objs.length; i++) {
                   if (objs[i].uid === data.uid) {
-                    flag = true;
+                    if(objs[i].hasOwnProperty('_version')){
+                      flag = true;
+                    }
                     objs.splice(i, 1);
                     break;
                   }
+                }
+                if(!flag){
+                  return resolves(data);
                 }
                 return this.assetConnector.unpublish(data).then(resolves).catch(rejects);
               })
