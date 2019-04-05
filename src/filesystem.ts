@@ -138,22 +138,27 @@ class FileSystem {
         } else {
           return readFile(pth).then((contents) => {
             const objs = JSON.parse(contents);
+            let object
             if (type === defs.asset) {
               return new Promise((resolves, rejects) => {
                 let flag = false;
                 for (let i = 0; i < objs.length; i++) {
                   if (objs[i].uid === data.uid) {
-                    if(objs[i].hasOwnProperty('_version')){
+
+                    if(objs[i].data.hasOwnProperty('_version')){
+                      console.log("in if")
                       flag = true;
                     }
-                    objs.splice(i, 1);
+                    object = objs.splice(i, 1);
+                    console.log(object,"object+++++++++++")
                     break;
                   }
                 }
                 if(!flag){
+                  console.log("in flag")
                   return resolves(data);
                 }
-                return this.assetConnector.unpublish(data).then(resolves).catch(rejects);
+                return this.assetConnector.unpublish(object[0]).then(resolves).catch(rejects);
               })
                 .then(() => {
                   return writeFile(pth, JSON.stringify(objs))
@@ -222,14 +227,18 @@ class FileSystem {
               if (type === defs.asset) {
                 return new Promise((resolves, rejects) => {
                   let flag = false;
+                  let object
                   for (let i = 0; i < objs.length; i++) {
                     if (objs[i].uid === query.uid) {
                       flag = true;
-                      objs.splice(i, 1);
+                      object = objs.splice(i, 1);
                       break;
                     }
                   }
-                  return this.assetConnector.delete(query).then(resolves).catch(rejects);
+                  if(!flag){
+                    return resolves(query)
+                  }
+                  return this.assetConnector.delete(object[0]).then(resolves).catch(rejects);
                 })
                   .then(() => {
                     return writeFile(pth, JSON.stringify(objs))
