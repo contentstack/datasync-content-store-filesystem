@@ -149,19 +149,16 @@ class FileSystem {
                                 for (let i = 0; i < objs.length; i++) {
                                     if (objs[i].uid === data.uid) {
                                         if (objs[i].data.hasOwnProperty('_version')) {
-                                            console.log("in if");
                                             flag = true;
                                         }
                                         object = objs.splice(i, 1);
-                                        console.log(object, "object+++++++++++");
                                         break;
                                     }
                                 }
                                 if (!flag) {
-                                    console.log("in flag");
                                     return resolves(data);
                                 }
-                                return this.assetConnector.unpublish(object[0]).then(resolves).catch(rejects);
+                                return this.assetConnector.unpublish(object[0].data).then(resolves).catch(rejects);
                             })
                                 .then(() => {
                                 return writeFile(pth, JSON.stringify(objs))
@@ -238,13 +235,13 @@ class FileSystem {
                                         if (objs[i].uid === query.uid) {
                                             flag = true;
                                             object = objs.splice(i, 1);
-                                            break;
+                                            i--;
                                         }
                                     }
                                     if (!flag) {
                                         return resolves(query);
                                     }
-                                    return this.assetConnector.delete(object[0]).then(resolves).catch(rejects);
+                                    return this.assetConnector.delete(object[0].data).then(resolves).catch(rejects);
                                 })
                                     .then(() => {
                                     return writeFile(pth, JSON.stringify(objs))

@@ -11,7 +11,7 @@ import { join } from 'path';
 import rimraf from 'rimraf';
 import { promisify } from 'util';
 import { defs } from './util/key-definitions';
-import writeFileAtomic  from 'write-file-atomic'
+import writeFileAtomic from 'write-file-atomic'
 const readFile: any = promisify(fs.readFile);
 const writeFile: any = promisify(writeFileAtomic);
 const debug = Debug('content-sotre-filesystem');
@@ -79,14 +79,14 @@ class FileSystem {
           const filter: any = (filterKeys) => {
             const result = {};
             for (const key in data) {
-                if (filterKeys.indexOf(key) === -1) {
-                    result[key] = data[key];
-                }
+              if (filterKeys.indexOf(key) === -1) {
+                result[key] = data[key];
+              }
             }
             return result;
           };
 
-          const filterData =  filter(['content_type']);
+          const filterData = filter(['content_type']);
           let flag = false;
           for (let i = 0; i < contents.length; i++) {
             if (contents[i].uid === filterData.uid) {
@@ -144,21 +144,17 @@ class FileSystem {
                 let flag = false;
                 for (let i = 0; i < objs.length; i++) {
                   if (objs[i].uid === data.uid) {
-
-                    if(objs[i].data.hasOwnProperty('_version')){
-                      console.log("in if")
+                    if (objs[i].data.hasOwnProperty('_version')) {
                       flag = true;
                     }
                     object = objs.splice(i, 1);
-                    console.log(object,"object+++++++++++")
                     break;
                   }
                 }
-                if(!flag){
-                  console.log("in flag")
+                if (!flag) {
                   return resolves(data);
                 }
-                return this.assetConnector.unpublish(object[0]).then(resolves).catch(rejects);
+                return this.assetConnector.unpublish(object[0].data).then(resolves).catch(rejects);
               })
                 .then(() => {
                   return writeFile(pth, JSON.stringify(objs))
@@ -232,13 +228,13 @@ class FileSystem {
                     if (objs[i].uid === query.uid) {
                       flag = true;
                       object = objs.splice(i, 1);
-                      break;
+                      i--;
                     }
                   }
-                  if(!flag){
+                  if (!flag) {
                     return resolves(query)
                   }
-                  return this.assetConnector.delete(object[0]).then(resolves).catch(rejects);
+                  return this.assetConnector.delete(object[0].data).then(resolves).catch(rejects);
                 })
                   .then(() => {
                     return writeFile(pth, JSON.stringify(objs))
