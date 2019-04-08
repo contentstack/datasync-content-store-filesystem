@@ -30,7 +30,6 @@ class FileSystem {
    */
   public publish(data) {
     debug('Publish called with', data);
-
     return new Promise(async (resolve, reject) => {
       if (this.validate(data) && typeof defs.locale === 'string') {
         const locale: string = data.locale;
@@ -62,9 +61,9 @@ class FileSystem {
               }
             }
 
-            return this.assetConnector.download(data).then((asset) => {
+            return this.assetConnector.download(data.data).then((asset) => {
               if (!flag) {
-                contents.push(asset);
+                contents.push(data);
               }
               resolves();
             }).catch(rejects);

@@ -66,9 +66,9 @@ class FileSystem {
                                 break;
                             }
                         }
-                        return this.assetConnector.download(data).then((asset) => {
+                        return this.assetConnector.download(data.data).then((asset) => {
                             if (!flag) {
-                                contents.push(asset);
+                                contents.push(data);
                             }
                             resolves();
                         }).catch(rejects);

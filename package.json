@@ -1,6 +1,6 @@
 {
   "name": "@contentstack/datasync-content-store-filesystem",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "The module that stores your content in a Filesystem database after it is fetched from the Contentstack server.",
   "main": "./dist",
   "types": "./typings",
