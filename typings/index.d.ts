@@ -1,8 +1,8 @@
 /*!
-* contentstack-sync-content-store-filesystem
-* copyright (c) Contentstack LLC
-* MIT Licensed
-*/
+ * contentstack-sync-content-store-filesystem
+ * copyright (c) Contentstack LLC
+ * MIT Licensed
+ */
 /**
  * @description to start the content connector
  * @param  {} assetConnector: asset connector instance

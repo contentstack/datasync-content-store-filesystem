@@ -1,8 +1,8 @@
 /*!
-* contentstack-sync-content-store-filesystem
-* copyright (c) Contentstack LLC
-* MIT Licensed
-*/
+ * contentstack-sync-content-store-filesystem
+ * copyright (c) Contentstack LLC
+ * MIT Licensed
+ */
 
 import { debug as Debug } from 'debug';
 import fs from 'fs';
@@ -38,8 +38,8 @@ class FileSystem {
         const pth: string = (contentTypeUid === defs.ct.asset) ?
           join(this.config.contentStore.baseDir, locale, 'assets') :
           join(this.config.contentStore.baseDir, locale, 'data', contentTypeUid);
-        const entityPath: string = (contentTypeUid === defs.ct.asset) ? join(pth, defs.asset_file)
-          : join(pth, defs.index);
+        const entityPath: string = (contentTypeUid === defs.ct.asset) ? join(pth, defs.asset_file) :
+          join(pth, defs.index);
         let contents: any = [];
         if (!fs.existsSync(pth)) {
           debug('new path created as', pth);
@@ -52,29 +52,38 @@ class FileSystem {
         }
         if (type === defs.asset) {
           return new Promise((resolves, rejects) => {
-            let flag = false;
-            for (let i = 0; i < contents.length; i++) {
-              if (contents[i].uid === data.uid) {
-                contents[i] = data;
-                flag = true;
-                break;
+              let flag = false;
+              for (let i = 0; i < contents.length; i++) {
+                if (contents[i].uid === data.uid) {
+                  if (data.data.hasOwnProperty('download_id')) {
+                    if (contents[i].data['download_id'] === data.data['download_id']) {
+                      contents[i] = data;
+                      flag = true;
+                      break;
+                    }
+                  } else if (data.data.hasOwnProperty('_version')) {
+                    if (contents[i].data._version === data.data._version) {
+                      contents[i] = data;
+                      flag = true;
+                      break;
+                    }
+                  }
+                }
               }
-            }
-
-            return this.assetConnector.download(data.data).then((asset) => {
-              if (!flag) {
-                contents.push(data);
-              }
-              resolves();
-            }).catch(rejects);
-          })
+              return this.assetConnector.download(data.data).then((asset) => {
+                if (!flag) {
+                  data.data = asset
+                  contents.push(data);
+                }
+                resolves();
+              }).catch(rejects);
+            })
             .then(() => {
               return writeFile(entityPath, JSON.stringify(contents)).then(() => {
                 return resolve(data);
               }).catch(reject);
             }).catch(reject);
-        }
-        else {
+        } else {
           const filter: any = (filterKeys) => {
             const result = {};
             for (const key in data) {
@@ -140,21 +149,34 @@ class FileSystem {
             let object
             if (type === defs.asset) {
               return new Promise((resolves, rejects) => {
-                let flag = false;
-                for (let i = 0; i < objs.length; i++) {
-                  if (objs[i].uid === data.uid) {
-                    if (objs[i].data.hasOwnProperty('_version')) {
-                      flag = true;
+                  let flag = true;
+                  for (let i = 0; i < objs.length; i++) {
+                    if (objs[i].uid === data.uid) {
+                      if (objs[i].data.hasOwnProperty('_version')) {
+                        object = objs.splice(i, 1);
+                        break;
+                      }
                     }
-                    object = objs.splice(i, 1);
-                    break;
                   }
-                }
-                if (!flag) {
-                  return resolves(data);
-                }
-                return this.assetConnector.unpublish(object[0].data).then(resolves).catch(rejects);
-              })
+                  if (object.length === 0) {
+                    return resolve(data)
+                  }
+                  for (let i = 0; i < objs.length; i++) {
+                    if (objs[i].uid === data.uid) {
+                      if (objs[i].data.hasOwnProperty('download_id') && (objs[i].data.url === object[0].data.url)) {
+                        flag = false;
+                        break;
+                      }
+
+                    }
+                  }
+                  if (!flag) {
+                    return resolve(data);
+                  }
+                  return this.assetConnector.unpublish(object[0].data)
+                    .then(resolves)
+                    .catch(rejects);
+                })
                 .then(() => {
                   return writeFile(pth, JSON.stringify(objs))
                     .then(() => {
@@ -206,8 +228,7 @@ class FileSystem {
           return this.deleteContentType(query)
             .then(resolve)
             .catch(reject);
-        }
-        else {
+        } else {
           const locale: string = query.locale;
           const contentTypeUid: string = query.content_type_uid;
           const type: string = (contentTypeUid === defs.ct.asset) ? defs.asset : defs.entry;
@@ -221,20 +242,24 @@ class FileSystem {
               const objs = JSON.parse(data);
               if (type === defs.asset) {
                 return new Promise((resolves, rejects) => {
-                  let flag = false;
-                  let object
-                  for (let i = 0; i < objs.length; i++) {
-                    if (objs[i].uid === query.uid) {
-                      flag = true;
-                      object = objs.splice(i, 1);
-                      i--;
+                    let flag = false;
+                    const bucket = [];
+                    let object;
+                    for (let i = 0; i < objs.length; i++) {
+                      if (objs[i].uid === query.uid) {
+                        flag = true;
+                        object = objs.splice(i, 1);
+                        bucket.push(object[0].data)
+                        i--;
+                      }
                     }
-                  }
-                  if (!flag) {
-                    return resolves(query)
-                  }
-                  return this.assetConnector.delete(object[0].data).then(resolves).catch(rejects);
-                })
+                    if (!flag) {
+                      return resolves(query);
+                    }
+                    return this.assetConnector.delete(bucket)
+                      .then(resolves)
+                      .catch(rejects);
+                  })
                   .then(() => {
                     return writeFile(pth, JSON.stringify(objs))
                       .then(() => {

@@ -1,9 +1,9 @@
 "use strict";
 /*!
-* contentstack-sync-content-store-filesystem
-* copyright (c) Contentstack LLC
-* MIT Licensed
-*/
+ * contentstack-sync-content-store-filesystem
+ * copyright (c) Contentstack LLC
+ * MIT Licensed
+ */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.defs = {
     asset: 'asset',
