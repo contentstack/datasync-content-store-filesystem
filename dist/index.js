@@ -1,9 +1,9 @@
 "use strict";
 /*!
-* contentstack-sync-content-store-filesystem
-* copyright (c) Contentstack LLC
-* MIT Licensed
-*/
+ * contentstack-sync-content-store-filesystem
+ * copyright (c) Contentstack LLC
+ * MIT Licensed
+ */
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };

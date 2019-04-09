@@ -1,8 +1,8 @@
 /*!
-* contentstack-sync-content-store-filesystem
-* copyright (c) Contentstack LLC
-* MIT Licensed
-*/
+ * contentstack-sync-content-store-filesystem
+ * copyright (c) Contentstack LLC
+ * MIT Licensed
+ */
 
 import { debug as Debug } from 'debug';
 import { merge } from 'lodash';
@@ -18,15 +18,14 @@ const debug = Debug('content-sotre-filesystem');
  * @param  {} config?: config
  * @param  {} logger?: logger instance
  */
-export function start(assetConnector, config?) {
+export function start(assetConnector, config ? ) {
 
   return new Promise((resolve, reject) => {
     try {
       config = (config) ? merge(defaultConfig, config) : defaultConfig;
       connector = new fileSystem(assetConnector, config);
       resolve(connector);
-    }
-    catch (error) {
+    } catch (error) {
       debug('Failed to load content-store due to', error);
       reject(error);
     }

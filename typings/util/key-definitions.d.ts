@@ -1,8 +1,8 @@
 /*!
-* contentstack-sync-content-store-filesystem
-* copyright (c) Contentstack LLC
-* MIT Licensed
-*/
+ * contentstack-sync-content-store-filesystem
+ * copyright (c) Contentstack LLC
+ * MIT Licensed
+ */
 export declare const defs: {
     asset: string;
     asset_file: string;

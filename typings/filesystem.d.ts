@@ -1,8 +1,8 @@
 /*!
-* contentstack-sync-content-store-filesystem
-* copyright (c) Contentstack LLC
-* MIT Licensed
-*/
+ * contentstack-sync-content-store-filesystem
+ * copyright (c) Contentstack LLC
+ * MIT Licensed
+ */
 declare class FileSystem {
     private assetConnector;
     private config;

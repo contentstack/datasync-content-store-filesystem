@@ -1,9 +1,9 @@
 "use strict";
 /*!
-* contentstack-sync-content-store-filesystem
-* copyright (c) Contentstack LLC
-* MIT Licensed
-*/
+ * contentstack-sync-content-store-filesystem
+ * copyright (c) Contentstack LLC
+ * MIT Licensed
+ */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -45,8 +45,8 @@ class FileSystem {
                 const pth = (contentTypeUid === key_definitions_1.defs.ct.asset) ?
                     path_1.join(this.config.contentStore.baseDir, locale, 'assets') :
                     path_1.join(this.config.contentStore.baseDir, locale, 'data', contentTypeUid);
-                const entityPath = (contentTypeUid === key_definitions_1.defs.ct.asset) ? path_1.join(pth, key_definitions_1.defs.asset_file)
-                    : path_1.join(pth, key_definitions_1.defs.index);
+                const entityPath = (contentTypeUid === key_definitions_1.defs.ct.asset) ? path_1.join(pth, key_definitions_1.defs.asset_file) :
+                    path_1.join(pth, key_definitions_1.defs.index);
                 let contents = [];
                 if (!fs_1.default.existsSync(pth)) {
                     debug('new path created as', pth);
@@ -61,13 +61,25 @@ class FileSystem {
                         let flag = false;
                         for (let i = 0; i < contents.length; i++) {
                             if (contents[i].uid === data.uid) {
-                                contents[i] = data;
-                                flag = true;
-                                break;
+                                if (data.data.hasOwnProperty('download_id')) {
+                                    if (contents[i].data['download_id'] === data.data['download_id']) {
+                                        contents[i] = data;
+                                        flag = true;
+                                        break;
+                                    }
+                                }
+                                else if (data.data.hasOwnProperty('_version')) {
+                                    if (contents[i].data._version === data.data._version) {
+                                        contents[i] = data;
+                                        flag = true;
+                                        break;
+                                    }
+                                }
                             }
                         }
                         return this.assetConnector.download(data.data).then((asset) => {
                             if (!flag) {
+                                data.data = asset;
                                 contents.push(data);
                             }
                             resolves();
@@ -145,20 +157,32 @@ class FileSystem {
                         let object;
                         if (type === key_definitions_1.defs.asset) {
                             return new Promise((resolves, rejects) => {
-                                let flag = false;
+                                let flag = true;
                                 for (let i = 0; i < objs.length; i++) {
                                     if (objs[i].uid === data.uid) {
                                         if (objs[i].data.hasOwnProperty('_version')) {
-                                            flag = true;
+                                            object = objs.splice(i, 1);
+                                            break;
                                         }
-                                        object = objs.splice(i, 1);
-                                        break;
+                                    }
+                                }
+                                if (object.length === 0) {
+                                    return resolve(data);
+                                }
+                                for (let i = 0; i < objs.length; i++) {
+                                    if (objs[i].uid === data.uid) {
+                                        if (objs[i].data.hasOwnProperty('download_id') && (objs[i].data.url === object[0].data.url)) {
+                                            flag = false;
+                                            break;
+                                        }
                                     }
                                 }
                                 if (!flag) {
-                                    return resolves(data);
+                                    return resolve(data);
                                 }
-                                return this.assetConnector.unpublish(object[0].data).then(resolves).catch(rejects);
+                                return this.assetConnector.unpublish(object[0].data)
+                                    .then(resolves)
+                                    .catch(rejects);
                             })
                                 .then(() => {
                                 return writeFile(pth, JSON.stringify(objs))
@@ -230,18 +254,22 @@ class FileSystem {
                             if (type === key_definitions_1.defs.asset) {
                                 return new Promise((resolves, rejects) => {
                                     let flag = false;
+                                    const bucket = [];
                                     let object;
                                     for (let i = 0; i < objs.length; i++) {
                                         if (objs[i].uid === query.uid) {
                                             flag = true;
                                             object = objs.splice(i, 1);
+                                            bucket.push(object[0].data);
                                             i--;
                                         }
                                     }
                                     if (!flag) {
                                         return resolves(query);
                                     }
-                                    return this.assetConnector.delete(object[0].data).then(resolves).catch(rejects);
+                                    return this.assetConnector.delete(bucket)
+                                        .then(resolves)
+                                        .catch(rejects);
                                 })
                                     .then(() => {
                                     return writeFile(pth, JSON.stringify(objs))
