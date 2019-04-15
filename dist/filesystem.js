@@ -154,7 +154,7 @@ class FileSystem {
                 else {
                     return readFile(pth).then((contents) => {
                         const objs = JSON.parse(contents);
-                        let object;
+                        let object = [];
                         if (type === key_definitions_1.defs.asset) {
                             return new Promise((resolves, rejects) => {
                                 let flag = true;

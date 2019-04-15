@@ -146,7 +146,7 @@ class FileSystem {
         } else {
           return readFile(pth).then((contents) => {
             const objs = JSON.parse(contents);
-            let object
+            let object = []
             if (type === defs.asset) {
               return new Promise((resolves, rejects) => {
                   let flag = true;
