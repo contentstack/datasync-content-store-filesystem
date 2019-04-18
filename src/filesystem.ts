@@ -61,12 +61,10 @@ class FileSystem {
                       flag = true;
                       break;
                     }
-                  } else if (data.data.hasOwnProperty('_version')) {
-                    if (contents[i].data._version === data.data._version) {
+                  } else if (contents[i].data.hasOwnProperty('_version')) {
                       contents[i] = data;
                       flag = true;
                       break;
-                    }
                   }
                 }
               }
@@ -167,7 +165,6 @@ class FileSystem {
                         flag = false;
                         break;
                       }
-
                     }
                   }
                   if (!flag) {
