@@ -68,12 +68,10 @@ class FileSystem {
                                         break;
                                     }
                                 }
-                                else if (data.data.hasOwnProperty('_version')) {
-                                    if (contents[i].data._version === data.data._version) {
-                                        contents[i] = data;
-                                        flag = true;
-                                        break;
-                                    }
+                                else if (contents[i].data.hasOwnProperty('_version')) {
+                                    contents[i] = data;
+                                    flag = true;
+                                    break;
                                 }
                             }
                         }
