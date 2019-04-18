@@ -1,8 +1,8 @@
 /*!
-* contentstack-sync-content-store-filesystem
-* copyright (c) Contentstack LLC
-* MIT Licensed
-*/
+ * contentstack-sync-content-store-filesystem
+ * copyright (c) Contentstack LLC
+ * MIT Licensed
+ */
 
 const filesystem = require("fs")
 const utils = require('./test-utils')
@@ -10,6 +10,7 @@ const contentConnector = require('../dist')
 const assetConnector = require('../example/mock/asset-connector')
 const config = require('../example/mock/config')
 let connector = null
+
 let asset_data = {
 	content_type_uid: '_assets',
 	action: 'publish',
@@ -23,6 +24,34 @@ let asset_data = {
 		created_by: '***REMOVED***',
 		updated_by: '***REMOVED***',
 		content_type: 'image/jpeg',
+		download_id: '***REMOVED***',
+		//file_size: '14552',
+		tags: [],
+		//filename: 'new_blog2.jpg',
+		url: '***REMOVED***',
+		ACL: {},
+		is_dir: false,
+		//_version: 1,
+		title: 'blog2.jpg',
+		force_load: false,
+		content_type_uid: '_assets'
+	}
+}
+
+let asset_data1 = {
+	content_type_uid: '_assets',
+	action: 'publish',
+	publish_queue_uid: '***REMOVED***',
+	locale: 'fr-fr',
+	uid: '***REMOVED***',
+	data: {
+		uid: '***REMOVED***',
+		created_at: '2018-06-19T12:06:38.066Z',
+		updated_at: '2018-06-19T12:06:38.066Z',
+		created_by: '***REMOVED***',
+		updated_by: '***REMOVED***',
+		content_type: 'image/jpeg',
+		//download_id: '***REMOVED***',
 		file_size: '14552',
 		tags: [],
 		filename: 'new_blog2.jpg',
@@ -89,6 +118,32 @@ let asset_data3 = {
 	}
 }
 
+let asset_data4 = {
+	content_type_uid: '_assets',
+	action: 'publish',
+	publish_queue_uid: '***REMOVED***',
+	locale: 'mr-in',
+	uid: '***REMOVED***',
+	data: {
+		uid: '***REMOVED***',
+		created_at: '2018-06-19T12:06:38.066Z',
+		updated_at: '2018-06-19T12:06:38.066Z',
+		created_by: '***REMOVED***',
+		updated_by: '***REMOVED***',
+		content_type: 'image/jpeg',
+		file_size: '14552',
+		tags: [],
+		filename: 'blog4.jpg',
+		url: 'https://images.contentstack.io/v3/assets/***REMOVED***/***REMOVED***/***REMOVED***/blog4.jpg',
+		ACL: {},
+		is_dir: false,
+		_version: 2,
+		title: 'blog3.jpg',
+		force_load: false,
+		content_type_uid: '_assets'
+	}
+}
+
 
 describe('# publish', function () {
 
@@ -107,7 +162,8 @@ describe('# publish', function () {
 		test_data = utils.loadTestContents()
 	})
 
-	test('',()=>{
+
+	test('', () => {
 		assetConnector.start()
 			.then(assetConnector => {
 				return contentConnector.start(assetConnector)
@@ -130,7 +186,6 @@ describe('# publish', function () {
 		}).then(function (result) {
 			expect(result).toHaveProperty("uid");
 			expect(result).toHaveProperty("uid", "001");
-
 		})
 	})
 	test('publish single entry test', function () {
@@ -139,13 +194,15 @@ describe('# publish', function () {
 			content_type_uid: 'abcd',
 			locale: 'mr-en',
 			uid: "888888",
-			data: {"tp":"tp"},
+			data: {
+				"tp": "tp"
+			},
 			content_type: content_type
 		}).then(function (result) {
 			expect(result).toHaveProperty("uid");
 			expect(result).toHaveProperty("uid", "888888");
 
-		}).catch((error)=>{
+		}).catch((error) => {
 			expect(error).toBe(error)
 		})
 	})
@@ -157,28 +214,33 @@ describe('# publish', function () {
 			content_type_uid: 'abcd',
 			locale: 'mr-en',
 			uid: "888888",
-			data: {"tp":"tp"},
+			data: {
+				"tp": "tp"
+			},
 			content_type: content_type
-		}).catch((error)=>{
+		}).catch((error) => {
 			expect(error).toBe(error)
 		})
 	})
 
 	test('Publish an existing entry', function () {
 
-		return connector.publish({"sfgfdg":"sdads",'data':"adada"}).then(function (result) {
-			
+		return connector.publish({
+			"sfgfdg": "sdads",
+			'data': "adada"
+		}).then(function (result) {
+
 		}).catch(function (error) {
 			expect(error).toBe(error)
 		});
 	});
-	
+
 	test('Publish an existing entry', function () {
 
 		return connector.publish({
 			content_type_uid: 'a',
 			locale: 'mr-in',
-			uid:'1234',
+			uid: '1234',
 			data: {
 				po_key: 'basic_1',
 				uid: '001'
@@ -197,7 +259,10 @@ describe('# publish', function () {
 			content_type_uid: 'a',
 			locale: 'es-es',
 			uid: "001",
-			data: {"data": "new data added","uid":"001"},
+			data: {
+				"data": "new data added",
+				"uid": "001"
+			},
 			content_type: content_type
 		}).then(function (result) {
 			expect(result).toHaveProperty("uid");
@@ -213,13 +278,15 @@ describe('# publish', function () {
 			content_type_uid: 'a',
 			locale: 'es-es',
 			uid: "001",
-			data: {"tp":"tp"},
+			data: {
+				"tp": "tp"
+			},
 			content_type: content_type
-		}).catch((error)=>{
+		}).catch((error) => {
 			expect(error).toBe(error)
 		})
 	})
-	
+
 	test('publish invalid data', function () {
 		return connector.publish("daatattata").then(function (result) {
 
@@ -228,32 +295,48 @@ describe('# publish', function () {
 		})
 
 	})
-	test('publish asset', function(){
+	test('publish asset', function () {
 		return connector.publish(asset_data).then(function (result) {
-			expect(result).toHaveProperty("uid",'***REMOVED***')
+			expect(result).toHaveProperty("uid", '***REMOVED***')
 		}).catch((error) => {
 			expect(error).toBe(error)
 		})
 	})
 
-	test('publish asset', function(){
+	test('publish asset', function () {
+		return connector.publish(asset_data1).then(function (result) {
+			expect(result).toHaveProperty("uid", '***REMOVED***')
+		}).catch((error) => {
+			expect(error).toBe(error)
+		})
+	})
+
+	test('publish asset', function () {
 		return connector.publish(asset_data2).then(function (result) {
-			expect(result).toHaveProperty("uid",'***REMOVED***')
+			expect(result).toHaveProperty("uid", '***REMOVED***')
 		}).catch((error) => {
 			expect(error).toBe(error)
 		})
 	})
-	test('publish asset', function(){
+	test('publish asset', function () {
 		return connector.publish(asset_data3).then(function (result) {
-			expect(result).toHaveProperty("uid",'***REMOVED***')
+			expect(result).toHaveProperty("uid", '***REMOVED***')
 		}).catch((error) => {
 			expect(error).toBe(error)
 		})
 	})
 
-	test('publish existent asset', function(){
+	test('publish asset with different version', function () {
+		return connector.publish(asset_data4).then(function (result) {
+			expect(result).toHaveProperty("uid", '***REMOVED***')
+		}).catch((error) => {
+			expect(error).toBe(error)
+		})
+	})
+
+	test('publish existent asset', function () {
 		return connector.publish(asset_data).then(function (result) {
-			expect(result).toHaveProperty("uid",'***REMOVED***')
+			expect(result).toHaveProperty("uid", '***REMOVED***')
 		}).catch((error) => {
 			expect(error).toBe(error)
 		})
@@ -262,8 +345,8 @@ describe('# publish', function () {
 
 describe('# Unpublish', function () {
 
- let connector, test_data
- beforeAll(function loadConnectorMethods() {
+	let connector, test_data
+	beforeAll(function loadConnectorMethods() {
 		assetConnector.start(config)
 			.then(assetConnector => {
 				return contentConnector.start(assetConnector, config)
@@ -292,7 +375,7 @@ describe('# Unpublish', function () {
 			expect(result).toHaveProperty("uid");
 			expect(result).toHaveProperty("uid", "001");
 
-		}).catch((error)=>{
+		}).catch((error) => {
 			expect(error).toBe(error)
 		})
 	})
@@ -316,22 +399,46 @@ describe('# Unpublish', function () {
 	});
 	test('Unpublish invalid data', function () {
 		return connector.unpublish("daatattata").then(function (result) {
-			
+
 		}).catch((error) => {
 			expect(error).toBe("Kindly provide valid parameters for unpublish")
 		})
 
 	})
 
-	test('unpublish asset', function(){
-		return connector.unpublish(asset_data).then(function (result) {
-			expect(result).toHaveProperty("uid",'***REMOVED***')
+	test('unpublish asset', function () {
+		return connector.unpublish(asset_data3).then(function (result) {
+			expect(result).toHaveProperty("uid", '***REMOVED***')
 		}).catch((error) => {
 			expect(error).toBe(error)
 		})
 	})
-	
-	test('unpublish asset failed test', function(){
+
+	test('unpublish asset', function () {
+		return connector.unpublish(asset_data1).then(function (result) {
+			expect(result).toHaveProperty("uid", '***REMOVED***')
+		}).catch((error) => {
+			expect(error).toBe(error)
+		})
+	})
+
+	test('unpublish non existent asset', function () {
+		return connector.unpublish({
+			content_type_uid: '_assets',
+			locale: 'en-us',
+			uid: '123',
+			data: {
+				po_key: 'basic_1',
+				uid: '001'
+			}
+		}).then(function (result) {
+			expect(result).toHaveProperty("uid", '***REMOVED***')
+		}).catch((error) => {
+			expect(error).toBe(error)
+		})
+	})
+
+	test('unpublish asset failed test', function () {
 		filesystem.chmodSync('./_contents/mr-in/assets/_assets.json', '444')
 		return connector.unpublish(asset_data3).then(function (result) {
 			//expect(result).toHaveProperty("uid",'***REMOVED***')
@@ -346,8 +453,10 @@ describe('# Unpublish', function () {
 			content_type_uid: 'abcd',
 			locale: 'mr-en',
 			uid: "888888",
-			data: {"tp":"tp"}
-		}).catch((error)=>{
+			data: {
+				"tp": "tp"
+			}
+		}).catch((error) => {
 			expect(error).toBe(error)
 		})
 	})
@@ -358,13 +467,15 @@ describe('# Unpublish', function () {
 			content_type_uid: 'abcd',
 			locale: 'mr-en',
 			uid: "888888",
-			data: {"tp":"tp"}
-		}).catch((error)=>{
+			data: {
+				"tp": "tp"
+			}
+		}).catch((error) => {
 			expect(error).toBe(error)
 		})
 	})
 
-	
+
 });
 
 describe('# Delete', function () {
@@ -383,7 +494,7 @@ describe('# Delete', function () {
 		return connector.delete({
 			content_type_uid: 'a',
 			locale: 'es-es',
-			uid:'1234',
+			uid: '1234',
 			data: {
 				po_key: 'basic_1',
 				uid: '001'
@@ -401,7 +512,7 @@ describe('# Delete', function () {
 		return connector.delete({
 			content_type_uid: 'a',
 			locale: 'es-es',
-			uid:'1234',
+			uid: '1234',
 			data: {
 				po_key: 'basic_1',
 				uid: '001'
@@ -418,7 +529,7 @@ describe('# Delete', function () {
 		return connector.delete({
 			content_type_uid: 'a',
 			locale: 'ep-es',
-			uid:'12345',
+			uid: '12345',
 			data: {
 				po_key: 'basic_1',
 				uid: '001'
@@ -436,7 +547,7 @@ describe('# Delete', function () {
 		return connector.delete({
 			content_type_uid: 'a',
 			locale: 'mr-in',
-			uid:'1234',
+			uid: '1234',
 			data: {
 				po_key: 'basic_1',
 				uid: '001'
@@ -448,7 +559,7 @@ describe('# Delete', function () {
 			expect(error).toBe(error)
 		});
 	});
-    test(' Delete asset', function(){
+	test(' Delete asset', function () {
 		return connector.delete(asset_data).then(function (result) {
 			//expect(result).toHaveProperty("uid",'***REMOVED***')
 		}).catch((error) => {
@@ -456,8 +567,8 @@ describe('# Delete', function () {
 		})
 
 	})
-	test('delete invalid data test', function(){
-		
+	test('delete invalid data test', function () {
+
 		return connector.delete("datadttadtat").then(function (result) {
 			//expect(result).toHaveProperty("uid",'***REMOVED***')
 		}).catch((error) => {
@@ -465,7 +576,7 @@ describe('# Delete', function () {
 		})
 	})
 
-	test('delete asset failed test', function(){
+	test('delete asset failed test', function () {
 		filesystem.chmodSync('./_contents/en-us/assets/_assets.json', '444')
 		return connector.delete(asset_data2).then(function (result) {
 			//expect(result).toHaveProperty("uid",'***REMOVED***')
@@ -474,7 +585,7 @@ describe('# Delete', function () {
 		})
 	})
 
-	test('delete asset failed test', function(){
+	test('delete asset failed test', function () {
 		filesystem.chmodSync('./_contents/en-us/assets/_assets.json', '777')
 		return connector.delete(asset_data2).then(function (result) {
 			//expect(result).toHaveProperty("uid",'***REMOVED***')
@@ -482,7 +593,7 @@ describe('# Delete', function () {
 			expect(error).toBe(error)
 		})
 	})
-	test('delete asset failed test', function(){
+	test('delete asset failed test', function () {
 		filesystem.chmodSync('./_contents/en-us/assets/_assets.json', '000')
 		return connector.delete(asset_data2).then(function (result) {
 			//expect(result).toHaveProperty("uid",'***REMOVED***')
@@ -495,8 +606,8 @@ describe('# Delete', function () {
 
 		return connector.delete({
 			content_type_uid: '_content_types',
-			type:'content_type_deleted',
-			uid:'abcd',
+			type: 'content_type_deleted',
+			uid: 'abcd',
 			data: {
 				uid: 'abcd',
 				locale: 'mr-en',
@@ -513,8 +624,8 @@ describe('# Delete', function () {
 
 		return connector.delete({
 			content_type_uid: '_content_types',
-			type:'content_type_deleted',
-			uid:'ab',
+			type: 'content_type_deleted',
+			uid: 'ab',
 			data: {
 				uid: 'a',
 				locale: 'en-us',
@@ -528,7 +639,7 @@ describe('# Delete', function () {
 		});
 	});
 
-	
+
 });
 
 describe('# Find and Findone', function () {
@@ -571,6 +682,5 @@ describe('# Find and Findone', function () {
 		});
 	});
 
-	
-});
 
+});

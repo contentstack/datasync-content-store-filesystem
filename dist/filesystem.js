@@ -25,7 +25,7 @@ const key_definitions_1 = require("./util/key-definitions");
 const write_file_atomic_1 = __importDefault(require("write-file-atomic"));
 const readFile = util_1.promisify(fs_1.default.readFile);
 const writeFile = util_1.promisify(write_file_atomic_1.default);
-const debug = debug_1.debug('content-sotre-filesystem');
+const debug = debug_1.debug('content-store-filesystem');
 class FileSystem {
     constructor(assetConnector, config) {
         this.assetConnector = assetConnector;
@@ -84,9 +84,11 @@ class FileSystem {
                         }).catch(rejects);
                     })
                         .then(() => {
-                        return writeFile(entityPath, JSON.stringify(contents)).then(() => {
+                        writeFile(entityPath, JSON.stringify(contents), (err) => {
+                            if (err)
+                                return reject(err);
                             return resolve(data);
-                        }).catch(reject);
+                        });
                     }).catch(reject);
                 }
                 else {
@@ -112,17 +114,15 @@ class FileSystem {
                         contents.push(filterData);
                     }
                     const schemaPath = path_1.join(pth, key_definitions_1.defs.schema_file);
-                    return writeFile(schemaPath, JSON.stringify(data.content_type)).then(() => {
-                        return writeFile(entityPath, JSON.stringify(contents))
-                            .then(() => {
+                    writeFile(schemaPath, JSON.stringify(data.content_type), (err) => {
+                        if (err)
+                            return reject(err);
+                        writeFile(entityPath, JSON.stringify(contents), (err) => {
+                            if (err)
+                                return reject(err);
                             debug('Entry published sucessfully');
                             return resolve(data);
-                        })
-                            .catch((error) => {
-                            return reject(error);
                         });
-                    }).catch((error) => {
-                        return reject(error);
                     });
                 }
             }
@@ -183,37 +183,30 @@ class FileSystem {
                                     .catch(rejects);
                             })
                                 .then(() => {
-                                return writeFile(pth, JSON.stringify(objs))
-                                    .then(() => {
+                                writeFile(pth, JSON.stringify(objs), (err) => {
+                                    if (err)
+                                        reject(`${data.uid} asset unpublishing failed`);
                                     debug('asset unpublished succefully');
                                     resolve(data);
-                                })
-                                    .catch((error) => {
-                                    reject(`${data.uid} asset unpublishing failed`);
                                 });
                             }).catch(reject);
                         }
                         else {
-                            let flag = false;
                             for (let i = 0; i < objs.length; i++) {
                                 if (objs[i].uid === data.uid) {
-                                    flag = true;
                                     objs.splice(i, 1);
                                     break;
                                 }
                             }
-                            return writeFile(pth, JSON.stringify(objs))
-                                .then(() => {
+                            writeFile(pth, JSON.stringify(objs), (err) => {
+                                if (err)
+                                    return reject(`${data.uid} Entry unpublishing failed due to ${err}`);
                                 debug('Entry unpublished successfully');
-                                resolve(data);
-                            })
-                                .catch((error) => {
-                                debug(`${data.uid} Entry unpublishing failed`);
-                                return reject(`${data.uid} Entry unpublishing failed due to ${error}`);
+                                return resolve(data);
                             });
                         }
                     }).catch((error) => {
-                        return reject(`${data.uid} Entry unpublishing failed`);
+                        return reject(`${data.uid} Entry unpublishing failed due to ${error}`);
                     });
                 }
             }
@@ -270,34 +263,26 @@ class FileSystem {
                                         .catch(rejects);
                                 })
                                     .then(() => {
-                                    return writeFile(pth, JSON.stringify(objs))
-                                        .then(() => {
+                                    writeFile(pth, JSON.stringify(objs), (err) => {
+                                        if (err)
+                                            return reject(err);
                                         debug('asset deleted sucessfully');
-                                        resolve(query);
-                                    })
-                                        .catch((error) => {
-                                        debug(`Error occoured while deleting ${query.uid} asset`);
-                                        return reject(error);
+                                        return resolve(query);
                                     });
                                 }).catch(reject);
                             }
                             else {
-                                let flag = false;
                                 for (let i = 0; i < objs.length; i++) {
                                     if (objs[i].uid === query.uid) {
-                                        flag = true;
                                         objs.splice(i, 1);
                                         break;
                                     }
                                 }
-                                return writeFile(pth, JSON.stringify(objs))
-                                    .then(() => {
+                                writeFile(pth, JSON.stringify(objs), (err) => {
+                                    if (err)
+                                        return reject(err);
                                     debug('Entry deleted sucessfully');
-                                    resolve(query);
-                                })
-                                    .catch((error) => {
-                                    debug(`Error occoured while deleting ${query.uid} entry`);
-                                    return reject(error);
+                                    return resolve(query);
                                 });
                             }
                         }).catch((error) => {
