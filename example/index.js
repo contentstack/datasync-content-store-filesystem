@@ -1,14 +1,12 @@
 /*!
-* contentstack-sync-content-store-filesystem
-* copyright (c) Contentstack LLC
-* MIT Licensed
-*/
+ * DataSync Content Store Filesystem
+ * copyright (c) Contentstack LLC
+ * MIT Licensed
+ */
 
 const contentConnector = require('../dist')
 const assetConnector = require('./mock/asset-connector')
 const config = require('./mock/config')
-
-
 
 let data1 = {
 	content_type_uid: 'optimizely',
@@ -130,8 +128,7 @@ let data2 = {
 		ACL: {},
 		_version: 7,
 		content_type_uid: 'youtube_test'
-	}
-	,
+	},
 	content_type: {
 		created_at: '2018-08-01T13:01:04.263Z',
 		updated_at: '2018-08-01T13:02:53.793Z',
@@ -319,19 +316,22 @@ let data3 = {
 	}
 }
 
-
-assetConnector.start(config)
-.then( assetConnector => {
-    return contentConnector.start(assetConnector, config)
-})
-.then( (connector) => {
-	console.log("app started sucessfully!!")
-	connector.publish(data1)
-	connector.publish(data3)
-	connector.publish(data2)
-	setTimeout(()=>{connector.unpublish(data1)}, 500)
-	setTimeout(()=>{connector.delete(data2)}, 1500)
-})
-.catch((error) =>{
-	console.error(error)
-})
+return assetConnector.start(config)
+	.then(assetConnector => {
+		return contentConnector.start(assetConnector, config)
+	})
+	.then((connector) => {
+		console.log("app started sucessfully!!")
+		connector.publish(data1)
+		connector.publish(data3)
+		connector.publish(data2)
+		setTimeout(() => {
+			connector.unpublish(data1)
+		}, 500)
+		setTimeout(() => {
+			connector.delete(data2)
+		}, 1500)
+	})
+	.catch((error) => {
+		console.error(error)
+	})

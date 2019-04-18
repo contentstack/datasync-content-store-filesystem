@@ -1,5 +1,5 @@
 /*!
- * contentstack-sync-content-store-filesystem
+ * DataSync Content Store Filesystem
  * copyright (c) Contentstack LLC
  * MIT Licensed
  */

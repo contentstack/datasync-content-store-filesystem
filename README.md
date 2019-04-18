@@ -38,7 +38,7 @@ syncManager.start()
 ## Configuration
 
 Here is the config table for the module:
-|Property | DataType|Default|Description
+|Property | DataType|Default|Description|
 |--|--|--|--|
 | content-store-filesystem.baseDir|string |./_contents |**Optional**. The location of the file for storing the contents|
 
