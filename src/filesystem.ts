@@ -14,7 +14,7 @@ import { defs } from './util/key-definitions';
 import writeFileAtomic from 'write-file-atomic'
 const readFile: any = promisify(fs.readFile);
 const writeFile: any = promisify(writeFileAtomic);
-const debug = Debug('content-sotre-filesystem');
+const debug = Debug('content-store-filesystem');
 
 class FileSystem {
   private assetConnector: any;
@@ -77,9 +77,10 @@ class FileSystem {
               }).catch(rejects);
             })
             .then(() => {
-              return writeFile(entityPath, JSON.stringify(contents)).then(() => {
+              writeFile(entityPath, JSON.stringify(contents),(err) => {
+                if(err) return reject(err)
                 return resolve(data);
-              }).catch(reject);
+              })
             }).catch(reject);
         } else {
           const filter: any = (filterKeys) => {
@@ -105,18 +106,14 @@ class FileSystem {
             contents.push(filterData);
           }
           const schemaPath = join(pth, defs.schema_file);
-          return writeFile(schemaPath, JSON.stringify(data.content_type)).then(() => {
-            return writeFile(entityPath, JSON.stringify(contents))
-              .then(() => {
+          writeFile(schemaPath, JSON.stringify(data.content_type),(err)=>{
+            if (err) return reject(err);
+            writeFile(entityPath, JSON.stringify(contents),(err) => {
+                if (err) return reject(err);
                 debug('Entry published sucessfully');
                 return resolve(data);
               })
-              .catch((error) => {
-                return reject(error);
-              });
-          }).catch((error) => {
-            return reject(error);
-          });
+          })
         }
       } else {
         debug(`Kindly provide valid parameters for publish`);
@@ -175,36 +172,27 @@ class FileSystem {
                     .catch(rejects);
                 })
                 .then(() => {
-                  return writeFile(pth, JSON.stringify(objs))
-                    .then(() => {
-                      debug('asset unpublished succefully');
-                      resolve(data);
-                    })
-                    .catch((error) => {
-                      reject(`${data.uid} asset unpublishing failed`);
-                    });
+                  writeFile(pth, JSON.stringify(objs), (err) => {
+                    if(err) reject(`${data.uid} asset unpublishing failed`);
+                    debug('asset unpublished succefully');
+                    resolve(data);
+                  })
                 }).catch(reject);
             } else {
-              let flag = false;
               for (let i = 0; i < objs.length; i++) {
                 if (objs[i].uid === data.uid) {
-                  flag = true;
                   objs.splice(i, 1);
                   break;
                 }
               }
-              return writeFile(pth, JSON.stringify(objs))
-                .then(() => {
+              writeFile(pth, JSON.stringify(objs), (err) => {
+                  if(err) return reject(`${data.uid} Entry unpublishing failed due to ${err}`);
                   debug('Entry unpublished successfully');
-                  resolve(data);
+                  return resolve(data);
                 })
-                .catch((error) => {
-                  debug(`${data.uid} Entry unpublishing failed`);
-                  return reject(`${data.uid} Entry unpublishing failed due to ${error}`);
-                });
             }
           }).catch((error) => {
-            return reject(`${data.uid} Entry unpublishing failed`);
+            return reject(`${data.uid} Entry unpublishing failed due to ${error}`);
           });
         }
       } else {
@@ -258,34 +246,24 @@ class FileSystem {
                       .catch(rejects);
                   })
                   .then(() => {
-                    return writeFile(pth, JSON.stringify(objs))
-                      .then(() => {
-                        debug('asset deleted sucessfully');
-                        resolve(query);
-                      })
-                      .catch((error) => {
-                        debug(`Error occoured while deleting ${query.uid} asset`);
-                        return reject(error);
-                      });
+                    writeFile(pth, JSON.stringify(objs), (err) => {
+                      if(err) return reject(err);
+                      debug('asset deleted sucessfully');
+                      return resolve(query);
+                    })
                   }).catch(reject);
               } else {
-                let flag = false;
                 for (let i = 0; i < objs.length; i++) {
                   if (objs[i].uid === query.uid) {
-                    flag = true;
                     objs.splice(i, 1);
                     break;
                   }
                 }
-                return writeFile(pth, JSON.stringify(objs))
-                  .then(() => {
-                    debug('Entry deleted sucessfully');
-                    resolve(query);
-                  })
-                  .catch((error) => {
-                    debug(`Error occoured while deleting ${query.uid} entry`);
-                    return reject(error);
-                  });
+                writeFile(pth, JSON.stringify(objs), (err) => {
+                  if(err) return reject(err);
+                  debug('Entry deleted sucessfully');
+                  return resolve(query);
+                })
               }
             }).catch((error) => {
               return reject(error);
