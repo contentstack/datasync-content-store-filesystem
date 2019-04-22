@@ -1,39 +1,26 @@
 /*!
  * DataSync Content Store Filesystem
- * copyright (c) Contentstack LLC
+ * Copyright (c) Contentstack LLC
  * MIT Licensed
  */
 
-import { debug as Debug } from 'debug';
-import { merge } from 'lodash';
-import { defaultConfig } from './default';
-import fileSystem from './filesystem';
+import { merge } from 'lodash'
+import { defaults } from './config'
+import { FilesystemStore } from './core'
 
-let connector;
-const debug = Debug('content-sotre-filesystem');
+let config
+let connector
+
+// export app config
+export { config }
 
 /**
- * @description to start the content connector
- * @param  {} assetConnector: asset connector instance
- * @param  {} config?: config
- * @param  {} logger?: logger instance
+ * @description Establish connection to FS db
+ * @param  {object} assetConnector Asset store instance
+ * @param  {object} config App config
  */
-export function start(assetConnector, config ? ) {
-
-  return new Promise((resolve, reject) => {
-    try {
-      config = (config) ? merge(defaultConfig, config) : defaultConfig;
-      connector = new fileSystem(assetConnector, config);
-      resolve(connector);
-    } catch (error) {
-      debug('Failed to load content-store due to', error);
-      reject(error);
-    }
-  });
-}
-/**
- * @description to get connector instance
- */
-export function getConnectorInstance() {
-  return connector;
+export function start(assetStore, config ? ) {
+  config = merge(defaults, config)
+  const contentStore = new FilesystemStore(assetStore, config)
+  return Promise.resolve(contentStore)
 }

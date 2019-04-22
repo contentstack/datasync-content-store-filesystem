@@ -1,6 +1,6 @@
 {
   "name": "@contentstack/datasync-content-store-filesystem",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "The module that stores your content in a Filesystem database after it is fetched from the Contentstack server.",
   "main": "./dist",
   "types": "./typings",
@@ -35,12 +35,13 @@
   "author": "Contentstack LLC <support@contentstack.com>",
   "license": "MIT",
   "dependencies": {
-    "@types/rimraf": "^2.0.2",
-    "debug": "^4.1.0",
-    "lodash": "^4.17.11",
-    "mkdirp": "^0.5.1",
+    "@types/rimraf": "2.0.2",
+    "debug": "4.1.0",
+    "lodash": "4.17.11",
+    "mkdirp": "0.5.1",
+    "nedb": "^1.8.0",
     "rimraf": "2.6.2",
-    "write-file-atomic": "^2.4.2"
+    "write-file-atomic": "2.4.2"
   },
   "devDependencies": {
     "@types/jest": "^23.3.10",
