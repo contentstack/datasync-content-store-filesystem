@@ -1,43 +1,24 @@
 "use strict";
 /*!
  * DataSync Content Store Filesystem
- * copyright (c) Contentstack LLC
+ * Copyright (c) Contentstack LLC
  * MIT Licensed
  */
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const debug_1 = require("debug");
 const lodash_1 = require("lodash");
-const default_1 = require("./default");
-const filesystem_1 = __importDefault(require("./filesystem"));
+const config_1 = require("./config");
+const core_1 = require("./core");
+let config;
+exports.config = config;
 let connector;
-const debug = debug_1.debug('content-sotre-filesystem');
 /**
- * @description to start the content connector
- * @param  {} assetConnector: asset connector instance
- * @param  {} config?: config
- * @param  {} logger?: logger instance
+ * @description Establish connection to FS db
+ * @param  {object} assetConnector Asset store instance
+ * @param  {object} config App config
  */
-function start(assetConnector, config) {
-    return new Promise((resolve, reject) => {
-        try {
-            config = (config) ? lodash_1.merge(default_1.defaultConfig, config) : default_1.defaultConfig;
-            connector = new filesystem_1.default(assetConnector, config);
-            resolve(connector);
-        }
-        catch (error) {
-            debug('Failed to load content-store due to', error);
-            reject(error);
-        }
-    });
+function start(assetStore, config) {
+    config = lodash_1.merge(config_1.defaults, config);
+    const contentStore = new core_1.FilesystemStore(assetStore, config);
+    return Promise.resolve(contentStore);
 }
 exports.start = start;
-/**
- * @description to get connector instance
- */
-function getConnectorInstance() {
-    return connector;
-}
-exports.getConnectorInstance = getConnectorInstance;

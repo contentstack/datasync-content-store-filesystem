@@ -1,16 +1,14 @@
 /*!
  * DataSync Content Store Filesystem
- * copyright (c) Contentstack LLC
+ * Copyright (c) Contentstack LLC
  * MIT Licensed
  */
+import { FilesystemStore } from './core';
+declare let config: any;
+export { config };
 /**
- * @description to start the content connector
- * @param  {} assetConnector: asset connector instance
- * @param  {} config?: config
- * @param  {} logger?: logger instance
+ * @description Establish connection to FS db
+ * @param  {object} assetConnector Asset store instance
+ * @param  {object} config App config
  */
-export declare function start(assetConnector: any, config?: any): Promise<{}>;
-/**
- * @description to get connector instance
- */
-export declare function getConnectorInstance(): any;
+export declare function start(assetStore: any, config?: any): Promise<FilesystemStore>;
