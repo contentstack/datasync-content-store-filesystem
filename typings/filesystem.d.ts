@@ -1,10 +1,5 @@
-/*!
-* contentstack-sync-content-store-filesystem
-* copyright (c) Contentstack LLC
-* MIT Licensed
-*/
 declare class FileSystem {
-    private assetConnector;
+    private assetStore;
     private config;
     constructor(assetConnector: any, config: any);
     /**
@@ -19,15 +14,15 @@ declare class FileSystem {
     unpublish(data: any): Promise<{}>;
     /**
      * @description to delete the data from filesystem
-     * @param  {Object} query: data for delete
+     * @param  {Object} data: data for delete
      */
-    delete(query: any): Promise<{}>;
+    delete(data: any): Promise<{}>;
     find(data: any): Promise<{}>;
     findOne(data: any): Promise<{}>;
     private validate;
     /**
      * @description to delete content type the data from filesystem
-     * @param  {Object} query: data for  delete content type
+     * @param  {Object} data: data for  delete content type
      */
     private deleteContentType;
 }

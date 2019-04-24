@@ -8,5 +8,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.defaultConfig = {
     contentStore: {
         baseDir: './_contents',
+        operationsCount: 10
     },
 };

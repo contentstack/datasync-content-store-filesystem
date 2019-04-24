@@ -21,7 +21,7 @@ let data1 = {
 		optimizely: ['editor', 'Designer'],
 		tags: [],
 		locale: 'en-us',
-		uid: 'blt93da1f4f2f59ec5c',
+		uid: 'ablt93da1f4f2f59ec5c',
 		created_by: 'blt607b206b64807684',
 		updated_by: 'blt607b206b64807684',
 		created_at: '2018-10-09T10:11:19.788Z',
@@ -319,18 +319,164 @@ let data3 = {
 	}
 }
 
+let data = {
+    "event_at": "2019-01-27T15:24:04.714Z",
+    "content_type_uid": "product",
+    "type": "entry_published",
+    "data": {
+        "title": "Amazon_Echo_Black",
+        "url": "/product/Amazon_Echo_Black",
+        "image_thumbnails": {
+            "reference_to": "_assets",
+            "values": ["blt014341962c1fe699", "blt9d2e87df7258f392", "blt720f608708b52157"]
+        },
+        "product_title": "abc Amazon Echo - Black!",
+        "price_title": "Listed Price",
+        "price": "$199",
+        "product_description": "Plays all your music from Amazon Music, Spotify, Pandora, iHeartRadio, TuneIn, and more using just your voice Fills the room with immersive, 360º omni-directional audio",
+        "category": {
+            "reference_to": "categories",
+            "values": ["bltd0f51996c27a61cc"]
+        },
+        "tags": [],
+        "locale": "en-us",
+        "uid": "acdblt862fc4f0862a900b",
+        "created_by": "blt161e02c9fffa78f6",
+        "updated_by": "blt161e02c9fffa78f6",
+        "created_at": "2018-07-17T05:16:47.957Z",
+        "updated_at": "2019-01-27T15:23:57.417Z",
+        "_version": 3,
+        "related_products": {
+            "reference_to": "product",
+            "values": ["bltda7f6b9f42df9cfb", "blt14c458b6028429d6"]
+        },
+        "publish_details": {
+            "environment": "blt1b06d5cbcc2c1e8c",
+            "locale": "en-us",
+            "time": "2019-01-27T15:24:04.714Z",
+            "user": "blt161e02c9fffa78f6"
+        }
+    },
+    "action": "publish",
+    "locale": "en-us",
+    "uid": "acdblt862fc4f0862a900b"
+} 
+data2 = {
+    "event_at": "2019-01-27T15:24:04.714Z",
+    "content_type_uid": "product",
+    "type": "entry_published",
+    "data": {
+        "title": "Amazon_Echo_Black",
+        "url": "/product/Amazon_Echo_Black",
+        "image_thumbnails": {
+            "reference_to": "_assets",
+            "values": ["blt014341962c1fe699", "blt9d2e87df7258f392", "blt720f608708b52157"]
+        },
+        "product_title": "abc Amazon Echo - Black!",
+        "price_title": "Listed Price",
+        "price": "$199",
+        "product_description": "Plays all your music from Amazon Music, Spotify, Pandora, iHeartRadio, TuneIn, and more using just your voice Fills the room with immersive, 360º omni-directional audio",
+        "category": {
+            "reference_to": "categories",
+            "values": ["bltd0f51996c27a61cc"]
+        },
+        "tags": [],
+        "locale": "mr-in",
+        "uid": "blt862fc4f0862a900bas",
+        "created_by": "blt161e02c9fffa78f6",
+        "updated_by": "blt161e02c9fffa78f6",
+        "created_at": "2018-07-17T05:16:47.957Z",
+        "updated_at": "2019-01-27T15:23:57.417Z",
+        "_version": 3,
+        "related_products": {
+            "reference_to": "product",
+            "values": ["bltda7f6b9f42df9cfb", "blt14c458b6028429d6"]
+        },
+        "publish_details": {
+            "environment": "blt1b06d5cbcc2c1e8c",
+            "locale": "en-us",
+            "time": "2019-01-27T15:24:04.714Z",
+            "user": "blt161e02c9fffa78f6"
+        }
+    },
+    "action": "publish",
+    "locale": "mr-in",
+    "uid": "blt862fc4f0862a900bas"
+}
+ data3 = {
+    "event_at": "2019-01-27T15:24:04.714Z",
+    "content_type_uid": "product",
+    "type": "entry_published",
+    "data": {
+        "title": "Amazon_Echo_Black",
+        "url": "/product/Amazon_Echo_Black",
+        "image_thumbnails": {
+            "reference_to": "_assets",
+            "values": ["blt014341962c1fe699", "blt9d2e87df7258f392", "blt720f608708b52157"]
+        },
+        "product_title": "abc Amazon Echo - Black!",
+        "price_title": "Listed Price",
+        "price": "$199",
+        "product_description": "Plays all your music from Amazon Music, Spotify, Pandora, iHeartRadio, TuneIn, and more using just your voice Fills the room with immersive, 360º omni-directional audio",
+        "category": {
+            "reference_to": "categories",
+            "values": ["bltd0f51996c27a61cc"]
+        },
+        "tags": [],
+        "locale": "mr-in",
+        "uid": "blt862fc4f0862a900basmit",
+        "created_by": "blt161e02c9fffa78f6",
+        "updated_by": "blt161e02c9fffa78f6",
+        "created_at": "2018-07-17T05:16:47.957Z",
+        "updated_at": "2019-01-27T15:23:57.417Z",
+        "_version": 3,
+        "related_products": {
+            "reference_to": "product",
+            "values": ["bltda7f6b9f42df9cfb", "blt14c458b6028429d6"]
+        },
+        "publish_details": {
+            "environment": "blt1b06d5cbcc2c1e8c",
+            "locale": "en-us",
+            "time": "2019-01-27T15:24:04.714Z",
+            "user": "blt161e02c9fffa78f6"
+        }
+    },
+    "action": "publish",
+    "locale": "mr-in",
+    "uid": "blt862fc4f0862a900basmit"
+}
+
 
 assetConnector.start(config)
 .then( assetConnector => {
     return contentConnector.start(assetConnector, config)
 })
-.then( (connector) => {
+.then(async (connector) => {
 	console.log("app started sucessfully!!")
-	connector.publish(data1)
-	connector.publish(data3)
-	connector.publish(data2)
-	setTimeout(()=>{connector.unpublish(data1)}, 500)
-	setTimeout(()=>{connector.delete(data2)}, 1500)
+    // console.time("label")
+	// for(let i=0 ; i<200000; i++){
+	// 	data.uid= 'blt'+i;
+	// 	data.data.uid ='blt'+i
+	// 	//data.data.title= data.data.title + data.uid
+	// 	await connector.publish(data)
+    //     console.log("published",i)
+    //     if(i === 199999){
+	// 		console.timeEnd("label")
+	// 		// setTimeout(()=>{
+	// 		// 	console.log("called")
+	// 		// }, 6000)
+    //     }
+	// }
+	connector.publish(data).then().catch()
+    // connector.publish(data).then(
+	// 	connector.publish(data1).then(
+	// 		connector.publish(data2).then().catch(console.error)
+	// 	).catch(console.error)
+	// ).catch(console.error)
+    // connector.publish(data1).then(console.log).catch(console.error)
+    // connector.publish(data2).then(console.log).catch(console.error)
+    // connector.publish(data3).then(console.log).catch(console.error)
+	
 })
 .catch((error) =>{
 	console.error(error)

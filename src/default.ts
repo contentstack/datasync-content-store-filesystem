@@ -7,5 +7,6 @@
 export const defaultConfig = {
   contentStore: {
     baseDir: './_contents',
+    operationsCount: 10
   },
 };

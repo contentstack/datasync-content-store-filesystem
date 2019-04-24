@@ -1,5 +1,5 @@
 {
-  "name": "contentstack-content-store-filesystem",
+  "name": "@contentstack/datasync-content-store-nedb",
   "version": "1.0.0",
   "description": "Retrieve content from sync manager ans store/remove it from filesystem.",
   "main": "./dist",
@@ -36,9 +36,12 @@
   "license": "MIT",
   "dependencies": {
     "@types/rimraf": "^2.0.2",
+    "circular-json": "^0.5.9",
     "debug": "^4.1.0",
+    "json-stringify-safe": "^5.0.1",
     "lodash": "^4.17.11",
     "mkdirp": "^0.5.1",
+    "nedb": "^1.8.0",
     "rimraf": "2.6.2",
     "write-file-atomic": "^2.4.2"
   },
