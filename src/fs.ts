@@ -34,9 +34,9 @@ export class FilesystemStore {
     this.unwanted = this.config.unwanted
 
     // path keys for entry, assets & content types
-    this.pattern.contentTypeKeys = baseDirKeys.concat(compact(this.config.pattern.contentType.split('/')))
-    this.pattern.entryKeys = baseDirKeys.concat(compact(this.config.pattern.entry.split('/')))
-    this.pattern.assetKeys = baseDirKeys.concat(compact(this.config.pattern.asset.split('/')))
+    this.pattern.contentTypeKeys = baseDirKeys.concat(compact(this.config.patterns.contentType.split('/')))
+    this.pattern.entryKeys = baseDirKeys.concat(compact(this.config.patterns.entry.split('/')))
+    this.pattern.assetKeys = baseDirKeys.concat(compact(this.config.patterns.asset.split('/')))
   }
 
   public publish(input) {
@@ -141,7 +141,7 @@ export class FilesystemStore {
 
   private publishAsset(asset) {
     return new Promise((resolve, reject) => {
-
+      
     })
   }
 

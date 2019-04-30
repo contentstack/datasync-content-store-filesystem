@@ -7,7 +7,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const lodash_1 = require("lodash");
 const config_1 = require("./config");
-const core_1 = require("./core");
+const fs_1 = require("./fs");
 let config;
 exports.config = config;
 let connector;
@@ -18,7 +18,7 @@ let connector;
  */
 function start(assetStore, config) {
     config = lodash_1.merge(config_1.defaults, config);
-    const contentStore = new core_1.FilesystemStore(assetStore, config);
+    const contentStore = new fs_1.FilesystemStore(assetStore, config);
     return Promise.resolve(contentStore);
 }
 exports.start = start;

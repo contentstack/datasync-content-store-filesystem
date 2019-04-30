@@ -3,7 +3,7 @@
  * Copyright (c) Contentstack LLC
  * MIT Licensed
  */
-import { FilesystemStore } from './core';
+import { FilesystemStore } from './fs';
 declare let config: any;
 export { config };
 /**
