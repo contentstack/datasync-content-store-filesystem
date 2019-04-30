@@ -14,7 +14,13 @@ export const defaults = {
       entryCache: '/cache/:locale/data/:content_type_uid/index.json',
       assetCache: '/cache/:locale/data/assets/index.json',
       contentTypeCache: '/cache/:locale/data/:content_type_uid/schema.json',
-
+      // variables: ['locale', 'content_type_uid',/* 'data.title', 'uid' */]
+    },
+    internal: {
+      keys: {
+        content_type_uid: '_content_types',
+        assets: '_assets'
+      },
     },
     unwanted: {
       asset: {

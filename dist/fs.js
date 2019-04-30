@@ -36,9 +36,9 @@ class FilesystemStore {
         // unwanted keys
         this.unwanted = this.config.unwanted;
         // path keys for entry, assets & content types
-        this.pattern.contentTypeKeys = baseDirKeys.concat(lodash_1.compact(this.config.pattern.contentType.split('/')));
-        this.pattern.entryKeys = baseDirKeys.concat(lodash_1.compact(this.config.pattern.entry.split('/')));
-        this.pattern.assetKeys = baseDirKeys.concat(lodash_1.compact(this.config.pattern.asset.split('/')));
+        this.pattern.contentTypeKeys = baseDirKeys.concat(lodash_1.compact(this.config.patterns.contentType.split('/')));
+        this.pattern.entryKeys = baseDirKeys.concat(lodash_1.compact(this.config.patterns.entry.split('/')));
+        this.pattern.assetKeys = baseDirKeys.concat(lodash_1.compact(this.config.patterns.asset.split('/')));
     }
     publish(input) {
         return new Promise((resolve, reject) => {

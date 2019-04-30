@@ -6,7 +6,7 @@
 
 import { merge } from 'lodash'
 import { defaults } from './config'
-import { FilesystemStore } from './core'
+import { FilesystemStore } from './fs'
 
 let config
 let connector

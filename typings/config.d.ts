@@ -14,6 +14,12 @@ export declare const defaults: {
             assetCache: string;
             contentTypeCache: string;
         };
+        internal: {
+            keys: {
+                content_type_uid: string;
+                assets: string;
+            };
+        };
         unwanted: {
             asset: {
                 created_at: boolean;
