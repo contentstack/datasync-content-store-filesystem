@@ -14,8 +14,10 @@ import { promisify } from 'util';
 import writeFileAtomic from 'write-file-atomic';
 import { getPathKeys, removeUnwantedKeys } from './util/index';
 import { readLocales } from './util/locale-management';
-import { validateContentTypeDeletedObject, validateEntryAssetDeletedObject,
-  validatePublishedObject, validateUnpublishedObject } from './util/validations';
+import {
+  validateContentTypeDeletedObject, validateEntryAssetDeletedObject,
+  validatePublishedObject, validateUnpublishedObject
+} from './util/validations';
 
 const readFile: any = promisify(fs.readFile);
 const writeFile: any = promisify(writeFileAtomic);
@@ -215,9 +217,9 @@ export class FilesystemStore {
         asset.data = removeUnwantedKeys(this.unwanted.asset, asset.data);
         if (fs.existsSync(assetFolderPath)) {
           let assets: any;
-          if (fs.existsSync(assetPath)) {
-            const data = await readFile(assetPath, 'utf-8');
-            assets = JSON.parse(data);
+          const data = await readFile(assetPath, 'utf-8');
+          assets = JSON.parse(data);
+          return new Promise((rs, rj) => {
             let flag = false;
             for (let i = 0, j = assets.length; i < j; i++) {
               if (assets[i].uid === asset.uid) {
@@ -236,32 +238,34 @@ export class FilesystemStore {
             }
 
             return this.assetStore.download(asset.data)
-              .then((asset) => {
+              .then((data) => {
                 if (!flag) {
-                  asset.data = asset;
+                  asset.data = data;
                   assets.push(asset);
                 }
-                return resolve(asset);
+                return rs();
               })
-              .catch(reject);
+              .catch(rj);
 
-          } else {
-            assets = [asset];
-          }
-
-          return writeFile(assetPath, JSON.stringify(assets), (err) => {
-            if (err) { return reject(err); }
-            return resolve(data);
-          });
-
+          })
+          .then(() => {
+            return writeFile(assetPath, JSON.stringify(assets), (err) => {
+              if (err) { return reject(err); }
+              return resolve(data);
+            });
+          })
         }
 
         mkdirp.sync(assetFolderPath);
-
-        return writeFile(assetPath, JSON.stringify([asset]), (err) => {
-          if (err) { return reject(err); }
-          return resolve(data);
-        });
+        return this.assetStore.download(asset.data)
+              .then((data) => {
+                asset.data = data;
+                return writeFile(assetPath, JSON.stringify([asset]), (err) => {
+                  if (err) { return reject(err); }
+                  return resolve(data);
+                });
+              })
+        
       } catch (error) {
         return reject(error);
       }
@@ -279,6 +283,7 @@ export class FilesystemStore {
           const data = await readFile(assetPath, 'utf-8');
           assets = JSON.parse(data);
           let flag = true;
+          return new Promise((rs, rj) => {
           for (let i = 0; i < assets.length; i++) {
             if (assets[i].uid === asset.uid) {
               if (assets[i].data.hasOwnProperty('_version')) {
@@ -302,8 +307,15 @@ export class FilesystemStore {
             return resolve(asset);
           }
           return this.assetStore.unpublish(object[0].data)
-            .then(resolve)
-            .catch(reject);
+            .then(rs)
+            .catch(rj);
+          }).then(()=>{
+            writeFile(assetPath, JSON.stringify(assets), (err) => {
+              if(err) { return reject(err); }
+              resolve(data);
+            })
+
+          })
         }
 
         return resolve(asset);
@@ -399,22 +411,22 @@ export class FilesystemStore {
         const paths = [];
         ctPathKeys.splice(ctPathKeys.length - 1);
         (locales as any).forEach((locale, index) => {
-            ctPathKeys[localeKeyIndex] = locale;
-            const ctFolderPathKeys = getPathKeys(ctPathKeys, data);
-            const ctFolderPath = join.apply(this, ctFolderPathKeys);
-            paths.push(ctFolderPath);
-            if (index === (locales as any).length - 1) {
-              paths.forEach((path, pthIndex) => {
-                if (fs.existsSync(path)) {
-                  rimraf.sync(path);
-                }
-                if (pthIndex === paths.length - 1) {
-                  return resolve(data);
-                }
-              });
+          ctPathKeys[localeKeyIndex] = locale;
+          const ctFolderPathKeys = getPathKeys(ctPathKeys, data);
+          const ctFolderPath = join.apply(this, ctFolderPathKeys);
+          paths.push(ctFolderPath);
+          if (index === (locales as any).length - 1) {
+            paths.forEach((path, pthIndex) => {
+              if (fs.existsSync(path)) {
+                rimraf.sync(path);
+              }
+              if (pthIndex === paths.length - 1) {
+                return resolve(data);
+              }
+            });
 
-            }
-          });
+          }
+        });
       } catch (error) {
         return reject(error);
       }

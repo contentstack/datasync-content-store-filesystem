@@ -210,9 +210,9 @@ class FilesystemStore {
                 asset.data = index_1.removeUnwantedKeys(this.unwanted.asset, asset.data);
                 if (fs_1.default.existsSync(assetFolderPath)) {
                     let assets;
-                    if (fs_1.default.existsSync(assetPath)) {
-                        const data = yield readFile(assetPath, 'utf-8');
-                        assets = JSON.parse(data);
+                    const data = yield readFile(assetPath, 'utf-8');
+                    assets = JSON.parse(data);
+                    return new Promise((rs, rj) => {
                         let flag = false;
                         for (let i = 0, j = assets.length; i < j; i++) {
                             if (assets[i].uid === asset.uid) {
@@ -231,31 +231,34 @@ class FilesystemStore {
                             }
                         }
                         return this.assetStore.download(asset.data)
-                            .then((asset) => {
+                            .then((data) => {
                             if (!flag) {
-                                asset.data = asset;
+                                asset.data = data;
                                 assets.push(asset);
                             }
-                            return resolve(asset);
+                            return rs();
                         })
-                            .catch(reject);
-                    }
-                    else {
-                        assets = [asset];
-                    }
-                    return writeFile(assetPath, JSON.stringify(assets), (err) => {
+                            .catch(rj);
+                    })
+                        .then(() => {
+                        return writeFile(assetPath, JSON.stringify(assets), (err) => {
+                            if (err) {
+                                return reject(err);
+                            }
+                            return resolve(data);
+                        });
+                    });
+                }
+                mkdirp_1.default.sync(assetFolderPath);
+                return this.assetStore.download(asset.data)
+                    .then((data) => {
+                    asset.data = data;
+                    return writeFile(assetPath, JSON.stringify([asset]), (err) => {
                         if (err) {
                             return reject(err);
                         }
                         return resolve(data);
                     });
-                }
-                mkdirp_1.default.sync(assetFolderPath);
-                return writeFile(assetPath, JSON.stringify([asset]), (err) => {
-                    if (err) {
-                        return reject(err);
-                    }
-                    return resolve(data);
                 });
             }
             catch (error) {
@@ -274,31 +277,40 @@ class FilesystemStore {
                     const data = yield readFile(assetPath, 'utf-8');
                     assets = JSON.parse(data);
                     let flag = true;
-                    for (let i = 0; i < assets.length; i++) {
-                        if (assets[i].uid === asset.uid) {
-                            if (assets[i].data.hasOwnProperty('_version')) {
-                                object = assets.splice(i, 1);
-                                break;
+                    return new Promise((rs, rj) => {
+                        for (let i = 0; i < assets.length; i++) {
+                            if (assets[i].uid === asset.uid) {
+                                if (assets[i].data.hasOwnProperty('_version')) {
+                                    object = assets.splice(i, 1);
+                                    break;
+                                }
                             }
                         }
-                    }
-                    if (object.length === 0) {
-                        return resolve(asset);
-                    }
-                    for (let i = 0; i < assets.length; i++) {
-                        if (assets[i].uid === asset.uid) {
-                            if (assets[i].data.hasOwnProperty('download_id') && (assets[i].data.url === object[0].data.url)) {
-                                flag = false;
-                                break;
+                        if (object.length === 0) {
+                            return resolve(asset);
+                        }
+                        for (let i = 0; i < assets.length; i++) {
+                            if (assets[i].uid === asset.uid) {
+                                if (assets[i].data.hasOwnProperty('download_id') && (assets[i].data.url === object[0].data.url)) {
+                                    flag = false;
+                                    break;
+                                }
                             }
                         }
-                    }
-                    if (!flag) {
-                        return resolve(asset);
-                    }
-                    return this.assetStore.unpublish(object[0].data)
-                        .then(resolve)
-                        .catch(reject);
+                        if (!flag) {
+                            return resolve(asset);
+                        }
+                        return this.assetStore.unpublish(object[0].data)
+                            .then(rs)
+                            .catch(rj);
+                    }).then(() => {
+                        writeFile(assetPath, JSON.stringify(assets), (err) => {
+                            if (err) {
+                                return reject(err);
+                            }
+                            resolve(data);
+                        });
+                    });
                 }
                 return resolve(asset);
             }
