@@ -18,7 +18,14 @@ let connector;
  */
 function start(assetStore, config) {
     config = lodash_1.merge(config_1.defaults, config);
-    const contentStore = new fs_1.FilesystemStore(assetStore, config);
-    return Promise.resolve(contentStore);
+    connector = new fs_1.FilesystemStore(assetStore, config);
+    return Promise.resolve(connector);
 }
 exports.start = start;
+/**
+ * @description to get connector instance
+ */
+function getConnectorInstance() {
+    return connector;
+}
+exports.getConnectorInstance = getConnectorInstance;

@@ -11,8 +11,8 @@ const config = require('./mock/config')
 let data1 = {
 	content_type_uid: 'optimizely',
 	action: 'publish',
-	publish_queue_uid: 'blt67729365be66c4af1b77',
 	locale: 'en-us',
+	uid: 'blt93da1f4f2f59ec5c',
 	data: {
 		title: 'optimizely',
 		url: '/optimizely',
@@ -113,8 +113,8 @@ let data1 = {
 let data2 = {
 	content_type_uid: 'youtube_test',
 	action: 'publish',
-	publish_queue_uid: 'bltbbdda2b410005b26a6e6',
 	locale: 'es-es',
+	uid: 'bltaf3fc89493975a43',
 	data: {
 		title: 'youtube',
 		youtube_test: 'KMDRAmBceYw',
@@ -213,11 +213,55 @@ let data2 = {
 	}
 }
 
-let data3 = {
-	content_type_uid: 'youtube_test_new',
+let asset_data = {
+	content_type_uid: '_assets',
 	action: 'publish',
 	publish_queue_uid: 'bltbbdda2b410005b26a6e6',
+	locale: 'fr-fr',
+	uid: 'blt9c4ef3c49f7b18e9',
+	data: {
+		uid: 'blt9c4ef3c49f7b18e9',
+		created_at: '2018-06-19T12:06:38.066Z',
+		updated_at: '2018-06-19T12:06:38.066Z',
+		created_by: 'blt607b206b64807684',
+		updated_by: 'blt607b206b64807684',
+		content_type: 'image/jpeg',
+		file_size: '14552',
+		tags: [],
+		filename: 'Teilchenmodell_Flüssigkeit.png',
+		url:
+		 'https://images.contentstack.io/v3/assets/bltd1343376dfba54d2/blt9c4ef3c49f7b18e9/5b28f1cefdee6c3974929dc8/blog2.jpg',
+		ACL: {},
+		is_dir: false,
+		_version: 1,
+		title: 'blog2.jpg',
+		force_load: false,
+		content_type_uid: '_assets' }
+}
+
+let ct = {
+		content_type_uid: '_content_types',
+		data: {
+			title: 'youtube',
+			youtube_test: 'KMDRAmBceYw',
+			tags: [],
+			locale: 'en-us',
+			uid: 'optimizely',
+			created_by: 'blt607b206b64807684',
+			updated_by: 'blt7d7118ed69e5742a',
+			created_at: '2018-08-01T13:03:13.527Z',
+			updated_at: '2018-10-24T07:17:45.654Z',
+			ACL: {},
+			_version: 7,
+			content_type_uid: 'content_type'
+		},
+		uid: 'optimizely'
+}
+
+let data3 = {
+	content_type_uid: 'youtube_test_new',
 	locale: 'en-us',
+	uid: 'bltaf3fc89493975a43',
 	data: {
 		title: 'youtube',
 		youtube_test: 'KMDRAmBceYw',
@@ -322,16 +366,24 @@ return assetConnector.start(config)
 	})
 	.then((connector) => {
 		console.log("app started sucessfully!!")
-		connector.publish(data1)
-		connector.publish(data3)
-		connector.publish(data2)
-		setTimeout(() => {
-			connector.unpublish(data1)
-		}, 500)
-		setTimeout(() => {
-			connector.delete(data2)
-		}, 1500)
-	})
-	.catch((error) => {
-		console.error(error)
-	})
+		connector.publish(data1).then(()=>{
+			console.log("data1")
+		}).then(()=>{
+			connector.publish(data2).then(()=>{
+				console.log("data2")
+			}).then(()=>{
+				connector.publish(asset_data).then(()=>{
+					console.log("asset_data")
+				}).then(()=>{
+					connector.publish(data3).then(()=>{
+						console.log("data3")
+					}).then(()=>{
+						connector.delete(ct).then(()=>{
+							console.log("ct")
+						}).catch(console.error)
+					}).catch(console.error)
+				}).catch(console.error)
+			}).catch(console.error)
+		}).catch(console.error)
+	}).catch(console.error)
+	
