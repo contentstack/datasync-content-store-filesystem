@@ -14,7 +14,8 @@ exports.validatePublishedObject = (publishedObject) => {
     if (lodash_1.isEmpty(publishedObject.data) || !(lodash_1.isPlainObject(publishedObject.data))) {
         throw new Error(`Publish object.data should be of type plain object and not empty!`);
     }
-    if (typeof publishedObject.locale !== 'string' || typeof publishedObject.uid !== 'string' || typeof publishedObject.content_type_uid !== 'string') {
+    if (typeof publishedObject.locale !== 'string' || typeof publishedObject.uid !== 'string' ||
+        typeof publishedObject.content_type_uid !== 'string') {
         throw new Error(`Publish object key types do not match expected types!`);
     }
     return;
@@ -28,7 +29,8 @@ exports.validateUnpublishedObject = (unpublishedObject) => {
     if (lodash_1.isEmpty(unpublishedObject.data) || !(lodash_1.isPlainObject(unpublishedObject.data))) {
         throw new Error(`Unpublish object.data should be of type plain object and not empty!`);
     }
-    if (typeof unpublishedObject.locale !== 'string' || typeof unpublishedObject.uid !== 'string' || typeof unpublishedObject.content_type_uid !== 'string') {
+    if (typeof unpublishedObject.locale !== 'string' || typeof unpublishedObject.uid !== 'string' ||
+        typeof unpublishedObject.content_type_uid !== 'string') {
         throw new Error(`Unpublish object key types do not match expected types!`);
     }
     return;
@@ -42,7 +44,8 @@ exports.validateEntryAssetDeletedObject = (deletedObject) => {
     if (lodash_1.isEmpty(deletedObject.data) || !(lodash_1.isPlainObject(deletedObject.data))) {
         throw new Error(`Unpublish object.data should be of type plain object and not empty!`);
     }
-    if (typeof deletedObject.locale !== 'string' || typeof deletedObject.uid !== 'string' || typeof deletedObject.content_type_uid !== 'string') {
+    if (typeof deletedObject.locale !== 'string' || typeof deletedObject.uid !== 'string' ||
+        typeof deletedObject.content_type_uid !== 'string') {
         throw new Error(`Unpublish object key types do not match expected types!`);
     }
     return;

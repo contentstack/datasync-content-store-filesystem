@@ -11,8 +11,8 @@ const config = require('./mock/config')
 let data1 = {
 	content_type_uid: 'optimizely',
 	action: 'publish',
-	publish_queue_uid: '***REMOVED***',
 	locale: 'en-us',
+	uid: '***REMOVED***',
 	data: {
 		title: 'optimizely',
 		url: '/optimizely',
@@ -113,8 +113,8 @@ let data1 = {
 let data2 = {
 	content_type_uid: 'youtube_test',
 	action: 'publish',
-	publish_queue_uid: '***REMOVED***',
 	locale: 'es-es',
+	uid: '***REMOVED***',
 	data: {
 		title: 'youtube',
 		youtube_test: 'KMDRAmBceYw',
@@ -213,11 +213,55 @@ let data2 = {
 	}
 }
 
-let data3 = {
-	content_type_uid: 'youtube_test_new',
+let asset_data = {
+	content_type_uid: '_assets',
 	action: 'publish',
 	publish_queue_uid: '***REMOVED***',
+	locale: 'fr-fr',
+	uid: '***REMOVED***',
+	data: {
+		uid: '***REMOVED***',
+		created_at: '2018-06-19T12:06:38.066Z',
+		updated_at: '2018-06-19T12:06:38.066Z',
+		created_by: '***REMOVED***',
+		updated_by: '***REMOVED***',
+		content_type: 'image/jpeg',
+		file_size: '14552',
+		tags: [],
+		filename: 'Teilchenmodell_Flüssigkeit.png',
+		url:
+		 '***REMOVED***',
+		ACL: {},
+		is_dir: false,
+		_version: 1,
+		title: 'blog2.jpg',
+		force_load: false,
+		content_type_uid: '_assets' }
+}
+
+let ct = {
+		content_type_uid: '_content_types',
+		data: {
+			title: 'youtube',
+			youtube_test: 'KMDRAmBceYw',
+			tags: [],
+			locale: 'en-us',
+			uid: 'optimizely',
+			created_by: '***REMOVED***',
+			updated_by: '***REMOVED***',
+			created_at: '2018-08-01T13:03:13.527Z',
+			updated_at: '2018-10-24T07:17:45.654Z',
+			ACL: {},
+			_version: 7,
+			content_type_uid: 'content_type'
+		},
+		uid: 'optimizely'
+}
+
+let data3 = {
+	content_type_uid: 'youtube_test_new',
 	locale: 'en-us',
+	uid: '***REMOVED***',
 	data: {
 		title: 'youtube',
 		youtube_test: 'KMDRAmBceYw',
@@ -322,16 +366,24 @@ return assetConnector.start(config)
 	})
 	.then((connector) => {
 		console.log("app started sucessfully!!")
-		connector.publish(data1)
-		connector.publish(data3)
-		connector.publish(data2)
-		setTimeout(() => {
-			connector.unpublish(data1)
-		}, 500)
-		setTimeout(() => {
-			connector.delete(data2)
-		}, 1500)
-	})
-	.catch((error) => {
-		console.error(error)
-	})
+		connector.publish(data1).then(()=>{
+			console.log("data1")
+		}).then(()=>{
+			connector.publish(data2).then(()=>{
+				console.log("data2")
+			}).then(()=>{
+				connector.publish(asset_data).then(()=>{
+					console.log("asset_data")
+				}).then(()=>{
+					connector.publish(data3).then(()=>{
+						console.log("data3")
+					}).then(()=>{
+						connector.delete(ct).then(()=>{
+							console.log("ct")
+						}).catch(console.error)
+					}).catch(console.error)
+				}).catch(console.error)
+			}).catch(console.error)
+		}).catch(console.error)
+	}).catch(console.error)
+	
