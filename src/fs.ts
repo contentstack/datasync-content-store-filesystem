@@ -5,10 +5,10 @@
  */
 
 import { debug as Debug } from 'debug';
-import fs, { mkdir, write } from 'fs';
+import fs from 'fs';
 import { cloneDeep, compact } from 'lodash';
 import mkdirp from 'mkdirp';
-import { join, resolve } from 'path';
+import { join }  from 'path';
 import rimraf from 'rimraf';
 import { promisify } from 'util';
 import writeFileAtomic from 'write-file-atomic';
@@ -145,10 +145,9 @@ export class FilesystemStore {
 
         entry.data = removeUnwantedKeys(this.unwanted.entry, entry.data);
         contentType.data = removeUnwantedKeys(this.unwanted.contentType, contentType.data);
-
         if (fs.existsSync(ctFolderPath)) {
           let entries: any;
-          if (fs.existsSync(entryPath)) {
+          //if (fs.existsSync(entryPath)) {
             const data = await readFile(entryPath, 'utf-8');
             entries = JSON.parse(data);
             let index;
@@ -164,15 +163,15 @@ export class FilesystemStore {
               // similar to unshift
               entries.splice(0, 0, entry);
             }
-          } else {
-            entries = [entry];
-          }
+          // } else {
+          //   entries = [entry];
+          // }
 
           return writeFile(entryPath, JSON.stringify(entries), (err) => {
             if (err) { return reject(err); }
             return writeFile(ctPath, JSON.stringify(contentType), (err) => {
               if (err) { return reject(err); }
-              return resolve(data);
+              return resolve(entry);
             });
           });
         }
@@ -366,7 +365,7 @@ export class FilesystemStore {
         if (fs.existsSync(assetPath)) {
           const data = await readFile(assetPath, 'utf-8');
           assets = JSON.parse(data);
-          let flag = true;
+          let flag = false;
           const bucket = [];
           let object;
           for (let i = 0; i < assets.length; i++) {
@@ -382,9 +381,8 @@ export class FilesystemStore {
           }
           return this.assetStore.delete(bucket)
             .then(() => {
-              writeFile(assetPath, JSON.stringify(assets), (err) => {
+              return writeFile(assetPath, JSON.stringify(assets), (err) => {
                 if (err) { return reject(err); }
-                debug('asset deleted sucessfully');
                 return resolve(asset);
               });
             })
@@ -393,7 +391,7 @@ export class FilesystemStore {
             });
         }
 
-        return reject(asset);
+        return resolve(asset);
       } catch (error) {
         return reject(error);
       }
