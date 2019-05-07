@@ -367,19 +367,19 @@ return assetConnector.start(config)
 	.then((connector) => {
 		console.log("app started sucessfully!!")
 		connector.publish(data1).then(()=>{
-			console.log("data1")
+			console.log(data1.uid ,"published")
 		}).then(()=>{
 			connector.publish(data2).then(()=>{
-				console.log("data2")
+				console.log(data2.uid , "published")
 			}).then(()=>{
 				connector.publish(asset_data).then(()=>{
-					console.log("asset_data")
+					console.log(asset_data.uid, "published")
 				}).then(()=>{
 					connector.publish(data3).then(()=>{
-						console.log("data3")
+						console.log(data3.uid , "published")
 					}).then(()=>{
 						connector.delete(ct).then(()=>{
-							console.log("ct")
+							console.log(ct.uid, "deleted")
 						}).catch(console.error)
 					}).catch(console.error)
 				}).catch(console.error)

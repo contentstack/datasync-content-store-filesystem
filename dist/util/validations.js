@@ -11,7 +11,7 @@ exports.validatePublishedObject = (publishedObject) => {
             throw new Error(`${key} is missing from ${JSON.stringify(publishedObject)}`);
         }
     });
-    if (lodash_1.isEmpty(publishedObject.data) || !(lodash_1.isPlainObject(publishedObject.data))) {
+    if ((lodash_1.isEmpty(publishedObject.data)) || !(lodash_1.isPlainObject(publishedObject.data))) {
         throw new Error(`Publish object.data should be of type plain object and not empty!`);
     }
     if (typeof publishedObject.locale !== 'string' || typeof publishedObject.uid !== 'string' ||
@@ -56,7 +56,7 @@ exports.validateContentTypeDeletedObject = (deletedObject) => {
             throw new Error(`${key} is missing from ${JSON.stringify(deletedObject)}`);
         }
     });
-    if (lodash_1.isEmpty(deletedObject.data) || !(lodash_1.isPlainObject(deletedObject.data))) {
+    if (!(lodash_1.isEmpty(deletedObject.data)) || !(lodash_1.isPlainObject(deletedObject.data))) {
         throw new Error(`Deleted object.data should be of type plain object and not empty!`);
     }
     if (typeof deletedObject.uid !== 'string' || typeof deletedObject.content_type_uid !== 'string') {

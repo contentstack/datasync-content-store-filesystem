@@ -140,25 +140,24 @@ class FilesystemStore {
                 contentType.data = index_1.removeUnwantedKeys(this.unwanted.contentType, contentType.data);
                 if (fs_1.default.existsSync(ctFolderPath)) {
                     let entries;
-                    if (fs_1.default.existsSync(entryPath)) {
-                        const data = yield readFile(entryPath, 'utf-8');
-                        entries = JSON.parse(data);
-                        let index;
-                        for (let i = 0, j = entries.length; i < j; i++) {
-                            if (entries[i].uid === entry.uid) {
-                                entries[i] = entry;
-                                index = i;
-                                break;
-                            }
-                        }
-                        if (typeof index === 'undefined') {
-                            // similar to unshift
-                            entries.splice(0, 0, entry);
+                    //if (fs.existsSync(entryPath)) {
+                    const data = yield readFile(entryPath, 'utf-8');
+                    entries = JSON.parse(data);
+                    let index;
+                    for (let i = 0, j = entries.length; i < j; i++) {
+                        if (entries[i].uid === entry.uid) {
+                            entries[i] = entry;
+                            index = i;
+                            break;
                         }
                     }
-                    else {
-                        entries = [entry];
+                    if (typeof index === 'undefined') {
+                        // similar to unshift
+                        entries.splice(0, 0, entry);
                     }
+                    // } else {
+                    //   entries = [entry];
+                    // }
                     return writeFile(entryPath, JSON.stringify(entries), (err) => {
                         if (err) {
                             return reject(err);
@@ -167,7 +166,7 @@ class FilesystemStore {
                             if (err) {
                                 return reject(err);
                             }
-                            return resolve(data);
+                            return resolve(entry);
                         });
                     });
                 }
@@ -358,7 +357,7 @@ class FilesystemStore {
                 if (fs_1.default.existsSync(assetPath)) {
                     const data = yield readFile(assetPath, 'utf-8');
                     assets = JSON.parse(data);
-                    let flag = true;
+                    let flag = false;
                     const bucket = [];
                     let object;
                     for (let i = 0; i < assets.length; i++) {
@@ -374,11 +373,10 @@ class FilesystemStore {
                     }
                     return this.assetStore.delete(bucket)
                         .then(() => {
-                        writeFile(assetPath, JSON.stringify(assets), (err) => {
+                        return writeFile(assetPath, JSON.stringify(assets), (err) => {
                             if (err) {
                                 return reject(err);
                             }
-                            debug('asset deleted sucessfully');
                             return resolve(asset);
                         });
                     })
@@ -386,7 +384,7 @@ class FilesystemStore {
                         return reject(asset);
                     });
                 }
-                return reject(asset);
+                return resolve(asset);
             }
             catch (error) {
                 return reject(error);

@@ -12,7 +12,7 @@ export const validatePublishedObject = (publishedObject) => {
     }
   });
 
-  if (isEmpty(publishedObject.data) || !(isPlainObject(publishedObject.data))) {
+  if ((isEmpty(publishedObject.data)) || !(isPlainObject(publishedObject.data))) {
     throw new Error(`Publish object.data should be of type plain object and not empty!`);
   }
 
@@ -69,7 +69,7 @@ export const validateContentTypeDeletedObject = (deletedObject) => {
     }
   });
 
-  if (isEmpty(deletedObject.data) || !(isPlainObject(deletedObject.data))) {
+  if (!(isEmpty(deletedObject.data)) || !(isPlainObject(deletedObject.data))) {
     throw new Error(`Deleted object.data should be of type plain object and not empty!`);
   }
 
