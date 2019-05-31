@@ -116,13 +116,13 @@ class FilesystemStore {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const publishedEntry = lodash_1.cloneDeep(data);
-                const entry = {
+                let entry = {
                     content_type_uid: publishedEntry.content_type_uid,
                     data: publishedEntry.data,
                     locale: publishedEntry.locale,
                     uid: publishedEntry.uid,
                 };
-                const contentType = {
+                let contentType = {
                     content_type_uid: '_content_types',
                     data: publishedEntry.content_type,
                     locale: publishedEntry.locale,
@@ -138,6 +138,8 @@ class FilesystemStore {
                 const entryFolderPath = path_1.join.apply(this, entryPathKeys);
                 entry.data = index_1.removeUnwantedKeys(this.unwanted.entry, entry.data);
                 contentType.data = index_1.removeUnwantedKeys(this.unwanted.contentType, contentType.data);
+                entry = index_1.structuralChanges(entry);
+                contentType = index_1.structuralChanges(contentType);
                 if (fs_1.default.existsSync(ctFolderPath)) {
                     let entries;
                     //if (fs.existsSync(entryPath)) {
@@ -196,7 +198,7 @@ class FilesystemStore {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const punlishedAsset = lodash_1.cloneDeep(data);
-                const asset = {
+                let asset = {
                     content_type_uid: punlishedAsset.content_type_uid,
                     data: punlishedAsset.data,
                     locale: punlishedAsset.locale,
@@ -207,6 +209,7 @@ class FilesystemStore {
                 assetPathKeys.splice(assetPathKeys.length - 1);
                 const assetFolderPath = path_1.join.apply(this, assetPathKeys);
                 asset.data = index_1.removeUnwantedKeys(this.unwanted.asset, asset.data);
+                asset = index_1.structuralChanges(asset);
                 if (fs_1.default.existsSync(assetFolderPath)) {
                     let assets;
                     const data = yield readFile(assetPath, 'utf-8');
@@ -215,25 +218,28 @@ class FilesystemStore {
                         let flag = false;
                         for (let i = 0, j = assets.length; i < j; i++) {
                             if (assets[i].uid === asset.uid) {
-                                if (asset.data.hasOwnProperty('download_id')) {
-                                    if (assets[i].data.download_id === asset.data.download_id) {
+                                if (asset.hasOwnProperty('download_id')) {
+                                    if (assets[i].download_id === asset.download_id) {
                                         assets[i] = asset;
                                         flag = true;
                                         break;
                                     }
                                 }
-                                else if (assets[i].data.hasOwnProperty('_version')) {
+                                else if (assets[i].hasOwnProperty('_version')) {
                                     assets[i] = asset;
                                     flag = true;
                                     break;
                                 }
                             }
                         }
-                        return this.assetStore.download(asset.data)
+                        // if(flag) {
+                        //   return rs()
+                        // }
+                        return this.assetStore.download(asset)
                             .then((data) => {
                             if (!flag) {
-                                asset.data = data;
-                                assets.push(asset);
+                                //asset = data
+                                assets.push(data);
                             }
                             return rs();
                         })
@@ -249,10 +255,10 @@ class FilesystemStore {
                     });
                 }
                 mkdirp_1.default.sync(assetFolderPath);
-                return this.assetStore.download(asset.data)
+                return this.assetStore.download(asset)
                     .then((data) => {
-                    asset.data = data;
-                    return writeFile(assetPath, JSON.stringify([asset]), (err) => {
+                    // asset.data = data;
+                    return writeFile(assetPath, JSON.stringify([data]), (err) => {
                         if (err) {
                             return reject(err);
                         }
@@ -279,7 +285,7 @@ class FilesystemStore {
                     return new Promise((rs, rj) => {
                         for (let i = 0; i < assets.length; i++) {
                             if (assets[i].uid === asset.uid) {
-                                if (assets[i].data.hasOwnProperty('_version')) {
+                                if (assets[i].hasOwnProperty('_version')) {
                                     object = assets.splice(i, 1);
                                     break;
                                 }
@@ -290,7 +296,7 @@ class FilesystemStore {
                         }
                         for (let i = 0; i < assets.length; i++) {
                             if (assets[i].uid === asset.uid) {
-                                if (assets[i].data.hasOwnProperty('download_id') && (assets[i].data.url === object[0].data.url)) {
+                                if (assets[i].hasOwnProperty('download_id') && (assets[i].url === object[0].url)) {
                                     flag = false;
                                     break;
                                 }
@@ -299,7 +305,7 @@ class FilesystemStore {
                         if (!flag) {
                             return resolve(asset);
                         }
-                        return this.assetStore.unpublish(object[0].data)
+                        return this.assetStore.unpublish(object[0])
                             .then(rs)
                             .catch(rj);
                     }).then(() => {
@@ -364,7 +370,7 @@ class FilesystemStore {
                         if (assets[i].uid === asset.uid) {
                             flag = true;
                             object = assets.splice(i, 1);
-                            bucket.push(object[0].data);
+                            bucket.push(object[0]);
                             i--;
                         }
                     }

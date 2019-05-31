@@ -18,10 +18,6 @@ exports.readLocales = (path) => {
                 return resolve(JSON.parse(contents));
             });
         }
-        // const pathDir = dirname(path)
-        // if (fs.existsSync(pathDir)) {
-        //     return resolve([])
-        // }
         mkdirp_1.default(path_1.dirname(path));
         return resolve([]);
     });

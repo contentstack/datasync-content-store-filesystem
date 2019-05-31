@@ -241,21 +241,11 @@ let asset_data = {
 
 let ct = {
 		content_type_uid: '_content_types',
-		data: {
-			title: 'youtube',
-			youtube_test: 'KMDRAmBceYw',
-			tags: [],
-			locale: 'en-us',
-			uid: 'optimizely',
-			created_by: '***REMOVED***',
-			updated_by: '***REMOVED***',
-			created_at: '2018-08-01T13:03:13.527Z',
-			updated_at: '2018-10-24T07:17:45.654Z',
-			ACL: {},
-			_version: 7,
-			content_type_uid: 'content_type'
-		},
-		uid: 'optimizely'
+		data: {},
+		uid: 'optimizely',
+		type: 'content_type_deleted',
+     	event_at: '2019-05-30T05:51:58.470Z',
+     	action: 'delete'
 }
 
 let data3 = {

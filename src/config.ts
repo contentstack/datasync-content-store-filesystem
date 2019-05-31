@@ -23,6 +23,12 @@ export const defaults = {
       // contentTypeCache: '/cache/:locale/data/:content_type_uid/schema.json',
       // variables: ['locale', 'content_type_uid',/* 'data.title', 'uid' */]
     },
+    indexedKeys: {
+      content_type_uid: true,
+      locale: true,
+      uid: true,
+      published_at: true
+    },
     unwanted: {
       asset: {
         ACL: true,

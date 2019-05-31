@@ -17,10 +17,10 @@ export { config };
 /**
  * @description Establish connection to FS db
  * @param  {object} assetConnector Asset store instance
- * @param  {object} config App config
+ * @param  {object} configs App config
  */
-export function start(assetStore, config ?) {
-  config = merge(defaults, config);
+export function start(assetStore, configs ?) {
+  config = merge(defaults, configs);
   connector = new FilesystemStore(assetStore, config);
   return Promise.resolve(connector);
 }
@@ -30,4 +30,9 @@ export function start(assetStore, config ?) {
  */
 export function getConnectorInstance() {
   return connector;
+}
+
+export function getConfig() {
+
+  return config
 }
