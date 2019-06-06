@@ -18,20 +18,21 @@ exports.defaults = {
         patterns: {
             asset: '/:locale/data/assets/index.json',
             contentType: '/:locale/data/:uid/schema.json',
-            entry: '/:locale/data/:content_type_uid/index.json',
+            entry: '/:locale/data/:_content_type_uid/index.json',
         },
         indexedKeys: {
-            content_type_uid: true,
             locale: true,
             uid: true,
-            published_at: true
+            published_at: true,
+            _content_type_uid: true,
+            _synced_at: true,
+            event_at: true
         },
         unwanted: {
             asset: {
                 ACL: true,
                 created_at: true,
                 created_by: true,
-                published_details: true,
                 updated_at: true,
                 updated_by: true,
             },
@@ -46,7 +47,6 @@ exports.defaults = {
                 ACL: true,
                 created_at: true,
                 created_by: true,
-                published_details: true,
                 updated_at: true,
                 updated_by: true,
             },

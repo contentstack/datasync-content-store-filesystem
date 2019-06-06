@@ -4,6 +4,17 @@
 import { cloneDeep, hasIn, merge } from 'lodash'
 import { config } from '../index'
 
+const filterKeys = ['_content_type', 'checkpoint', 'type']
+export const filter: any = (data) => {
+  const result = {};
+  for (const key in data) {
+    if (filterKeys.indexOf(key) === -1) {
+      result[key] = data[key];
+    }
+  }
+  return result;
+};
+
 export const getPathKeys = (patternKeys, json) => {
   const pathKeys = [];
   for (let i = 0, keyLength = patternKeys.length; i < keyLength; i++) {
@@ -37,19 +48,19 @@ export const structuralChanges = (entity) => {
   const contentStore = config.contentStore
   const indexedKeys = contentStore.indexedKeys
   if (indexedKeys && typeof indexedKeys === 'object' && Object.keys(indexedKeys).length) {
-    let clone = cloneDeep(entity.data)
-    const obj: any = {}
-    obj.synced_at = new Date().toISOString()
-    clone.synced_at = obj.synced_at
+    let clone = cloneDeep(entity)
+    // const obj: any = {}
+    // //obj.synced_at = new Date().toISOString()
+    // //clone.synced_at = obj.synced_at
 
-    for (let key in indexedKeys) {
-      if (indexedKeys[key]) {
-        if (hasIn(entity, key)) {
-          obj[key] = entity[key]
-          clone[key] = entity[key]
-        }
-      }
-    }
+    // for (let key in indexedKeys) {
+    //   if (indexedKeys[key]) {
+    //     if (hasIn(entity, key)) {
+    //       obj[key] = entity[key]
+    //       clone[key] = entity[key]
+    //     }
+    //   }
+    // }
   
     if (hasIn(clone, 'publish_details')) {
       clone.published_at = clone.publish_details.time
@@ -60,7 +71,7 @@ export const structuralChanges = (entity) => {
       clone.published_at = new Date().toISOString()
     }
   
-    clone = merge(clone, obj)
+    //clone = merge(clone, obj)
 
     return clone
   }

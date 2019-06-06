@@ -9,11 +9,10 @@ const assetConnector = require('./mock/asset-connector')
 const config = require('./mock/config')
 
 let data1 = {
-	content_type_uid: 'optimizely',
-	action: 'publish',
+	_content_type_uid: 'optimizely',
+	_action: 'publish',
 	locale: 'en-us',
-	uid: 'blt93da1f4f2f59ec5c',
-	data: {
+
 		title: 'optimizely',
 		url: '/optimizely',
 		optimizely: ['editor', 'Designer'],
@@ -26,8 +25,8 @@ let data1 = {
 		updated_at: '2018-10-09T10:11:19.788Z',
 		ACL: {},
 		_version: 1,
-		content_type_uid: 'optimizely'
-	},
+		content_type_uid: 'optimizely',
+	
 	content_type: {
 		created_at: '2018-10-09T10:04:44.948Z',
 		updated_at: '2018-10-09T10:04:59.633Z',
@@ -111,11 +110,9 @@ let data1 = {
 }
 
 let data2 = {
-	content_type_uid: 'youtube_test',
-	action: 'publish',
+	_content_type_uid: 'youtube_test',
+	_action: 'publish',
 	locale: 'es-es',
-	uid: 'bltaf3fc89493975a43',
-	data: {
 		title: 'youtube',
 		youtube_test: 'KMDRAmBceYw',
 		tags: [],
@@ -127,8 +124,7 @@ let data2 = {
 		updated_at: '2018-10-24T07:17:45.654Z',
 		ACL: {},
 		_version: 7,
-		content_type_uid: 'youtube_test'
-	},
+		content_type_uid: 'youtube_test',
 	content_type: {
 		created_at: '2018-08-01T13:01:04.263Z',
 		updated_at: '2018-08-01T13:02:53.793Z',
@@ -214,12 +210,9 @@ let data2 = {
 }
 
 let asset_data = {
-	content_type_uid: '_assets',
-	action: 'publish',
-	publish_queue_uid: 'bltbbdda2b410005b26a6e6',
+	_content_type_uid: '_assets',
+	_action: 'publish',
 	locale: 'fr-fr',
-	uid: 'blt9c4ef3c49f7b18e9',
-	data: {
 		uid: 'blt9c4ef3c49f7b18e9',
 		created_at: '2018-06-19T12:06:38.066Z',
 		updated_at: '2018-06-19T12:06:38.066Z',
@@ -236,11 +229,11 @@ let asset_data = {
 		_version: 1,
 		title: 'blog2.jpg',
 		force_load: false,
-		content_type_uid: '_assets' }
+		content_type_uid: '_assets' 
 }
 
 let ct = {
-		content_type_uid: '_content_types',
+		_content_type_uid: '_content_types',
 		data: {},
 		uid: 'optimizely',
 		type: 'content_type_deleted',
@@ -249,10 +242,9 @@ let ct = {
 }
 
 let data3 = {
-	content_type_uid: 'youtube_test_new',
+	_content_type_uid: 'youtube_test_new',
 	locale: 'en-us',
-	uid: 'bltaf3fc89493975a43',
-	data: {
+	
 		title: 'youtube',
 		youtube_test: 'KMDRAmBceYw',
 		tags: [],
@@ -264,8 +256,7 @@ let data3 = {
 		updated_at: '2018-10-24T07:17:45.654Z',
 		ACL: {},
 		_version: 7,
-		content_type_uid: 'youtube_test_new'
-	},
+		content_type_uid: 'youtube_test_new',
 	content_type: {
 		created_at: '2018-08-01T13:01:04.263Z',
 		updated_at: '2018-08-01T13:02:53.793Z',
