@@ -12,7 +12,7 @@ import { join }  from 'path';
 import rimraf from 'rimraf';
 import { promisify } from 'util';
 import writeFileAtomic from 'write-file-atomic';
-import { getPathKeys, removeUnwantedKeys, structuralChanges } from './util/index';
+import { getPathKeys, removeUnwantedKeys, filter, structuralChanges } from './util/index';
 import { readLocales } from './util/locale-management';
 import {
   validateContentTypeDeletedObject, validateEntryAssetDeletedObject,
@@ -46,6 +46,7 @@ export class FilesystemStore {
   }
 
   public publish(input) {
+    console.log(input, "Received from sync_manger @49")
     return new Promise(async (resolve, reject) => {
       try {
         validatePublishedObject(input);
@@ -60,7 +61,7 @@ export class FilesystemStore {
           });
         }
 
-        if (input.content_type_uid === '_assets') {
+        if (input._content_type_uid === '_assets') {
           return this.publishAsset(input)
             .then(resolve)
             .catch(reject);
@@ -80,7 +81,7 @@ export class FilesystemStore {
     return new Promise((resolve, reject) => {
       try {
         validateUnpublishedObject(input);
-        if (input.content_type_uid === '_assets') {
+        if (input._content_type_uid === '_assets') {
           return this.unpublishAsset(input)
             .then(resolve)
             .catch(reject);
@@ -96,11 +97,11 @@ export class FilesystemStore {
   public delete(input) {
     return new Promise((resolve, reject) => {
       try {
-        if (input.content_type_uid === '_assets') {
+        if (input._content_type_uid === '_assets') {
           return this.deleteAsset(input)
             .then(resolve)
             .catch(reject);
-        } else if (input.content_type_uid === '_content_types') {
+        } else if (input._content_type_uid === '_content_types') {
           return this.deleteContentType(input)
             .then(resolve)
             .catch(reject);
@@ -118,35 +119,32 @@ export class FilesystemStore {
   private publishEntry(data) {
     return new Promise(async (resolve, reject) => {
       try {
-        const publishedEntry = cloneDeep(data);
-        let entry = {
-          content_type_uid: publishedEntry.content_type_uid,
-          data: publishedEntry.data,
-          locale: publishedEntry.locale,
-          uid: publishedEntry.uid,
-        };
+        let entry = cloneDeep(data);
+        let contentType = entry._content_type
+        contentType.locale = entry.locale
+        entry = filter(entry) // to remove _content_type and checkpoint from entry data
 
-        let contentType = {
-          content_type_uid: '_content_types',
-          data: publishedEntry.content_type,
-          locale: publishedEntry.locale,
-          uid: publishedEntry.content_type_uid,
-        };
-
+        // to get content folder path
         const ctPathKeys = getPathKeys(this.pattern.contentTypeKeys, contentType);
         const ctPath = join.apply(this, ctPathKeys);
         ctPathKeys.splice(ctPathKeys.length - 1);
         const ctFolderPath = join.apply(this, ctPathKeys);
 
+        // to get entry folder path
         const entryPathKeys = getPathKeys(this.pattern.entryKeys, entry);
         const entryPath = join.apply(this, entryPathKeys);
         entryPathKeys.splice(entryPathKeys.length - 1);
         const entryFolderPath = join.apply(this, entryPathKeys);
 
-        entry.data = removeUnwantedKeys(this.unwanted.entry, entry.data);
-        contentType.data = removeUnwantedKeys(this.unwanted.contentType, contentType.data);
+        // to remove unwanted keys and change structure 
+        
         entry = structuralChanges(entry)
         contentType = structuralChanges(contentType)
+
+        entry = removeUnwantedKeys(this.unwanted.entry, entry);
+        contentType = removeUnwantedKeys(this.unwanted.contentType, contentType);
+        
+
         if (fs.existsSync(ctFolderPath)) {
           let entries: any;
           //if (fs.existsSync(entryPath)) {
@@ -201,22 +199,18 @@ export class FilesystemStore {
   private publishAsset(data) {
     return new Promise(async (resolve, reject) => {
       try {
-        const punlishedAsset = cloneDeep(data);
+        let asset = cloneDeep(data);
 
-        let asset = {
-          content_type_uid: punlishedAsset.content_type_uid,
-          data: punlishedAsset.data,
-          locale: punlishedAsset.locale,
-          uid: punlishedAsset.uid,
-        };
-
+        // to get asset folder path 
         const assetPathKeys = getPathKeys(this.pattern.assetKeys, asset);
         const assetPath = join.apply(this, assetPathKeys);
         assetPathKeys.splice(assetPathKeys.length - 1);
         const assetFolderPath = join.apply(this, assetPathKeys);
 
-        asset.data = removeUnwantedKeys(this.unwanted.asset, asset.data);
+        // to remove unwanted keys and change structure 
+        asset = removeUnwantedKeys(this.unwanted.asset, asset);
         asset = structuralChanges(asset)
+
         if (fs.existsSync(assetFolderPath)) {
           let assets: any;
           const data = await readFile(assetPath, 'utf-8');

@@ -46,6 +46,7 @@ class FilesystemStore {
         this.pattern.localeKeys = baseDirKeys.concat(lodash_1.compact(this.config.internal.locales.split('/')));
     }
     publish(input) {
+        console.log(input, "Received from sync_manger @49");
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             try {
                 validations_1.validatePublishedObject(input);
@@ -60,7 +61,7 @@ class FilesystemStore {
                         }
                     });
                 }
-                if (input.content_type_uid === '_assets') {
+                if (input._content_type_uid === '_assets') {
                     return this.publishAsset(input)
                         .then(resolve)
                         .catch(reject);
@@ -78,7 +79,7 @@ class FilesystemStore {
         return new Promise((resolve, reject) => {
             try {
                 validations_1.validateUnpublishedObject(input);
-                if (input.content_type_uid === '_assets') {
+                if (input._content_type_uid === '_assets') {
                     return this.unpublishAsset(input)
                         .then(resolve)
                         .catch(reject);
@@ -93,12 +94,12 @@ class FilesystemStore {
     delete(input) {
         return new Promise((resolve, reject) => {
             try {
-                if (input.content_type_uid === '_assets') {
+                if (input._content_type_uid === '_assets') {
                     return this.deleteAsset(input)
                         .then(resolve)
                         .catch(reject);
                 }
-                else if (input.content_type_uid === '_content_types') {
+                else if (input._content_type_uid === '_content_types') {
                     return this.deleteContentType(input)
                         .then(resolve)
                         .catch(reject);
@@ -115,31 +116,25 @@ class FilesystemStore {
     publishEntry(data) {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const publishedEntry = lodash_1.cloneDeep(data);
-                let entry = {
-                    content_type_uid: publishedEntry.content_type_uid,
-                    data: publishedEntry.data,
-                    locale: publishedEntry.locale,
-                    uid: publishedEntry.uid,
-                };
-                let contentType = {
-                    content_type_uid: '_content_types',
-                    data: publishedEntry.content_type,
-                    locale: publishedEntry.locale,
-                    uid: publishedEntry.content_type_uid,
-                };
+                let entry = lodash_1.cloneDeep(data);
+                let contentType = entry._content_type;
+                contentType.locale = entry.locale;
+                entry = index_1.filter(entry); // to remove _content_type and checkpoint from entry data
+                // to get content folder path
                 const ctPathKeys = index_1.getPathKeys(this.pattern.contentTypeKeys, contentType);
                 const ctPath = path_1.join.apply(this, ctPathKeys);
                 ctPathKeys.splice(ctPathKeys.length - 1);
                 const ctFolderPath = path_1.join.apply(this, ctPathKeys);
+                // to get entry folder path
                 const entryPathKeys = index_1.getPathKeys(this.pattern.entryKeys, entry);
                 const entryPath = path_1.join.apply(this, entryPathKeys);
                 entryPathKeys.splice(entryPathKeys.length - 1);
                 const entryFolderPath = path_1.join.apply(this, entryPathKeys);
-                entry.data = index_1.removeUnwantedKeys(this.unwanted.entry, entry.data);
-                contentType.data = index_1.removeUnwantedKeys(this.unwanted.contentType, contentType.data);
+                // to remove unwanted keys and change structure 
                 entry = index_1.structuralChanges(entry);
                 contentType = index_1.structuralChanges(contentType);
+                entry = index_1.removeUnwantedKeys(this.unwanted.entry, entry);
+                contentType = index_1.removeUnwantedKeys(this.unwanted.contentType, contentType);
                 if (fs_1.default.existsSync(ctFolderPath)) {
                     let entries;
                     //if (fs.existsSync(entryPath)) {
@@ -197,18 +192,14 @@ class FilesystemStore {
     publishAsset(data) {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const punlishedAsset = lodash_1.cloneDeep(data);
-                let asset = {
-                    content_type_uid: punlishedAsset.content_type_uid,
-                    data: punlishedAsset.data,
-                    locale: punlishedAsset.locale,
-                    uid: punlishedAsset.uid,
-                };
+                let asset = lodash_1.cloneDeep(data);
+                // to get asset folder path 
                 const assetPathKeys = index_1.getPathKeys(this.pattern.assetKeys, asset);
                 const assetPath = path_1.join.apply(this, assetPathKeys);
                 assetPathKeys.splice(assetPathKeys.length - 1);
                 const assetFolderPath = path_1.join.apply(this, assetPathKeys);
-                asset.data = index_1.removeUnwantedKeys(this.unwanted.asset, asset.data);
+                // to remove unwanted keys and change structure 
+                asset = index_1.removeUnwantedKeys(this.unwanted.asset, asset);
                 asset = index_1.structuralChanges(asset);
                 if (fs_1.default.existsSync(assetFolderPath)) {
                     let assets;

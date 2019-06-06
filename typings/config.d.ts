@@ -19,17 +19,18 @@ export declare const defaults: {
             entry: string;
         };
         indexedKeys: {
-            content_type_uid: boolean;
             locale: boolean;
             uid: boolean;
             published_at: boolean;
+            _content_type_uid: boolean;
+            _synced_at: boolean;
+            event_at: boolean;
         };
         unwanted: {
             asset: {
                 ACL: boolean;
                 created_at: boolean;
                 created_by: boolean;
-                published_details: boolean;
                 updated_at: boolean;
                 updated_by: boolean;
             };
@@ -44,7 +45,6 @@ export declare const defaults: {
                 ACL: boolean;
                 created_at: boolean;
                 created_by: boolean;
-                published_details: boolean;
                 updated_at: boolean;
                 updated_by: boolean;
             };

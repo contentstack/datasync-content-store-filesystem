@@ -17,24 +17,25 @@ export const defaults = {
     patterns: {
       asset: '/:locale/data/assets/index.json',
       contentType: '/:locale/data/:uid/schema.json',
-      entry: '/:locale/data/:content_type_uid/index.json',
+      entry: '/:locale/data/:_content_type_uid/index.json',
       // entryCache: '/cache/:locale/data/:content_type_uid/index.json',
       // assetCache: '/cache/:locale/data/assets/index.json',
       // contentTypeCache: '/cache/:locale/data/:content_type_uid/schema.json',
       // variables: ['locale', 'content_type_uid',/* 'data.title', 'uid' */]
     },
     indexedKeys: {
-      content_type_uid: true,
       locale: true,
       uid: true,
-      published_at: true
+      published_at: true,
+      _content_type_uid: true,
+      _synced_at: true,
+      event_at: true
     },
     unwanted: {
       asset: {
         ACL: true,
         created_at: true,
         created_by: true,
-        published_details: true,
         updated_at: true,
         updated_by: true,
 
@@ -50,7 +51,6 @@ export const defaults = {
         ACL: true,
         created_at: true,
         created_by: true,
-        published_details: true,
         updated_at: true,
         updated_by: true,
       },
