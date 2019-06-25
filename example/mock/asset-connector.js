@@ -4,6 +4,7 @@ module.exports = {
     return Promise.resolve(asset)
   },
   download: function (asset) {
+    console.log(asset,"in asset store")
     asset.key = 'new key added'
     return Promise.resolve(asset)
   },

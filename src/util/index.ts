@@ -1,116 +1,80 @@
-import { existsSync, readdirSync, statSync } from 'fs'
-import { compact } from 'lodash'
-import { isAbsolute, join, resolve } from 'path'
+// import { existsSync, readdirSync, statSync } from 'fs'
+// import { compact } from 'lodash'
+// import { isAbsolute, join, resolve } from 'path'
+import { cloneDeep, hasIn, merge } from 'lodash'
+import { config } from '../index'
+
+const filterKeys = ['_content_type', 'checkpoint', 'type']
+export const filter: any = (data) => {
+  const result = {};
+  for (const key in data) {
+    if (filterKeys.indexOf(key) === -1) {
+      result[key] = data[key];
+    }
+  }
+  return result;
+};
 
 export const getPathKeys = (patternKeys, json) => {
-  const pathKeys = []
-
+  const pathKeys = [];
   for (let i = 0, keyLength = patternKeys.length; i < keyLength; i++) {
     if (patternKeys[i].charAt(0) === ':') {
-      const k = patternKeys[i].substring(1)
+      const k = patternKeys[i].substring(1);
       if (json[k]) {
-        pathKeys.push(json[k])
+        pathKeys.push(json[k]);
       } else {
-        throw new TypeError(`The key ${pathKeys[i]} did not exist on ${JSON.stringify(json)}`)
+        throw new TypeError(`The key ${pathKeys[i]} did not exist on ${JSON.stringify(json)}`);
       }
     } else {
-      pathKeys.push(json[i])
+      pathKeys.push(patternKeys[i]);
     }
   }
-
-  return pathKeys
+  return pathKeys;
   // return join.apply(this, pathKeys)
-}
+};
 
 export const removeUnwantedKeys = (keyDetails, json) => {
-  for (let key in keyDetails) {
+  for (const key in keyDetails) {
     if (keyDetails[key] && (key in json)) {
-      delete json[key]
+      delete json[key];
     }
   }
 
-  return json
-}
+  return json;
+};
 
-export const getFilePaths = (baseDir, fileKeys) => {
-  let path
-  if (isAbsolute(baseDir)) {
-    path = baseDir
-  } else {
-    /**
-     * 1. util
-     * 2. src
-     * 3. @contentstack
-     * 4. node_modules
-     * 5. app directory
-     */
-    path = resolve(join(__dirname, '..', '..', '..', '..', '..', baseDir))
-  }
 
-  return traverse(path, fileKeys)
-}
+export const structuralChanges = (entity) => {
+  const contentStore = config.contentStore
+  const indexedKeys = contentStore.indexedKeys
+  if (indexedKeys && typeof indexedKeys === 'object' && Object.keys(indexedKeys).length) {
+    let clone = cloneDeep(entity)
+    // const obj: any = {}
+    // //obj.synced_at = new Date().toISOString()
+    // //clone.synced_at = obj.synced_at
 
-const traverse = (path, keys, idx = 0, filePaths = [], bucket = {}) => {
-  if (idx === (keys.length)) {
-    filePaths.push(path)
-    return {
-      filePaths,
-      bucket
-    }
-  }
-
-  let dirContents = readdirSync(path)
-
-  dirContents = dirContents.map((name) => {
-    const stat = statSync(join(path, name))
-
-    // get only directories
-    /**
-     * if 
-     *  name === keys[idx]
-     * is not added, it would load all the files, that aren't supposed to be present either
-     * on the other hand, if its a variable, there's no way of telling!
-     */
-    if (stat.isDirectory() || (idx === (keys.length - 1) && stat.isFile())) {
-      return name
-    }
-
-    return
-  })
-
-  // remove false values
-  dirContents = compact(dirContents)
-
-  let key
-  if (keys[idx].charAt(0) === ':') {
-    key = keys[idx].slice(1)
-
-    /**
-     * ex: 
-     * 
-     * {
-     *    locale: ['en-us', 'en-gb']
-     * }
-     */
-
-    if (key in bucket) {
-      bucket[key] = bucket[key].concat(dirContents)
+    // for (let key in indexedKeys) {
+    //   if (indexedKeys[key]) {
+    //     if (hasIn(entity, key)) {
+    //       obj[key] = entity[key]
+    //       clone[key] = entity[key]
+    //     }
+    //   }
+    // }
+  
+    if (hasIn(clone, 'publish_details')) {
+      clone.published_at = clone.publish_details.time
+      clone.locale = clone.publish_details.locale
+      delete clone.publish_details
     } else {
-      bucket[key] = dirContents
+      // most prolly for content types (though, not required)
+      clone.published_at = new Date().toISOString()
     }
-  } else {
-    key = keys[idx]
+  
+    //clone = merge(clone, obj)
+
+    return clone
   }
 
-  idx++
-  dirContents.forEach((name) => {
-    const subDirectoryPath = join(path, name)
-
-    if (!(existsSync(subDirectoryPath))) {
-      return
-    }
-    return traverse(subDirectoryPath, keys, idx, filePaths, bucket)
-  })
-
-  return { filePaths, bucket }
+  return entity
 }

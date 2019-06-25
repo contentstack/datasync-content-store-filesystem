@@ -9,11 +9,10 @@ const assetConnector = require('./mock/asset-connector')
 const config = require('./mock/config')
 
 let data1 = {
-	content_type_uid: 'optimizely',
-	action: 'publish',
-	publish_queue_uid: 'blt67729365be66c4af1b77',
+	_content_type_uid: 'optimizely',
+	_action: 'publish',
 	locale: 'en-us',
-	data: {
+
 		title: 'optimizely',
 		url: '/optimizely',
 		optimizely: ['editor', 'Designer'],
@@ -26,8 +25,8 @@ let data1 = {
 		updated_at: '2018-10-09T10:11:19.788Z',
 		ACL: {},
 		_version: 1,
-		content_type_uid: 'optimizely'
-	},
+		content_type_uid: 'optimizely',
+	
 	content_type: {
 		created_at: '2018-10-09T10:04:44.948Z',
 		updated_at: '2018-10-09T10:04:59.633Z',
@@ -111,11 +110,9 @@ let data1 = {
 }
 
 let data2 = {
-	content_type_uid: 'youtube_test',
-	action: 'publish',
-	publish_queue_uid: 'bltbbdda2b410005b26a6e6',
+	_content_type_uid: 'youtube_test',
+	_action: 'publish',
 	locale: 'es-es',
-	data: {
 		title: 'youtube',
 		youtube_test: 'KMDRAmBceYw',
 		tags: [],
@@ -127,8 +124,7 @@ let data2 = {
 		updated_at: '2018-10-24T07:17:45.654Z',
 		ACL: {},
 		_version: 7,
-		content_type_uid: 'youtube_test'
-	},
+		content_type_uid: 'youtube_test',
 	content_type: {
 		created_at: '2018-08-01T13:01:04.263Z',
 		updated_at: '2018-08-01T13:02:53.793Z',
@@ -213,12 +209,42 @@ let data2 = {
 	}
 }
 
+let asset_data = {
+	_content_type_uid: '_assets',
+	_action: 'publish',
+	locale: 'fr-fr',
+		uid: 'blt9c4ef3c49f7b18e9',
+		created_at: '2018-06-19T12:06:38.066Z',
+		updated_at: '2018-06-19T12:06:38.066Z',
+		created_by: 'blt607b206b64807684',
+		updated_by: 'blt607b206b64807684',
+		content_type: 'image/jpeg',
+		file_size: '14552',
+		tags: [],
+		filename: 'Teilchenmodell_Flüssigkeit.png',
+		url:
+		 'https://images.contentstack.io/v3/assets/bltd1343376dfba54d2/blt9c4ef3c49f7b18e9/5b28f1cefdee6c3974929dc8/blog2.jpg',
+		ACL: {},
+		is_dir: false,
+		_version: 1,
+		title: 'blog2.jpg',
+		force_load: false,
+		content_type_uid: '_assets' 
+}
+
+let ct = {
+		_content_type_uid: '_content_types',
+		data: {},
+		uid: 'optimizely',
+		type: 'content_type_deleted',
+     	event_at: '2019-05-30T05:51:58.470Z',
+     	action: 'delete'
+}
+
 let data3 = {
-	content_type_uid: 'youtube_test_new',
-	action: 'publish',
-	publish_queue_uid: 'bltbbdda2b410005b26a6e6',
+	_content_type_uid: 'youtube_test_new',
 	locale: 'en-us',
-	data: {
+	
 		title: 'youtube',
 		youtube_test: 'KMDRAmBceYw',
 		tags: [],
@@ -230,8 +256,7 @@ let data3 = {
 		updated_at: '2018-10-24T07:17:45.654Z',
 		ACL: {},
 		_version: 7,
-		content_type_uid: 'youtube_test_new'
-	},
+		content_type_uid: 'youtube_test_new',
 	content_type: {
 		created_at: '2018-08-01T13:01:04.263Z',
 		updated_at: '2018-08-01T13:02:53.793Z',
@@ -322,16 +347,24 @@ return assetConnector.start(config)
 	})
 	.then((connector) => {
 		console.log("app started sucessfully!!")
-		connector.publish(data1)
-		connector.publish(data3)
-		connector.publish(data2)
-		setTimeout(() => {
-			connector.unpublish(data1)
-		}, 500)
-		setTimeout(() => {
-			connector.delete(data2)
-		}, 1500)
-	})
-	.catch((error) => {
-		console.error(error)
-	})
+		connector.publish(data1).then(()=>{
+			console.log(data1.uid ,"published")
+		}).then(()=>{
+			connector.publish(data2).then(()=>{
+				console.log(data2.uid , "published")
+			}).then(()=>{
+				connector.publish(asset_data).then(()=>{
+					console.log(asset_data.uid, "published")
+				}).then(()=>{
+					connector.publish(data3).then(()=>{
+						console.log(data3.uid , "published")
+					}).then(()=>{
+						connector.delete(ct).then(()=>{
+							console.log(ct.uid, "deleted")
+						}).catch(console.error)
+					}).catch(console.error)
+				}).catch(console.error)
+			}).catch(console.error)
+		}).catch(console.error)
+	}).catch(console.error)
+	

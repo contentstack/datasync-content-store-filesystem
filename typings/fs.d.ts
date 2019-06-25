@@ -10,8 +10,13 @@ export declare class FilesystemStore {
     private unwanted;
     constructor(assetStore: any, config: any);
     publish(input: any): Promise<{}>;
-    private publishEntry;
-    private publishAsset;
     unpublish(input: any): Promise<{}>;
     delete(input: any): Promise<{}>;
+    private publishEntry;
+    private publishAsset;
+    private unpublishAsset;
+    private unpublishEntry;
+    private deleteAsset;
+    private deleteContentType;
+    private deleteEntry;
 }
