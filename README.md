@@ -16,11 +16,11 @@ This module is basically a Filesystem database where the Sync Manager stores the
 ## Usage
 This is how the datasync-content-store-filesystem is defined in the boilerplate:
 ```js
-const  assetStore = require('@contentstack/datasync-asset-store-filesystem')
-const  contentStore = require('@contentstack/datasync-content-store-filesystem')// <<--
-const  listener = require('@contentstack/webhook-listener')
-const  syncManager = require('@contentstack/datasync-manager')
-const  config = require('./config')
+const assetStore = require('@contentstack/datasync-asset-store-filesystem')
+const contentStore = require('@contentstack/datasync-content-store-filesystem')// <<--
+const listener = require('@contentstack/webhook-listener')
+const syncManager = require('@contentstack/datasync-manager')
+const config = require('./config')
 
 syncManager.setAssetStore(assetStore) 
 syncManager.setContentStore(contentStore)// Sets required asset store to sync manager.
@@ -45,11 +45,8 @@ Here is the config table for the module:
 ## Further Reading
 
 -  [Getting started with Contentstack DataSync](https://www.contentstack.com/docs/guide/synchronization/contentstack-datasync)
--  [Contentstack DataSync](https://www.contentstack.com/docs/guide/synchronization/contentstack-datasync/configuration-files-for-contentstack-datasync) doc lists the configuration for different modules
 
 ## Support and Feature requests
-
-If you have any issues working with the library, please file an issue [here](https://github.com/contentstack/datasync-content-store-filesystem/issues) at Github.
 
 You can send us an e-mail at [support@contentstack.com](mailto:support@contentstack.com) if you have any support or feature requests. Our support team is available 24/7 on the intercom. You can always get in touch and give us an opportunity to serve you better!
 
