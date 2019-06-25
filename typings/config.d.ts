@@ -6,43 +6,47 @@
 export declare const defaults: {
     contentStore: {
         baseDir: string;
-        patterns: {
-            entry: string;
-            asset: string;
-            contentType: string;
-            entryCache: string;
-            assetCache: string;
-            contentTypeCache: string;
-        };
         internal: {
             keys: {
-                content_type_uid: string;
                 assets: string;
+                content_type_uid: string;
             };
+            locales: string;
+        };
+        patterns: {
+            asset: string;
+            contentType: string;
+            entry: string;
+        };
+        indexedKeys: {
+            locale: boolean;
+            uid: boolean;
+            published_at: boolean;
+            _content_type_uid: boolean;
+            _synced_at: boolean;
+            event_at: boolean;
         };
         unwanted: {
             asset: {
+                ACL: boolean;
                 created_at: boolean;
                 created_by: boolean;
-                published_details: boolean;
                 updated_at: boolean;
                 updated_by: boolean;
-                ACL: boolean;
-            };
-            entry: {
-                created_at: boolean;
-                created_by: boolean;
-                published_details: boolean;
-                updated_at: boolean;
-                updated_by: boolean;
-                ACL: boolean;
             };
             contentType: {
+                ACL: boolean;
                 created_at: boolean;
                 inbuilt_class: boolean;
                 last_activity: boolean;
                 updated_at: boolean;
+            };
+            entry: {
                 ACL: boolean;
+                created_at: boolean;
+                created_by: boolean;
+                updated_at: boolean;
+                updated_by: boolean;
             };
         };
     };

@@ -1,8 +1,20 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const fs_1 = require("fs");
+// import { existsSync, readdirSync, statSync } from 'fs'
+// import { compact } from 'lodash'
+// import { isAbsolute, join, resolve } from 'path'
 const lodash_1 = require("lodash");
-const path_1 = require("path");
+const index_1 = require("../index");
+const filterKeys = ['_content_type', 'checkpoint', 'type'];
+exports.filter = (data) => {
+    const result = {};
+    for (const key in data) {
+        if (filterKeys.indexOf(key) === -1) {
+            result[key] = data[key];
+        }
+    }
+    return result;
+};
 exports.getPathKeys = (patternKeys, json) => {
     const pathKeys = [];
     for (let i = 0, keyLength = patternKeys.length; i < keyLength; i++) {
@@ -16,89 +28,47 @@ exports.getPathKeys = (patternKeys, json) => {
             }
         }
         else {
-            pathKeys.push(json[i]);
+            pathKeys.push(patternKeys[i]);
         }
     }
     return pathKeys;
     // return join.apply(this, pathKeys)
 };
 exports.removeUnwantedKeys = (keyDetails, json) => {
-    for (let key in keyDetails) {
+    for (const key in keyDetails) {
         if (keyDetails[key] && (key in json)) {
             delete json[key];
         }
     }
     return json;
 };
-exports.getFilePaths = (baseDir, fileKeys) => {
-    let path;
-    if (path_1.isAbsolute(baseDir)) {
-        path = baseDir;
-    }
-    else {
-        /**
-         * 1. util
-         * 2. src
-         * 3. @contentstack
-         * 4. node_modules
-         * 5. app directory
-         */
-        path = path_1.resolve(path_1.join(__dirname, '..', '..', '..', '..', '..', baseDir));
-    }
-    return traverse(path, fileKeys);
-};
-const traverse = (path, keys, idx = 0, filePaths = [], bucket = {}) => {
-    if (idx === (keys.length)) {
-        filePaths.push(path);
-        return {
-            filePaths,
-            bucket
-        };
-    }
-    let dirContents = fs_1.readdirSync(path);
-    dirContents = dirContents.map((name) => {
-        const stat = fs_1.statSync(path_1.join(path, name));
-        // get only directories
-        /**
-         * if
-         *  name === keys[idx]
-         * is not added, it would load all the files, that aren't supposed to be present either
-         * on the other hand, if its a variable, there's no way of telling!
-         */
-        if (stat.isDirectory() || (idx === (keys.length - 1) && stat.isFile())) {
-            return name;
-        }
-        return;
-    });
-    // remove false values
-    dirContents = lodash_1.compact(dirContents);
-    let key;
-    if (keys[idx].charAt(0) === ':') {
-        key = keys[idx].slice(1);
-        /**
-         * ex:
-         *
-         * {
-         *    locale: ['en-us', 'en-gb']
-         * }
-         */
-        if (key in bucket) {
-            bucket[key] = bucket[key].concat(dirContents);
+exports.structuralChanges = (entity) => {
+    const contentStore = index_1.config.contentStore;
+    const indexedKeys = contentStore.indexedKeys;
+    if (indexedKeys && typeof indexedKeys === 'object' && Object.keys(indexedKeys).length) {
+        let clone = lodash_1.cloneDeep(entity);
+        // const obj: any = {}
+        // //obj.synced_at = new Date().toISOString()
+        // //clone.synced_at = obj.synced_at
+        // for (let key in indexedKeys) {
+        //   if (indexedKeys[key]) {
+        //     if (hasIn(entity, key)) {
+        //       obj[key] = entity[key]
+        //       clone[key] = entity[key]
+        //     }
+        //   }
+        // }
+        if (lodash_1.hasIn(clone, 'publish_details')) {
+            clone.published_at = clone.publish_details.time;
+            clone.locale = clone.publish_details.locale;
+            delete clone.publish_details;
         }
         else {
-            bucket[key] = dirContents;
+            // most prolly for content types (though, not required)
+            clone.published_at = new Date().toISOString();
         }
+        //clone = merge(clone, obj)
+        return clone;
     }
-    else {
-        key = keys[idx];
-    }
-    idx++;
-    dirContents.forEach((name) => {
-        const subDirectoryPath = path_1.join(path, name);
-        if (!(fs_1.existsSync(subDirectoryPath))) {
-            return;
-        }
-        return traverse(subDirectoryPath, keys, idx, filePaths, bucket);
-    });
-    return { filePaths, bucket };
+    return entity;
 };
