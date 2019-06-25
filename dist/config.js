@@ -20,14 +20,6 @@ exports.defaults = {
             contentType: '/:locale/data/:uid/schema.json',
             entry: '/:locale/data/:_content_type_uid/index.json',
         },
-        indexedKeys: {
-            locale: true,
-            uid: true,
-            published_at: true,
-            _content_type_uid: true,
-            _synced_at: true,
-            event_at: true
-        },
         unwanted: {
             asset: {
                 ACL: true,
