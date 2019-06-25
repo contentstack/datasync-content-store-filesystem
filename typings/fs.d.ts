@@ -4,14 +4,14 @@
  * MIT Licensed
  */
 export declare class FilesystemStore {
-    private assetStore;
+    private readonly assetStore;
     private config;
     private pattern;
     private unwanted;
     constructor(assetStore: any, config: any);
-    publish(input: any): Promise<{}>;
-    unpublish(input: any): Promise<{}>;
-    delete(input: any): Promise<{}>;
+    publish(input: any): Promise<unknown>;
+    unpublish(input: any): Promise<unknown>;
+    delete(input: any): Promise<unknown>;
     private publishEntry;
     private publishAsset;
     private unpublishAsset;

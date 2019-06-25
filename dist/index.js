@@ -8,28 +8,28 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const lodash_1 = require("lodash");
 const config_1 = require("./config");
 const fs_1 = require("./fs");
-let config;
-exports.config = config;
+let appConfig;
 let connector;
+exports.getConfig = () => {
+    return appConfig;
+};
+exports.setConfig = (config) => {
+};
 /**
  * @description Establish connection to FS db
- * @param  {object} assetConnector Asset store instance
- * @param  {object} configs App config
+ * @param {Object} assetConnector Asset store instance
+ * @param {Object} configs App config
  */
 function start(assetStore, configs) {
-    exports.config = config = lodash_1.merge(config_1.defaults, configs);
-    connector = new fs_1.FilesystemStore(assetStore, config);
+    appConfig = lodash_1.merge(config_1.defaults, appConfig, configs);
+    connector = new fs_1.FilesystemStore(assetStore, appConfig);
     return Promise.resolve(connector);
 }
 exports.start = start;
 /**
  * @description to get connector instance
  */
-function getConnectorInstance() {
+function getConnector() {
     return connector;
 }
-exports.getConnectorInstance = getConnectorInstance;
-function getConfig() {
-    return config;
-}
-exports.getConfig = getConfig;
+exports.getConnector = getConnector;

@@ -18,14 +18,6 @@ export declare const defaults: {
             contentType: string;
             entry: string;
         };
-        indexedKeys: {
-            locale: boolean;
-            uid: boolean;
-            published_at: boolean;
-            _content_type_uid: boolean;
-            _synced_at: boolean;
-            event_at: boolean;
-        };
         unwanted: {
             asset: {
                 ACL: boolean;

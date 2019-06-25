@@ -4,35 +4,40 @@
  * MIT Licensed
  */
 
-import { merge } from 'lodash';
-import { defaults } from './config';
-import { FilesystemStore } from './fs';
+import { merge } from 'lodash'
+import { defaults } from './config'
+import { FilesystemStore } from './fs'
 
-let config;
-let connector;
+interface IConfig {
+  contentStore: any
+  [propName: string]: any
+}
 
-// export app config
-export { config };
+let appConfig
+let connector
+
+export const getConfig = (): IConfig => {
+  return appConfig
+}
+
+export const setConfig = (config: IConfig) => {
+
+}
 
 /**
  * @description Establish connection to FS db
- * @param  {object} assetConnector Asset store instance
- * @param  {object} configs App config
+ * @param {Object} assetConnector Asset store instance
+ * @param {Object} configs App config
  */
 export function start(assetStore, configs ?) {
-  config = merge(defaults, configs);
-  connector = new FilesystemStore(assetStore, config);
-  return Promise.resolve(connector);
+  appConfig = merge(defaults, appConfig, configs)
+  connector = new FilesystemStore(assetStore, appConfig)
+  return Promise.resolve(connector)
 }
 
 /**
  * @description to get connector instance
  */
-export function getConnectorInstance() {
-  return connector;
-}
-
-export function getConfig() {
-
-  return config
+export function getConnector() {
+  return connector
 }

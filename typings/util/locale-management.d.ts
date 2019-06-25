@@ -1,1 +1,1 @@
-export declare const readLocales: (path: any) => Promise<{}>;
+export declare const readLocales: (path: any) => Promise<unknown>;
