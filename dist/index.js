@@ -8,12 +8,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const lodash_1 = require("lodash");
 const config_1 = require("./config");
 const fs_1 = require("./fs");
+const index_1 = require("./util/index");
 let appConfig;
 let connector;
 exports.getConfig = () => {
     return appConfig;
 };
 exports.setConfig = (config) => {
+    appConfig = config;
 };
 /**
  * @description Establish connection to FS db
@@ -22,6 +24,7 @@ exports.setConfig = (config) => {
  */
 function start(assetStore, configs) {
     appConfig = lodash_1.merge(config_1.defaults, appConfig, configs);
+    index_1.dbSetup(appConfig.contentStore);
     connector = new fs_1.FilesystemStore(assetStore, appConfig);
     return Promise.resolve(connector);
 }

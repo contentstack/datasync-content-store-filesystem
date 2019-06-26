@@ -51,15 +51,19 @@ export class FilesystemStore {
     return new Promise(async (resolve, reject) => {
       try {
         validatePublishedObject(input)
-        // if its a new locale, keep track!
-        const data: string = await readFile(this.localePath, 'utf-8')
-        const locales: string[] = JSON.parse(data)
-        const idx = (locales as any).indexOf(input.locale)
+        if (existsSync(this.localePath)) {
+          // if its a new locale, keep track!
+          const data: string = await readFile(this.localePath, 'utf-8')
+          const locales: string[] = JSON.parse(data)
+          const idx = locales.indexOf(input.locale)
 
-        if (idx === -1) {
-          locales.push(input.locale)
-          // removing async - background op!
-          await writeFile(this.localePath, JSON.stringify(locales))
+          if (idx === -1) {
+            locales.push(input.locale)
+            // removing async - background op!
+            await writeFile(this.localePath, JSON.stringify(locales))
+          }
+        } else {
+          await writeFile(this.localePath, JSON.stringify([input.locale]))
         }
 
         if (input._content_type_uid === '_assets') {
@@ -169,6 +173,45 @@ export class FilesystemStore {
     })
   }
 
+  public async updateContentType(data) {
+    let schema = cloneDeep(data)
+    validateContentTypeDeletedObject(schema)
+    schema = removeUnwantedKeys(this.unwanted.contentType, data)
+
+    const contentTypePathKeys = getPathKeys(this.pattern.contentTypeKeys, data)
+    const contentTypePath = join.apply(this, contentTypePathKeys) + '.json'
+
+    if (existsSync(contentTypePath)) {
+      const content: string = await readFile(contentTypePath, 'utf-8')
+      const jsonData: any = JSON.parse(content)
+
+      // for time being, keeping things simple
+      // all schemas in one file
+      let contentTypeUpdated = false
+      for (let i = 0, j = jsonData.length; i < j; i++) {
+        if (jsonData[i].uid === data.uid) {
+          jsonData[i] = data
+          contentTypeUpdated = true
+          break
+        }
+      }
+
+      if (!contentTypeUpdated) {
+        jsonData.push(data)
+      }
+
+      await writeFile(contentTypePath, JSON.stringify(jsonData))
+    } else {
+      contentTypePathKeys.splice(contentTypePathKeys.length - 1)
+      const contentTypeFolderPath = join.apply(contentTypePathKeys)
+
+      mkdirp.sync(contentTypeFolderPath)
+      await writeFile(contentTypePath, JSON.stringify([schema]))
+    }
+    
+    return schema
+  }
+
   private publishAsset(data) {
     return new Promise(async (resolve, reject) => {
       try {
@@ -188,8 +231,8 @@ export class FilesystemStore {
 
         if (existsSync(assetFolderPath)) {
           if (existsSync(assetPath)) {
-            const data = await readFile(assetPath, 'utf-8')
-            const assets = JSON.parse(data)
+            const contents: string = await readFile(assetPath, 'utf-8')
+            let assets: any[] = JSON.parse(contents)
             assets.push(asset)
 
             await writeFile(assetPath, JSON.stringify(assets))
@@ -215,8 +258,8 @@ export class FilesystemStore {
         const assetPathKeys = getPathKeys(this.pattern.assetKeys, asset)
         const assetPath = join.apply(this, assetPathKeys) + '.json'
         if (existsSync(assetPath)) {
-          const data = await readFile(assetPath, 'utf-8')
-          const assets = JSON.parse(data)
+          const data: string = await readFile(assetPath)
+          const assets: any[] = JSON.parse(data)
           // will help in saving un-necessary writes
           let unpublishedAsset = false
           let rteAsset = false
@@ -227,6 +270,7 @@ export class FilesystemStore {
               removedAsset = assets.splice(i, 1)[0]
               unpublishedAsset = true
               i--
+              j--
             } else if (assets[i].hasOwnProperty('download_id')) {
               rteAsset = true
             }
@@ -258,12 +302,11 @@ export class FilesystemStore {
         entryPathKeys.splice(entryPathKeys.length - 1)
         const entryFolderPath = join.apply(this, entryPathKeys)
 
-        let entries: any[]
         if (existsSync(entryFolderPath)) {
           if (existsSync(entryPath)) {
-            const data = await readFile(entryPath, 'utf-8')
+            const data: string = await readFile(entryPath, 'utf-8')
+            const entries: any[] = JSON.parse(data)
             let entryUnpublished = false
-            entries = JSON.parse(data)
             for (let i = 0, j = entries.length; i < j; i++) {
               if (entries[i].uid === entry.uid) {
                 entries.splice(i, 1)
@@ -292,10 +335,10 @@ export class FilesystemStore {
         validateEntryAssetDeletedObject(asset)
         const assetPathKeys = getPathKeys(this.pattern.assetKeys, asset)
         const assetPath = join.apply(this, assetPathKeys) + '.json'
-        let assets: any
+
         if (existsSync(assetPath)) {
-          const data = await readFile(assetPath, 'utf-8')
-          assets = JSON.parse(data)
+          const data: string = await readFile(assetPath, 'utf-8')
+          const assets: any[] = JSON.parse(data)
           let assetsRemoved = false
           const bucket = []
           for (let i = 0, j = assets.length; i < j; i++) {
@@ -303,6 +346,7 @@ export class FilesystemStore {
               assetsRemoved = true
               bucket.push(assets.splice(i, 1)[0])
               i--
+              j--
             }
           }
           if (!assetsRemoved) {
@@ -349,6 +393,7 @@ export class FilesystemStore {
           if (entries[k]._content_type_uid === uid) {
             entries.splice(k, 1)
             k--
+            l--
           }
         }
 
@@ -397,10 +442,10 @@ export class FilesystemStore {
         validateEntryAssetDeletedObject(entry)
         const entryPathKeys = getPathKeys(this.pattern.entryKeys, entry)
         const entryPath = join.apply(this, entryPathKeys) + '.json'
-        let entries: any
+
         if (existsSync(entryPath)) {
-          const data = await readFile(entryPath, 'utf-8')
-          entries = JSON.parse(data)
+          const data: string = await readFile(entryPath, 'utf-8')
+          const entries: any[] = JSON.parse(data)
           let entryDeleted = false
           for (let i = 0, j = entries.length; i < j; i++) {
             if (entries[i].uid === entry.uid) {

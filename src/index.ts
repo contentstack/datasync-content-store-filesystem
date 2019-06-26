@@ -7,6 +7,7 @@
 import { merge } from 'lodash'
 import { defaults } from './config'
 import { FilesystemStore } from './fs'
+import { dbSetup } from './util/index'
 
 interface IConfig {
   contentStore: any
@@ -21,7 +22,7 @@ export const getConfig = (): IConfig => {
 }
 
 export const setConfig = (config: IConfig) => {
-
+  appConfig = config
 }
 
 /**
@@ -31,6 +32,7 @@ export const setConfig = (config: IConfig) => {
  */
 export function start(assetStore, configs ?) {
   appConfig = merge(defaults, appConfig, configs)
+  dbSetup(appConfig.contentStore)
   connector = new FilesystemStore(assetStore, appConfig)
   return Promise.resolve(connector)
 }
