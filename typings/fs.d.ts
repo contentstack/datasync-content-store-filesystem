@@ -8,6 +8,7 @@ export declare class FilesystemStore {
     private config;
     private pattern;
     private unwanted;
+    private readonly localePath;
     constructor(assetStore: any, config: any);
     publish(input: any): Promise<unknown>;
     unpublish(input: any): Promise<unknown>;
@@ -18,5 +19,7 @@ export declare class FilesystemStore {
     private unpublishEntry;
     private deleteAsset;
     private deleteContentType;
+    private deleteAllEntries;
+    private deleteSchema;
     private deleteEntry;
 }

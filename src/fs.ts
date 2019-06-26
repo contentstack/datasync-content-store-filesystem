@@ -5,14 +5,13 @@
  */
 
 import { debug as Debug } from 'debug'
-import { existsSync } from 'fs'
+import { existsSync, unlinkSync, write } from 'fs'
 import { cloneDeep, compact } from 'lodash'
 import { join }  from 'path'
-import rimraf from 'rimraf'
 import mkdirp from 'mkdirp'
 import { readFile, writeFile } from './util/fs'
-import { getPathKeys, removeUnwantedKeys, filter } from './util/index'
-import { readLocales } from './util/locale-management'
+import { buildLocalePath, getPathKeys, removeUnwantedKeys, filter } from './util/index'
+
 import {
   validateContentTypeDeletedObject, validateEntryAssetDeletedObject,
   validatePublishedObject, validateUnpublishedObject
@@ -23,41 +22,44 @@ const debug = Debug('core-fs')
 export class FilesystemStore {
   private readonly assetStore: any
   private config: any
-  private pattern: any
+  private pattern: {
+    contentTypeKeys: string[],
+    entryKeys: string[],
+    assetKeys: string[],
+  }
   private unwanted: any
+  private readonly localePath: string
 
   constructor(assetStore, config) {
     this.assetStore = assetStore
     this.config = config.contentStore
     const baseDirKeys = []
     baseDirKeys.push(this.config.baseDir)
-    this.pattern = {}
+    this.pattern = ({} as any)
     // unwanted keys
     this.unwanted = this.config.unwanted
 
     // path keys for entry, assets & content types
+    // splitting it by '/' instead of ':/', as we need to know if its a pattern not not, further down the line
     this.pattern.contentTypeKeys = baseDirKeys.concat(compact(this.config.patterns.contentType.split('/')))
     this.pattern.entryKeys = baseDirKeys.concat(compact(this.config.patterns.entry.split('/')))
     this.pattern.assetKeys = baseDirKeys.concat(compact(this.config.patterns.asset.split('/')))
-    this.pattern.localeKeys = baseDirKeys.concat(compact(this.config.internal.locales.split('/')))
+    this.localePath = buildLocalePath(this.config.internal.locale, this.config)
   }
 
   public publish(input) {
     return new Promise(async (resolve, reject) => {
       try {
         validatePublishedObject(input)
-        const localePath = join.apply(this, this.pattern.localeKeys)
-        const locales = await readLocales(localePath)
-        const indexOfLocale = (locales as any).indexOf(input.locale)
+        // if its a new locale, keep track!
+        const data: string = await readFile(this.localePath, 'utf-8')
+        const locales: string[] = JSON.parse(data)
+        const idx = (locales as any).indexOf(input.locale)
 
-        if (indexOfLocale === -1) {
-          (locales as any).push(input.locale)
-          // async - background operation!
-          writeFile(localePath, JSON.stringify(locales), (err) => {
-            if (err) { 
-              return reject(err) 
-            }
-          })
+        if (idx === -1) {
+          locales.push(input.locale)
+          // removing async - background op!
+          await writeFile(this.localePath, JSON.stringify(locales))
         }
 
         if (input._content_type_uid === '_assets') {
@@ -123,7 +125,7 @@ export class FilesystemStore {
 
         // to get entry folder path
         const entryPathKeys = getPathKeys(this.pattern.entryKeys, entry)
-        const entryPath = join.apply(this, entryPathKeys)
+        const entryPath = join.apply(this, entryPathKeys) + '.json'
         entryPathKeys.splice(entryPathKeys.length - 1)
         const entryFolderPath = join.apply(this, entryPathKeys)
 
@@ -171,10 +173,9 @@ export class FilesystemStore {
     return new Promise(async (resolve, reject) => {
       try {
         let asset = cloneDeep(data)
-
         // to get asset folder path 
         const assetPathKeys = getPathKeys(this.pattern.assetKeys, asset)
-        const assetPath = join.apply(this, assetPathKeys)
+        const assetPath = join.apply(this, assetPathKeys) + '.json'
         assetPathKeys.splice(assetPathKeys.length - 1)
         const assetFolderPath = join.apply(this, assetPathKeys)
 
@@ -212,7 +213,7 @@ export class FilesystemStore {
     return new Promise(async (resolve, reject) => {
       try {
         const assetPathKeys = getPathKeys(this.pattern.assetKeys, asset)
-        const assetPath = join.apply(this, assetPathKeys)
+        const assetPath = join.apply(this, assetPathKeys) + '.json'
         if (existsSync(assetPath)) {
           const data = await readFile(assetPath, 'utf-8')
           const assets = JSON.parse(data)
@@ -231,10 +232,12 @@ export class FilesystemStore {
             }
           }
 
+          // decide, if the on-premise media file is to be removed
           if (unpublishedAsset && !(rteAsset)) {
             await this.assetStore.unpublish(removedAsset)
           }
 
+          // if any asset object has been removed, only then write to disk
           if (unpublishedAsset) {
             await writeFile(assetPath, JSON.stringify(assets))
           }
@@ -251,7 +254,7 @@ export class FilesystemStore {
     return new Promise(async (resolve, reject) => {
       try {
         const entryPathKeys = getPathKeys(this.pattern.entryKeys, entry)
-        const entryPath = join.apply(this, entryPathKeys)
+        const entryPath = join.apply(this, entryPathKeys) + '.json'
         entryPathKeys.splice(entryPathKeys.length - 1)
         const entryFolderPath = join.apply(this, entryPathKeys)
 
@@ -274,7 +277,6 @@ export class FilesystemStore {
             }
           }
         }
-
         return resolve(entry)
       } catch (error) {
         return reject(error)
@@ -289,7 +291,7 @@ export class FilesystemStore {
       try {
         validateEntryAssetDeletedObject(asset)
         const assetPathKeys = getPathKeys(this.pattern.assetKeys, asset)
-        const assetPath = join.apply(this, assetPathKeys)
+        const assetPath = join.apply(this, assetPathKeys) + '.json'
         let assets: any
         if (existsSync(assetPath)) {
           const data = await readFile(assetPath, 'utf-8')
@@ -318,34 +320,75 @@ export class FilesystemStore {
     })
   }
 
-  private deleteContentType(data) {
-    return new Promise(async (resolve, reject) => {
-      try {
-        validateContentTypeDeletedObject(data)
-        const ctPathKeys = this.pattern.contentTypeKeys
-        const localePath = join.apply(this, this.pattern.localeKeys)
-        const locales = await readLocales(localePath)
-        const localeKeyIndex = ctPathKeys.indexOf(':locale')
-        const paths = []
-        ctPathKeys.splice(ctPathKeys.length - 1)
-        (locales as any).forEach((locale, index) => {
-          ctPathKeys[localeKeyIndex] = locale
-          const ctFolderPathKeys = getPathKeys(ctPathKeys, data)
-          const ctFolderPath = join.apply(this, ctFolderPathKeys)
-          paths.push(ctFolderPath)
-          if (index === (locales as any).length - 1) {
-            paths.forEach((path) => {
-              if (existsSync(path)) {
-                rimraf.sync(path)
-              }
-            })
-          }
-        })
-        return resolve(data)
-      } catch (error) {
-        return reject(error)
+  private async deleteContentType(data) {
+    validateContentTypeDeletedObject(data)
+    const content: string = await readFile(this.localePath, 'utf-8')
+    const locales: string[] = JSON.parse(content)
+    
+    return Promise
+      .all([this.deleteSchema(data, locales), this.deleteAllEntries(data, locales)])
+      .then(() => console.log('Content type deleted successfully!\n', JSON.stringify(data)))
+  }
+
+  private async deleteAllEntries(data, locales) {
+    const uid = data.uid
+    for (let i = 0, j = locales.length; i < j; i++) {
+      const locale = locales[i]
+      const deleteContentTypeObject = {
+        _content_type_uid: uid,
+        locale,
       }
-    })
+      const entryPathKeys = getPathKeys(this.pattern.entryKeys, deleteContentTypeObject)
+      const entryPath = join.apply(this, entryPathKeys) + '.json'
+
+      if (existsSync(entryPath)) {
+        const contents: string = await readFile(entryPath, 'utf-8')
+        // its possible to put all entries in one file
+        const entries: any[] = JSON.parse(contents)
+        for (let k = 0, l = entries.length; k < l; k++) {
+          if (entries[k]._content_type_uid === uid) {
+            entries.splice(k, 1)
+            k--
+          }
+        }
+
+        await writeFile(entryPath, JSON.stringify(entries))
+      }
+    }
+
+    return
+  }
+
+  private async deleteSchema(data, locales: string[]) {
+    for (let i = 0, j = locales.length; i < j; i++) {
+      const locale = locales[i]
+      const deleteContentTypeObject = {
+        _content_type_uid: '_content_types',
+        locale,
+        uid: data.uid
+      }
+      const contentTypePathKeys = getPathKeys(this.pattern.contentTypeKeys, deleteContentTypeObject)
+      const contentTypePath = join.apply(this, contentTypePathKeys) + '.json'
+      if (existsSync(contentTypePath)) {
+        const content: string = await readFile(contentTypePath, 'utf-8')
+        const jsonData: any = JSON.parse(content)
+  
+        if (jsonData instanceof Array) {
+          for (let i = 0, j = jsonData.length; i < j; i++) {
+            if (jsonData[i].uid === data.uid) {
+              jsonData.splice(i, 1)
+              break
+            }
+          }
+  
+          await writeFile(contentTypePath, JSON.stringify(jsonData))
+        } else {
+          unlinkSync(contentTypePath)
+        }
+      }
+    }
+
+    return
   }
 
   private deleteEntry(entry) {
@@ -353,7 +396,7 @@ export class FilesystemStore {
       try {
         validateEntryAssetDeletedObject(entry)
         const entryPathKeys = getPathKeys(this.pattern.entryKeys, entry)
-        const entryPath = join.apply(this, entryPathKeys)
+        const entryPath = join.apply(this, entryPathKeys) + '.json'
         let entries: any
         if (existsSync(entryPath)) {
           const data = await readFile(entryPath, 'utf-8')
@@ -370,7 +413,6 @@ export class FilesystemStore {
             await writeFile(entryPath, JSON.stringify(entries))
           }
         }
-
         return resolve(entry)
       } catch (error) {
         return reject(error)

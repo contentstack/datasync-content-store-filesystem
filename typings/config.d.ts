@@ -11,7 +11,7 @@ export declare const defaults: {
                 assets: string;
                 content_type_uid: string;
             };
-            locales: string;
+            locale: string;
         };
         patterns: {
             asset: string;
