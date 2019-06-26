@@ -12,12 +12,14 @@ export const defaults = {
         assets: '_assets',
         content_type_uid: '_content_types',
       },
-      locales: '/locales/index.json',
+      // let's not allow this to be configurable, at least not now..
+      locale: '/locales.json',
     },
+    // defaults to .json paths
     patterns: {
-      asset: '/:locale/data/assets/index.json',
-      contentType: '/:locale/data/:uid/schema.json',
-      entry: '/:locale/data/:_content_type_uid/index.json',
+      asset: '/:locale/data/assets',
+      contentType: '/:locale/data/content_types',
+      entry: '/:locale/data/:_content_type_uid',
     },
     unwanted: {
       asset: {

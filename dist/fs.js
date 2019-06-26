@@ -20,11 +20,9 @@ const debug_1 = require("debug");
 const fs_1 = require("fs");
 const lodash_1 = require("lodash");
 const path_1 = require("path");
-const rimraf_1 = __importDefault(require("rimraf"));
 const mkdirp_1 = __importDefault(require("mkdirp"));
 const fs_2 = require("./util/fs");
 const index_1 = require("./util/index");
-const locale_management_1 = require("./util/locale-management");
 const validations_1 = require("./util/validations");
 const debug = debug_1.debug('core-fs');
 class FilesystemStore {
@@ -37,26 +35,24 @@ class FilesystemStore {
         // unwanted keys
         this.unwanted = this.config.unwanted;
         // path keys for entry, assets & content types
+        // splitting it by '/' instead of ':/', as we need to know if its a pattern not not, further down the line
         this.pattern.contentTypeKeys = baseDirKeys.concat(lodash_1.compact(this.config.patterns.contentType.split('/')));
         this.pattern.entryKeys = baseDirKeys.concat(lodash_1.compact(this.config.patterns.entry.split('/')));
         this.pattern.assetKeys = baseDirKeys.concat(lodash_1.compact(this.config.patterns.asset.split('/')));
-        this.pattern.localeKeys = baseDirKeys.concat(lodash_1.compact(this.config.internal.locales.split('/')));
+        this.localePath = index_1.buildLocalePath(this.config.internal.locale, this.config);
     }
     publish(input) {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             try {
                 validations_1.validatePublishedObject(input);
-                const localePath = path_1.join.apply(this, this.pattern.localeKeys);
-                const locales = yield locale_management_1.readLocales(localePath);
-                const indexOfLocale = locales.indexOf(input.locale);
-                if (indexOfLocale === -1) {
+                // if its a new locale, keep track!
+                const data = yield fs_2.readFile(this.localePath, 'utf-8');
+                const locales = JSON.parse(data);
+                const idx = locales.indexOf(input.locale);
+                if (idx === -1) {
                     locales.push(input.locale);
-                    // async - background operation!
-                    fs_2.writeFile(localePath, JSON.stringify(locales), (err) => {
-                        if (err) {
-                            return reject(err);
-                        }
-                    });
+                    // removing async - background op!
+                    yield fs_2.writeFile(this.localePath, JSON.stringify(locales));
                 }
                 if (input._content_type_uid === '_assets') {
                     return this.publishAsset(input)
@@ -117,7 +113,7 @@ class FilesystemStore {
                 entry = index_1.filter(entry); // to remove _content_type and checkpoint from entry data
                 // to get entry folder path
                 const entryPathKeys = index_1.getPathKeys(this.pattern.entryKeys, entry);
-                const entryPath = path_1.join.apply(this, entryPathKeys);
+                const entryPath = path_1.join.apply(this, entryPathKeys) + '.json';
                 entryPathKeys.splice(entryPathKeys.length - 1);
                 const entryFolderPath = path_1.join.apply(this, entryPathKeys);
                 entry = index_1.removeUnwantedKeys(this.unwanted.entry, entry);
@@ -163,7 +159,7 @@ class FilesystemStore {
                 let asset = lodash_1.cloneDeep(data);
                 // to get asset folder path 
                 const assetPathKeys = index_1.getPathKeys(this.pattern.assetKeys, asset);
-                const assetPath = path_1.join.apply(this, assetPathKeys);
+                const assetPath = path_1.join.apply(this, assetPathKeys) + '.json';
                 assetPathKeys.splice(assetPathKeys.length - 1);
                 const assetFolderPath = path_1.join.apply(this, assetPathKeys);
                 // to remove unwanted keys and change structure
@@ -198,7 +194,7 @@ class FilesystemStore {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const assetPathKeys = index_1.getPathKeys(this.pattern.assetKeys, asset);
-                const assetPath = path_1.join.apply(this, assetPathKeys);
+                const assetPath = path_1.join.apply(this, assetPathKeys) + '.json';
                 if (fs_1.existsSync(assetPath)) {
                     const data = yield fs_2.readFile(assetPath, 'utf-8');
                     const assets = JSON.parse(data);
@@ -217,9 +213,11 @@ class FilesystemStore {
                             rteAsset = true;
                         }
                     }
+                    // decide, if the on-premise media file is to be removed
                     if (unpublishedAsset && !(rteAsset)) {
                         yield this.assetStore.unpublish(removedAsset);
                     }
+                    // if any asset object has been removed, only then write to disk
                     if (unpublishedAsset) {
                         yield fs_2.writeFile(assetPath, JSON.stringify(assets));
                     }
@@ -235,7 +233,7 @@ class FilesystemStore {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const entryPathKeys = index_1.getPathKeys(this.pattern.entryKeys, entry);
-                const entryPath = path_1.join.apply(this, entryPathKeys);
+                const entryPath = path_1.join.apply(this, entryPathKeys) + '.json';
                 entryPathKeys.splice(entryPathKeys.length - 1);
                 const entryFolderPath = path_1.join.apply(this, entryPathKeys);
                 let entries;
@@ -268,7 +266,7 @@ class FilesystemStore {
             try {
                 validations_1.validateEntryAssetDeletedObject(asset);
                 const assetPathKeys = index_1.getPathKeys(this.pattern.assetKeys, asset);
-                const assetPath = path_1.join.apply(this, assetPathKeys);
+                const assetPath = path_1.join.apply(this, assetPathKeys) + '.json';
                 let assets;
                 if (fs_1.existsSync(assetPath)) {
                     const data = yield fs_2.readFile(assetPath, 'utf-8');
@@ -298,40 +296,79 @@ class FilesystemStore {
         }));
     }
     deleteContentType(data) {
-        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-            try {
-                validations_1.validateContentTypeDeletedObject(data);
-                const ctPathKeys = this.pattern.contentTypeKeys;
-                const localePath = path_1.join.apply(this, this.pattern.localeKeys);
-                const locales = yield locale_management_1.readLocales(localePath);
-                const localeKeyIndex = ctPathKeys.indexOf(':locale');
-                const paths = [];
-                ctPathKeys.splice(ctPathKeys.length - 1)(locales).forEach((locale, index) => {
-                    ctPathKeys[localeKeyIndex] = locale;
-                    const ctFolderPathKeys = index_1.getPathKeys(ctPathKeys, data);
-                    const ctFolderPath = path_1.join.apply(this, ctFolderPathKeys);
-                    paths.push(ctFolderPath);
-                    if (index === locales.length - 1) {
-                        paths.forEach((path) => {
-                            if (fs_1.existsSync(path)) {
-                                rimraf_1.default.sync(path);
-                            }
-                        });
+        return __awaiter(this, void 0, void 0, function* () {
+            validations_1.validateContentTypeDeletedObject(data);
+            const content = yield fs_2.readFile(this.localePath, 'utf-8');
+            const locales = JSON.parse(content);
+            return Promise
+                .all([this.deleteSchema(data, locales), this.deleteAllEntries(data, locales)])
+                .then(() => console.log('Content type deleted successfully!\n', JSON.stringify(data)));
+        });
+    }
+    deleteAllEntries(data, locales) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const uid = data.uid;
+            for (let i = 0, j = locales.length; i < j; i++) {
+                const locale = locales[i];
+                const deleteContentTypeObject = {
+                    _content_type_uid: uid,
+                    locale,
+                };
+                const entryPathKeys = index_1.getPathKeys(this.pattern.entryKeys, deleteContentTypeObject);
+                const entryPath = path_1.join.apply(this, entryPathKeys) + '.json';
+                if (fs_1.existsSync(entryPath)) {
+                    const contents = yield fs_2.readFile(entryPath, 'utf-8');
+                    // its possible to put all entries in one file
+                    const entries = JSON.parse(contents);
+                    for (let k = 0, l = entries.length; k < l; k++) {
+                        if (entries[k]._content_type_uid === uid) {
+                            entries.splice(k, 1);
+                            k--;
+                        }
                     }
-                });
-                return resolve(data);
+                    yield fs_2.writeFile(entryPath, JSON.stringify(entries));
+                }
             }
-            catch (error) {
-                return reject(error);
+            return;
+        });
+    }
+    deleteSchema(data, locales) {
+        return __awaiter(this, void 0, void 0, function* () {
+            for (let i = 0, j = locales.length; i < j; i++) {
+                const locale = locales[i];
+                const deleteContentTypeObject = {
+                    _content_type_uid: '_content_types',
+                    locale,
+                    uid: data.uid
+                };
+                const contentTypePathKeys = index_1.getPathKeys(this.pattern.contentTypeKeys, deleteContentTypeObject);
+                const contentTypePath = path_1.join.apply(this, contentTypePathKeys) + '.json';
+                if (fs_1.existsSync(contentTypePath)) {
+                    const content = yield fs_2.readFile(contentTypePath, 'utf-8');
+                    const jsonData = JSON.parse(content);
+                    if (jsonData instanceof Array) {
+                        for (let i = 0, j = jsonData.length; i < j; i++) {
+                            if (jsonData[i].uid === data.uid) {
+                                jsonData.splice(i, 1);
+                                break;
+                            }
+                        }
+                        yield fs_2.writeFile(contentTypePath, JSON.stringify(jsonData));
+                    }
+                    else {
+                        fs_1.unlinkSync(contentTypePath);
+                    }
+                }
             }
-        }));
+            return;
+        });
     }
     deleteEntry(entry) {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             try {
                 validations_1.validateEntryAssetDeletedObject(entry);
                 const entryPathKeys = index_1.getPathKeys(this.pattern.entryKeys, entry);
-                const entryPath = path_1.join.apply(this, entryPathKeys);
+                const entryPath = path_1.join.apply(this, entryPathKeys) + '.json';
                 let entries;
                 if (fs_1.existsSync(entryPath)) {
                     const data = yield fs_2.readFile(entryPath, 'utf-8');

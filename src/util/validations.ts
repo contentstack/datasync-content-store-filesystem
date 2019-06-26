@@ -63,18 +63,21 @@ export const validateEntryAssetDeletedObject = (deletedObject) => {
 };
 
 export const validateContentTypeDeletedObject = (deletedObject) => {
+  // type check
+  if (!deletedObject || typeof deletedObject !== 'object' || deletedObject instanceof Array) {
+    throw new Error(`Invalid input for content type deletion!`)
+  }
+
+  // required key check
   requiredContentTypeDeleteKeys.forEach((key) => {
     if (!(deletedObject.hasOwnProperty(key))) {
       throw new Error(`${key} is missing from ${JSON.stringify(deletedObject)}`);
     }
   });
 
-  // if (!(isEmpty(deletedObject.data)) || !(isPlainObject(deletedObject.data))) {
-  //   throw new Error(`Deleted object.data should be of type plain object and not empty!`);
-  // }
-
+  // required key, type check
   if (typeof deletedObject.uid !== 'string' || typeof deletedObject._content_type_uid !== 'string') {
-    throw new Error(`Deleted object key types do not match expected types!`);
+    throw new Error('Input delete object key types do not match expected types!');
   }
 
   return;

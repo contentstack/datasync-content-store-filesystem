@@ -1,4 +1,6 @@
-import { getConfig } from '../index'
+import { existsSync, mkdir } from 'fs'
+import { sync } from 'mkdirp'
+import { join, isAbsolute, resolve, sep } from 'path'
 
 const filterKeys = ['_content_type', 'checkpoint', 'type']
 
@@ -16,7 +18,11 @@ export const getPathKeys = (patternKeys, json) => {
   const pathKeys = []
   for (let i = 0, keyLength = patternKeys.length; i < keyLength; i++) {
     if (patternKeys[i].charAt(0) === ':') {
-      const k = patternKeys[i].substring(1)
+      let k = patternKeys[i].substring(1)
+      const idx = k.indexOf('.json')
+      if (~idx) {
+        k = k.slice(0, idx)
+      }
       if (json[k]) {
         pathKeys.push(json[k])
       } else {
@@ -38,4 +44,29 @@ export const removeUnwantedKeys = (unwanted, json) => {
   }
 
   return json
+}
+
+export const buildLocalePath = (path, appConfig) => {
+  if (isAbsolute(path)) {
+    const pathArr = path.split()
+    // remove last elem
+    pathArr.splice(path.length - 1, 0)
+    const localeFolderPath = join.apply(this, pathArr)
+
+    if (!existsSync(localeFolderPath)) {
+      sync(localeFolderPath) 
+    }
+
+    return resolve(path)
+  } 
+
+  const localePath = join(appConfig.baseDir, appConfig.internal.locale)
+  const localePathArr = localePath.split(sep)
+  localePathArr.splice(localePathArr.length - 1)
+  const localeFolderPath = join.apply(this, localePathArr)
+  if (!existsSync(localeFolderPath)) {
+    sync(localeFolderPath)
+  }
+
+  return localePath
 }
