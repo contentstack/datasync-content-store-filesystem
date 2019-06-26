@@ -11,3 +11,6 @@ coverage
 _contents
 example/_contents/
 
+# Node files
+package-lock.json
+

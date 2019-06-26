@@ -1,6 +1,14 @@
-import { existsSync, mkdir } from 'fs'
-import { sync } from 'mkdirp'
-import { join, isAbsolute, resolve, sep } from 'path'
+import {
+  existsSync,
+} from 'fs'
+import {
+  sync
+} from 'mkdirp'
+import {
+  join,
+  isAbsolute,
+  sep
+} from 'path'
 
 const filterKeys = ['_content_type', 'checkpoint', 'type']
 
@@ -46,24 +54,34 @@ export const removeUnwantedKeys = (unwanted, json) => {
   return json
 }
 
-export const buildLocalePath = (path, appConfig) => {
-  if (isAbsolute(path)) {
-    const pathArr = path.split()
-    // remove last elem
-    pathArr.splice(path.length - 1, 0)
-    const localeFolderPath = join.apply(this, pathArr)
-
-    if (!existsSync(localeFolderPath)) {
-      sync(localeFolderPath) 
+export const dbSetup = (config) => {
+  if (isAbsolute(config.baseDir)) {
+    if (existsSync(config.baseDir)) {
+      return
     }
 
-    return resolve(path)
-  } 
+    sync(config.baseDir)
+  }
 
+  const projectDir = join(__dirname, '..', '..', '..', '..', '..')
+  console.log('@project dir', projectDir)
+  const contentDir = join(projectDir, config.baseDir)
+  console.log('@content dir', contentDir)
+  if (!existsSync(contentDir)) {
+    sync(contentDir)
+  }
+
+  return
+}
+
+export const buildLocalePath = (path, appConfig) => {
   const localePath = join(appConfig.baseDir, appConfig.internal.locale)
   const localePathArr = localePath.split(sep)
   localePathArr.splice(localePathArr.length - 1)
   const localeFolderPath = join.apply(this, localePathArr)
+  console.log('locale folder path', localeFolderPath, existsSync(localeFolderPath))
+  console.log('locale path', localePath)
+
   if (!existsSync(localeFolderPath)) {
     sync(localeFolderPath)
   }

@@ -1,4 +1,2 @@
-/// <reference types="node" />
-import { readFile as readFileNative } from 'fs';
-export declare const readFile: typeof readFileNative.__promisify__;
-export declare const writeFile: Function;
+export declare const readFile: (path: any, type?: string) => Promise<string>;
+export declare const writeFile: (path: any, data: any) => any;

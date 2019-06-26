@@ -12,11 +12,11 @@ exports.validatePublishedObject = (publishedObject) => {
         }
     });
     if ((lodash_1.isEmpty(publishedObject)) || !(lodash_1.isPlainObject(publishedObject))) {
-        throw new Error(`Publish object.data should be of type plain object and not empty!`);
+        throw new Error(`Publish object should be of type plain object and not empty!`);
     }
     if (typeof publishedObject.locale !== 'string' || typeof publishedObject.uid !== 'string' ||
         typeof publishedObject._content_type_uid !== 'string') {
-        throw new Error(`Publish object key types do not match expected types!`);
+        throw new Error(`Publish object keys type do not match expected type!`);
     }
     return;
 };
@@ -27,11 +27,11 @@ exports.validateUnpublishedObject = (unpublishedObject) => {
         }
     });
     if (lodash_1.isEmpty(unpublishedObject) || !(lodash_1.isPlainObject(unpublishedObject))) {
-        throw new Error(`Unpublish object.data should be of type plain object and not empty!`);
+        throw new Error(`Unpublish object should be of type plain object and not empty!`);
     }
     if (typeof unpublishedObject.locale !== 'string' || typeof unpublishedObject.uid !== 'string' ||
         typeof unpublishedObject._content_type_uid !== 'string') {
-        throw new Error(`Unpublish object key types do not match expected types!`);
+        throw new Error(`Unpublish object keys type do not match expected type!`);
     }
     return;
 };
@@ -46,7 +46,7 @@ exports.validateEntryAssetDeletedObject = (deletedObject) => {
     }
     if (typeof deletedObject.locale !== 'string' || typeof deletedObject.uid !== 'string' ||
         typeof deletedObject._content_type_uid !== 'string') {
-        throw new Error(`Unpublish object key types do not match expected types!`);
+        throw new Error(`Unpublish object keys type do not match expected type!`);
     }
     return;
 };
@@ -64,6 +64,21 @@ exports.validateContentTypeDeletedObject = (deletedObject) => {
     // required key, type check
     if (typeof deletedObject.uid !== 'string' || typeof deletedObject._content_type_uid !== 'string') {
         throw new Error('Input delete object key types do not match expected types!');
+    }
+    return;
+};
+exports.validateContentTypeObj = (schema) => {
+    requiredPublishKeys.forEach((key) => {
+        if (!(schema.hasOwnProperty(key))) {
+            throw new Error(`${key} is missing from ${JSON.stringify(schema)}`);
+        }
+    });
+    if ((lodash_1.isEmpty(schema)) || !(lodash_1.isPlainObject(schema))) {
+        throw new Error(`Content type object should be of type plain object and not empty!`);
+    }
+    if (typeof schema.locale !== 'string' || typeof schema.uid !== 'string' ||
+        typeof schema._content_type_uid !== 'string') {
+        throw new Error(`Content type object keys type do not match expected type!`);
     }
     return;
 };

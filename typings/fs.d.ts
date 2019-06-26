@@ -14,6 +14,7 @@ export declare class FilesystemStore {
     unpublish(input: any): Promise<unknown>;
     delete(input: any): Promise<unknown>;
     private publishEntry;
+    updateContentType(data: any): Promise<any>;
     private publishAsset;
     private unpublishAsset;
     private unpublishEntry;
