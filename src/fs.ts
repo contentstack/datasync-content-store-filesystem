@@ -7,7 +7,7 @@
 import { debug as Debug } from 'debug'
 import { existsSync, unlinkSync, write } from 'fs'
 import { cloneDeep, compact } from 'lodash'
-import { join }  from 'path'
+import { join, sep }  from 'path'
 import mkdirp from 'mkdirp'
 import { readFile, writeFile } from './util/fs'
 import { buildLocalePath, getPathKeys, removeUnwantedKeys, filter } from './util/index'
@@ -33,8 +33,7 @@ export class FilesystemStore {
   constructor(assetStore, config) {
     this.assetStore = assetStore
     this.config = config.contentStore
-    const baseDirKeys = []
-    baseDirKeys.push(this.config.baseDir)
+    const baseDirKeys = this.config.baseDir.split(sep)
     this.pattern = ({} as any)
     // unwanted keys
     this.unwanted = this.config.unwanted
@@ -265,14 +264,16 @@ export class FilesystemStore {
           let rteAsset = false
           let removedAsset
           for (let i = 0, j = assets.length; i < j; i++) {
-            if (assets[i].hasOwnProperty('_version')) {
-              // remove the matching asset
-              removedAsset = assets.splice(i, 1)[0]
-              unpublishedAsset = true
-              i--
-              j--
-            } else if (assets[i].hasOwnProperty('download_id')) {
-              rteAsset = true
+            if (assets[i].uid === asset.uid) {
+              if (assets[i].hasOwnProperty('_version')) {
+                // remove the matching asset
+                removedAsset = assets.splice(i, 1)[0]
+                unpublishedAsset = true
+                i--
+                j--
+              } else if (assets[i].hasOwnProperty('download_id')) {
+                rteAsset = true
+              }
             }
           }
 

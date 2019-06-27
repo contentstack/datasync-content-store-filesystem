@@ -32,7 +32,7 @@ export const setConfig = (config: IConfig) => {
  */
 export function start(assetStore, configs ?) {
   appConfig = merge(defaults, appConfig, configs)
-  dbSetup(appConfig.contentStore)
+  // dbSetup(appConfig.contentStore)
   connector = new FilesystemStore(assetStore, appConfig)
   return Promise.resolve(connector)
 }

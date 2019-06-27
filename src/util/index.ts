@@ -54,24 +54,20 @@ export const removeUnwantedKeys = (unwanted, json) => {
   return json
 }
 
-export const dbSetup = (config) => {
+export const normalizeBaseDir = (config) => {
   if (isAbsolute(config.baseDir)) {
-    if (existsSync(config.baseDir)) {
-      return
+    if (!existsSync(config.baseDir)) {
+      sync(config.baseDir)
+    } 
+  } else {
+    const projectDir = join(__dirname, '..', '..', '..', '..', '..')
+    const contentDir = join(projectDir, config.baseDir)
+    if (!existsSync(contentDir)) {
+      sync(contentDir)
     }
-
-    sync(config.baseDir)
   }
 
-  const projectDir = join(__dirname, '..', '..', '..', '..', '..')
-  console.log('@project dir', projectDir)
-  const contentDir = join(projectDir, config.baseDir)
-  console.log('@content dir', contentDir)
-  if (!existsSync(contentDir)) {
-    sync(contentDir)
-  }
-
-  return
+  return config
 }
 
 export const buildLocalePath = (path, appConfig) => {
