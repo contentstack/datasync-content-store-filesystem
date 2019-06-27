@@ -29,8 +29,7 @@ class FilesystemStore {
     constructor(assetStore, config) {
         this.assetStore = assetStore;
         this.config = config.contentStore;
-        const baseDirKeys = [];
-        baseDirKeys.push(this.config.baseDir);
+        const baseDirKeys = this.config.baseDir.split(path_1.sep);
         this.pattern = {};
         // unwanted keys
         this.unwanted = this.config.unwanted;
@@ -242,15 +241,17 @@ class FilesystemStore {
                     let rteAsset = false;
                     let removedAsset;
                     for (let i = 0, j = assets.length; i < j; i++) {
-                        if (assets[i].hasOwnProperty('_version')) {
-                            // remove the matching asset
-                            removedAsset = assets.splice(i, 1)[0];
-                            unpublishedAsset = true;
-                            i--;
-                            j--;
-                        }
-                        else if (assets[i].hasOwnProperty('download_id')) {
-                            rteAsset = true;
+                        if (assets[i].uid === asset.uid) {
+                            if (assets[i].hasOwnProperty('_version')) {
+                                // remove the matching asset
+                                removedAsset = assets.splice(i, 1)[0];
+                                unpublishedAsset = true;
+                                i--;
+                                j--;
+                            }
+                            else if (assets[i].hasOwnProperty('download_id')) {
+                                rteAsset = true;
+                            }
                         }
                     }
                     // decide, if the on-premise media file is to be removed

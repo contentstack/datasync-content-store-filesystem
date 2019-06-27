@@ -43,21 +43,20 @@ exports.removeUnwantedKeys = (unwanted, json) => {
     }
     return json;
 };
-exports.dbSetup = (config) => {
+exports.normalizeBaseDir = (config) => {
     if (path_1.isAbsolute(config.baseDir)) {
-        if (fs_1.existsSync(config.baseDir)) {
-            return;
+        if (!fs_1.existsSync(config.baseDir)) {
+            mkdirp_1.sync(config.baseDir);
         }
-        mkdirp_1.sync(config.baseDir);
     }
-    const projectDir = path_1.join(__dirname, '..', '..', '..', '..', '..');
-    console.log('@project dir', projectDir);
-    const contentDir = path_1.join(projectDir, config.baseDir);
-    console.log('@content dir', contentDir);
-    if (!fs_1.existsSync(contentDir)) {
-        mkdirp_1.sync(contentDir);
+    else {
+        const projectDir = path_1.join(__dirname, '..', '..', '..', '..', '..');
+        const contentDir = path_1.join(projectDir, config.baseDir);
+        if (!fs_1.existsSync(contentDir)) {
+            mkdirp_1.sync(contentDir);
+        }
     }
-    return;
+    return config;
 };
 exports.buildLocalePath = (path, appConfig) => {
     const localePath = path_1.join(appConfig.baseDir, appConfig.internal.locale);
