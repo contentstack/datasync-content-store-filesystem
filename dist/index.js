@@ -23,7 +23,6 @@ exports.setConfig = (config) => {
  */
 function start(assetStore, configs) {
     appConfig = lodash_1.merge(config_1.defaults, appConfig, configs);
-    // dbSetup(appConfig.contentStore)
     connector = new fs_1.FilesystemStore(assetStore, appConfig);
     return Promise.resolve(connector);
 }
