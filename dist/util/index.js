@@ -63,8 +63,6 @@ exports.buildLocalePath = (path, appConfig) => {
     const localePathArr = localePath.split(path_1.sep);
     localePathArr.splice(localePathArr.length - 1);
     const localeFolderPath = path_1.join.apply(this, localePathArr);
-    console.log('locale folder path', localeFolderPath, fs_1.existsSync(localeFolderPath));
-    console.log('locale path', localePath);
     if (!fs_1.existsSync(localeFolderPath)) {
         mkdirp_1.sync(localeFolderPath);
     }
