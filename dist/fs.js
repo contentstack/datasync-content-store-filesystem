@@ -50,7 +50,7 @@ class FilesystemStore {
                     const locales = JSON.parse(data);
                     const idx = locales.indexOf(input.locale);
                     if (idx === -1) {
-                        locales.push(input.locale);
+                        locales.unshift(input.locale);
                         // removing async - background op!
                         yield fs_2.writeFile(this.localePath, JSON.stringify(locales));
                     }
@@ -136,7 +136,7 @@ class FilesystemStore {
                             }
                         }
                         if (!entryUpdated) {
-                            entries.push(entry);
+                            entries.unshift(entry);
                         }
                         yield fs_2.writeFile(entryPath, JSON.stringify(entries));
                     }
@@ -178,7 +178,7 @@ class FilesystemStore {
                     }
                 }
                 if (!contentTypeUpdated) {
-                    jsonData.push(data);
+                    jsonData.unshift(data);
                 }
                 yield fs_2.writeFile(contentTypePath, JSON.stringify(jsonData));
             }
@@ -202,15 +202,32 @@ class FilesystemStore {
                 const assetFolderPath = path_1.join.apply(this, assetPathKeys);
                 // to remove unwanted keys and change structure
                 asset = index_1.removeUnwantedKeys(this.unwanted.asset, asset);
-                // unpublish the published version of asset
-                yield this.unpublishAsset(asset);
+                if (asset.hasOwnProperty('_version')) {
+                    // unpublish the published version of asset
+                    yield this.unpublishAsset(asset);
+                }
                 asset = yield this.assetStore.download(asset);
                 if (fs_1.existsSync(assetFolderPath)) {
                     if (fs_1.existsSync(assetPath)) {
                         const contents = yield fs_2.readFile(assetPath, 'utf-8');
                         let assets = JSON.parse(contents);
-                        assets.push(asset);
-                        yield fs_2.writeFile(assetPath, JSON.stringify(assets));
+                        if (asset.hasOwnProperty('_version')) {
+                            assets.unshift(asset);
+                            yield fs_2.writeFile(assetPath, JSON.stringify(assets));
+                        }
+                        else {
+                            let rteMarkdownExists = false;
+                            for (let i = 0, j = assets.length; i < j; i++) {
+                                if (assets[i].download_id === asset.download_id) {
+                                    rteMarkdownExists = true;
+                                    break;
+                                }
+                            }
+                            if (!rteMarkdownExists) {
+                                assets.unshift(asset);
+                                yield fs_2.writeFile(assetPath, JSON.stringify(assets));
+                            }
+                        }
                     }
                     else {
                         yield fs_2.writeFile(assetPath, JSON.stringify([asset]));
@@ -315,7 +332,7 @@ class FilesystemStore {
                     for (let i = 0, j = assets.length; i < j; i++) {
                         if (assets[i].uid === asset.uid) {
                             assetsRemoved = true;
-                            bucket.push(assets.splice(i, 1)[0]);
+                            bucket.unshift(assets.splice(i, 1)[0]);
                             i--;
                             j--;
                         }
