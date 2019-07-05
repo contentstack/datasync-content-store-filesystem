@@ -57,7 +57,7 @@ export class FilesystemStore {
           const idx = locales.indexOf(input.locale)
 
           if (idx === -1) {
-            locales.push(input.locale)
+            locales.unshift(input.locale)
             // removing async - background op!
             await writeFile(this.localePath, JSON.stringify(locales))
           }
@@ -150,7 +150,7 @@ export class FilesystemStore {
             }
 
             if (!entryUpdated) {
-              entries.push(entry)
+              entries.unshift(entry)
             }
 
             await writeFile(entryPath, JSON.stringify(entries))
@@ -196,7 +196,7 @@ export class FilesystemStore {
       }
 
       if (!contentTypeUpdated) {
-        jsonData.push(data)
+        jsonData.unshift(data)
       }
 
       await writeFile(contentTypePath, JSON.stringify(jsonData))
@@ -224,17 +224,32 @@ export class FilesystemStore {
         // to remove unwanted keys and change structure
         asset = removeUnwantedKeys(this.unwanted.asset, asset)
 
-        // unpublish the published version of asset
-        await this.unpublishAsset(asset)
+        if (asset.hasOwnProperty('_version')) {
+          // unpublish the published version of asset
+          await this.unpublishAsset(asset)
+        }
         asset = await this.assetStore.download(asset)
 
         if (existsSync(assetFolderPath)) {
           if (existsSync(assetPath)) {
             const contents: string = await readFile(assetPath, 'utf-8')
             let assets: any[] = JSON.parse(contents)
-            assets.push(asset)
-
-            await writeFile(assetPath, JSON.stringify(assets))
+            if (asset.hasOwnProperty('_version')) {
+              assets.unshift(asset)
+              await writeFile(assetPath, JSON.stringify(assets))
+            } else {
+              let rteMarkdownExists = false
+              for (let i = 0, j = assets.length; i < j; i++) {
+                if (assets[i].download_id === asset.download_id) {
+                  rteMarkdownExists = true
+                  break
+                }
+              }
+              if (!rteMarkdownExists) {
+                assets.unshift(asset)
+                await writeFile(assetPath, JSON.stringify(assets))
+              }
+            }
           } else {
             await writeFile(assetPath, JSON.stringify([asset]))
           }          
@@ -345,7 +360,7 @@ export class FilesystemStore {
           for (let i = 0, j = assets.length; i < j; i++) {
             if (assets[i].uid === asset.uid) {
               assetsRemoved = true
-              bucket.push(assets.splice(i, 1)[0])
+              bucket.unshift(assets.splice(i, 1)[0])
               i--
               j--
             }

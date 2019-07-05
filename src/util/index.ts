@@ -75,8 +75,6 @@ export const buildLocalePath = (path, appConfig) => {
   const localePathArr = localePath.split(sep)
   localePathArr.splice(localePathArr.length - 1)
   const localeFolderPath = join.apply(this, localePathArr)
-  console.log('locale folder path', localeFolderPath, existsSync(localeFolderPath))
-  console.log('locale path', localePath)
 
   if (!existsSync(localeFolderPath)) {
     sync(localeFolderPath)
