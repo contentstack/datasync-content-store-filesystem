@@ -26,7 +26,7 @@ exports.getPathKeys = (patternKeys, json) => {
                 pathKeys.push(json[k]);
             }
             else {
-                throw new TypeError(`The key ${pathKeys[i]} did not exist on ${JSON.stringify(json)}`);
+                throw new TypeError(`The key ${k} did not exist on ${JSON.stringify(json)}`);
             }
         }
         else {
@@ -58,7 +58,7 @@ exports.normalizeBaseDir = (config) => {
     }
     return config;
 };
-exports.buildLocalePath = (path, appConfig) => {
+exports.buildLocalePath = (appConfig) => {
     const localePath = path_1.join(appConfig.baseDir, appConfig.internal.locale);
     const localePathArr = localePath.split(path_1.sep);
     localePathArr.splice(localePathArr.length - 1);

@@ -5,29 +5,29 @@
  */
 
 import { debug as Debug } from 'debug'
-import { existsSync, unlinkSync, write } from 'fs'
+import { existsSync, unlinkSync } from 'fs'
 import { cloneDeep, compact } from 'lodash'
-import { join, sep }  from 'path'
 import mkdirp from 'mkdirp'
+import { join, sep } from 'path'
 import { readFile, writeFile } from './util/fs'
-import { buildLocalePath, getPathKeys, removeUnwantedKeys, filter } from './util/index'
+import { buildLocalePath, filter, getPathKeys, removeUnwantedKeys } from './util/index'
 
 import {
   validateContentTypeDeletedObject, validateEntryAssetDeletedObject,
-  validatePublishedObject, validateUnpublishedObject
+  validatePublishedObject, validateUnpublishedObject,
 } from './util/validations'
 
 const debug = Debug('core-fs')
 
 export class FilesystemStore {
   private readonly assetStore: any
-  private config: any
-  private pattern: {
+  private readonly config: any
+  private readonly pattern: {
     contentTypeKeys: string[],
     entryKeys: string[],
     assetKeys: string[],
   }
-  private unwanted: any
+  private readonly unwanted: any
   private readonly localePath: string
 
   constructor(assetStore, config) {
@@ -43,12 +43,14 @@ export class FilesystemStore {
     this.pattern.contentTypeKeys = baseDirKeys.concat(compact(this.config.patterns.contentType.split('/')))
     this.pattern.entryKeys = baseDirKeys.concat(compact(this.config.patterns.entry.split('/')))
     this.pattern.assetKeys = baseDirKeys.concat(compact(this.config.patterns.asset.split('/')))
-    this.localePath = buildLocalePath(this.config.internal.locale, this.config)
+    // maintain locales in a separate file
+    this.localePath = buildLocalePath(this.config)
   }
 
   public publish(input) {
     return new Promise(async (resolve, reject) => {
       try {
+        debug(`Publishing ${JSON.stringify(input)}`)
         validatePublishedObject(input)
         if (existsSync(this.localePath)) {
           // if its a new locale, keep track!
@@ -91,27 +93,7 @@ export class FilesystemStore {
             .catch(reject)
         }
 
-        return this.unpublishEntry(input).then(resolve).catch(reject)
-      } catch (error) {
-        return reject(error)
-      }
-    })
-  }
-
-  public delete(input) {
-    return new Promise((resolve, reject) => {
-      try {
-        if (input._content_type_uid === '_assets') {
-          return this.deleteAsset(input)
-            .then(resolve)
-            .catch(reject)
-        } else if (input._content_type_uid === '_content_types') {
-          return this.deleteContentType(input)
-            .then(resolve)
-            .catch(reject)
-        }
-
-        return this.deleteEntry(input)
+        return this.unpublishEntry(input)
           .then(resolve)
           .catch(reject)
       } catch (error) {
@@ -120,52 +102,19 @@ export class FilesystemStore {
     })
   }
 
-  private publishEntry(data) {
+  public delete(input) {
     return new Promise(async (resolve, reject) => {
       try {
-        let entry = cloneDeep(data)
-        entry = filter(entry) // to remove _content_type and checkpoint from entry data
-
-        // to get entry folder path
-        const entryPathKeys = getPathKeys(this.pattern.entryKeys, entry)
-        const entryPath = join.apply(this, entryPathKeys) + '.json'
-        entryPathKeys.splice(entryPathKeys.length - 1)
-        const entryFolderPath = join.apply(this, entryPathKeys)
-
-        entry = removeUnwantedKeys(this.unwanted.entry, entry)
-
-        if (existsSync(entryFolderPath)) {
-          if (existsSync(entryPath)) {
-            // entry file exists!
-            const data = await readFile(entryPath, 'utf-8')
-            const entries = JSON.parse(data)
-            // use this to save writes
-            let entryUpdated = false
-            for (let i = 0, j = entries.length; i < j; i++) {
-              if (entries[i].uid === entry.uid && entries[i].locale === entry.locale) {
-                entries[i] = entry
-                entryUpdated = true
-                break
-              }
-            }
-
-            if (!entryUpdated) {
-              entries.unshift(entry)
-            }
-
-            await writeFile(entryPath, JSON.stringify(entries))
-          } else {
-            // entry file does not exist
-            await writeFile(entryPath, JSON.stringify([entry]))
-          }
+        let output: any
+        if (input._content_type_uid === '_assets') {
+          output = await this.deleteAsset(input)
+        } else if (input._content_type_uid === '_content_types') {
+          output = await this.deleteContentType(input)
         } else {
-          // entry folder does not exist!
-          mkdirp.sync(entryFolderPath)
-
-          await writeFile(entryPath, JSON.stringify([entry]))
+          output = await this.deleteEntry(input)
         }
 
-        return resolve(entry)
+        return resolve(output)
       } catch (error) {
         return reject(error)
       }
@@ -207,7 +156,7 @@ export class FilesystemStore {
       mkdirp.sync(contentTypeFolderPath)
       await writeFile(contentTypePath, JSON.stringify([schema]))
     }
-    
+
     return schema
   }
 
@@ -215,7 +164,7 @@ export class FilesystemStore {
     return new Promise(async (resolve, reject) => {
       try {
         let asset = cloneDeep(data)
-        // to get asset folder path 
+        // to get asset folder path
         const assetPathKeys = getPathKeys(this.pattern.assetKeys, asset)
         const assetPath = join.apply(this, assetPathKeys) + '.json'
         assetPathKeys.splice(assetPathKeys.length - 1)
@@ -233,7 +182,7 @@ export class FilesystemStore {
         if (existsSync(assetFolderPath)) {
           if (existsSync(assetPath)) {
             const contents: string = await readFile(assetPath, 'utf-8')
-            let assets: any[] = JSON.parse(contents)
+            const assets: any[] = JSON.parse(contents)
             if (asset.hasOwnProperty('_version')) {
               assets.unshift(asset)
               await writeFile(assetPath, JSON.stringify(assets))
@@ -252,7 +201,7 @@ export class FilesystemStore {
             }
           } else {
             await writeFile(assetPath, JSON.stringify([asset]))
-          }          
+          }
         } else {
           // create folder, if it does not exist!
           mkdirp.sync(assetFolderPath)
@@ -336,13 +285,12 @@ export class FilesystemStore {
             }
           }
         }
+
         return resolve(entry)
       } catch (error) {
         return reject(error)
       }
-
     })
-
   }
 
   private deleteAsset(asset) {
@@ -368,11 +316,13 @@ export class FilesystemStore {
           if (!assetsRemoved) {
             return resolve(asset)
           }
+
           return this.assetStore.delete(bucket)
             .then(() => writeFile(assetPath, JSON.stringify(assets)))
             .then(() => resolve(asset))
             .catch(reject)
         }
+
         return resolve(asset)
       } catch (error) {
         return reject(error)
@@ -384,10 +334,12 @@ export class FilesystemStore {
     validateContentTypeDeletedObject(data)
     const content: string = await readFile(this.localePath, 'utf-8')
     const locales: string[] = JSON.parse(content)
-    
+
     return Promise
       .all([this.deleteSchema(data, locales), this.deleteAllEntries(data, locales)])
-      .then(() => console.log('Content type deleted successfully!\n', JSON.stringify(data)))
+      .then(() => {
+        return data
+      })
   }
 
   private async deleteAllEntries(data, locales) {
@@ -426,22 +378,22 @@ export class FilesystemStore {
       const deleteContentTypeObject = {
         _content_type_uid: '_content_types',
         locale,
-        uid: data.uid
+        uid: data.uid,
       }
       const contentTypePathKeys = getPathKeys(this.pattern.contentTypeKeys, deleteContentTypeObject)
       const contentTypePath = join.apply(this, contentTypePathKeys) + '.json'
       if (existsSync(contentTypePath)) {
         const content: string = await readFile(contentTypePath, 'utf-8')
         const jsonData: any = JSON.parse(content)
-  
+
         if (jsonData instanceof Array) {
-          for (let i = 0, j = jsonData.length; i < j; i++) {
-            if (jsonData[i].uid === data.uid) {
-              jsonData.splice(i, 1)
+          for (let k = 0, m = jsonData.length; k < m; k++) {
+            if (jsonData[k].uid === data.uid) {
+              jsonData.splice(k, 1)
               break
             }
           }
-  
+
           await writeFile(contentTypePath, JSON.stringify(jsonData))
         } else {
           unlinkSync(contentTypePath)
@@ -474,10 +426,64 @@ export class FilesystemStore {
             await writeFile(entryPath, JSON.stringify(entries))
           }
         }
+
         return resolve(entry)
       } catch (error) {
         return reject(error)
       }
     })
   }
+
+  private publishEntry(data) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let entry = cloneDeep(data)
+        entry = filter(entry) // to remove _content_type and checkpoint from entry data
+
+        // to get entry folder path
+        const entryPathKeys = getPathKeys(this.pattern.entryKeys, entry)
+        const entryPath = join.apply(this, entryPathKeys) + '.json'
+        entryPathKeys.splice(entryPathKeys.length - 1)
+        const entryFolderPath = join.apply(this, entryPathKeys)
+
+        entry = removeUnwantedKeys(this.unwanted.entry, entry)
+
+        if (existsSync(entryFolderPath)) {
+          if (existsSync(entryPath)) {
+            // entry file exists!
+            const contents: string = await readFile(entryPath, 'utf-8')
+            const entries = JSON.parse(contents)
+            // use this to save writes
+            let entryUpdated = false
+            for (let i = 0, j = entries.length; i < j; i++) {
+              if (entries[i].uid === entry.uid && entries[i].locale === entry.locale) {
+                entries[i] = entry
+                entryUpdated = true
+                break
+              }
+            }
+
+            if (!entryUpdated) {
+              entries.unshift(entry)
+            }
+
+            await writeFile(entryPath, JSON.stringify(entries))
+          } else {
+            // entry file does not exist
+            await writeFile(entryPath, JSON.stringify([entry]))
+          }
+        } else {
+          // entry folder does not exist!
+          mkdirp.sync(entryFolderPath)
+
+          await writeFile(entryPath, JSON.stringify([entry]))
+        }
+
+        return resolve(entry)
+      } catch (error) {
+        return reject(error)
+      }
+    })
+  }
+// tslint:disable-next-line: max-file-line-count
 }

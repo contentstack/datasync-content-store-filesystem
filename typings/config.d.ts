@@ -3,7 +3,7 @@
 * copyright (c) Contentstack LLC
 * MIT Licensed
 */
-export declare const defaults: {
+export declare const config: {
     contentStore: {
         baseDir: string;
         internal: {

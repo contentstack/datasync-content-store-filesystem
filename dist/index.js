@@ -1,36 +1,41 @@
 "use strict";
 /*!
- * DataSync Content Store Filesystem
- * Copyright (c) Contentstack LLC
- * MIT Licensed
- */
+* Contentstack Filesystem Content Store
+* Copyright (c) 2019 Contentstack LLC
+* MIT Licensed
+*/
 Object.defineProperty(exports, "__esModule", { value: true });
 const lodash_1 = require("lodash");
 const config_1 = require("./config");
 const fs_1 = require("./fs");
-let appConfig;
-let connector;
-exports.getConfig = () => {
-    return appConfig;
+const validations_1 = require("./util/validations");
+let appConfig = {};
+let assetConnectorInstance;
+let fsClient;
+exports.setAssetConnector = (instance) => {
+    assetConnectorInstance = instance;
 };
 exports.setConfig = (config) => {
     appConfig = config;
 };
-/**
- * @description Establish connection to FS db
- * @param {Object} assetConnector Asset store instance
- * @param {Object} configs App config
- */
-function start(assetStore, configs) {
-    appConfig = lodash_1.merge(config_1.defaults, appConfig, configs);
-    connector = new fs_1.FilesystemStore(assetStore, appConfig);
-    return Promise.resolve(connector);
-}
-exports.start = start;
-/**
- * @description to get connector instance
- */
-function getConnector() {
-    return connector;
-}
-exports.getConnector = getConnector;
+exports.getConfig = () => {
+    return appConfig;
+};
+exports.getFilesystemClient = () => {
+    return fsClient;
+};
+exports.start = (connector, config) => {
+    return new Promise((resolve, reject) => {
+        try {
+            appConfig = lodash_1.merge(config_1.config, appConfig, config);
+            validations_1.validateConfig(appConfig);
+            assetConnectorInstance = connector || assetConnectorInstance;
+            validations_1.validateAssetConnectorInstance(assetConnectorInstance);
+            fsClient = new fs_1.FilesystemStore(assetConnectorInstance, appConfig);
+            return resolve(fsClient);
+        }
+        catch (error) {
+            return reject(error);
+        }
+    });
+};
