@@ -5,7 +5,7 @@
 * MIT Licensed
 */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.defaults = {
+exports.config = {
     contentStore: {
         baseDir: './_contents',
         internal: {
@@ -13,10 +13,8 @@ exports.defaults = {
                 assets: '_assets',
                 content_type_uid: '_content_types',
             },
-            // let's not allow this to be configurable, at least not now..
             locale: '/locales.json',
         },
-        // defaults to .json paths
         patterns: {
             asset: '/:locale/data/assets',
             contentType: '/:locale/data/content_types',

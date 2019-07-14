@@ -19,8 +19,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const debug_1 = require("debug");
 const fs_1 = require("fs");
 const lodash_1 = require("lodash");
-const path_1 = require("path");
 const mkdirp_1 = __importDefault(require("mkdirp"));
+const path_1 = require("path");
 const fs_2 = require("./util/fs");
 const index_1 = require("./util/index");
 const validations_1 = require("./util/validations");
@@ -31,27 +31,23 @@ class FilesystemStore {
         this.config = config.contentStore;
         const baseDirKeys = this.config.baseDir.split(path_1.sep);
         this.pattern = {};
-        // unwanted keys
         this.unwanted = this.config.unwanted;
-        // path keys for entry, assets & content types
-        // splitting it by '/' instead of ':/', as we need to know if its a pattern not not, further down the line
         this.pattern.contentTypeKeys = baseDirKeys.concat(lodash_1.compact(this.config.patterns.contentType.split('/')));
         this.pattern.entryKeys = baseDirKeys.concat(lodash_1.compact(this.config.patterns.entry.split('/')));
         this.pattern.assetKeys = baseDirKeys.concat(lodash_1.compact(this.config.patterns.asset.split('/')));
-        this.localePath = index_1.buildLocalePath(this.config.internal.locale, this.config);
+        this.localePath = index_1.buildLocalePath(this.config);
     }
     publish(input) {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             try {
+                debug(`Publishing ${JSON.stringify(input)}`);
                 validations_1.validatePublishedObject(input);
                 if (fs_1.existsSync(this.localePath)) {
-                    // if its a new locale, keep track!
                     const data = yield fs_2.readFile(this.localePath, 'utf-8');
                     const locales = JSON.parse(data);
                     const idx = locales.indexOf(input.locale);
                     if (idx === -1) {
                         locales.unshift(input.locale);
-                        // removing async - background op!
                         yield fs_2.writeFile(this.localePath, JSON.stringify(locales));
                     }
                 }
@@ -81,27 +77,7 @@ class FilesystemStore {
                         .then(resolve)
                         .catch(reject);
                 }
-                return this.unpublishEntry(input).then(resolve).catch(reject);
-            }
-            catch (error) {
-                return reject(error);
-            }
-        });
-    }
-    delete(input) {
-        return new Promise((resolve, reject) => {
-            try {
-                if (input._content_type_uid === '_assets') {
-                    return this.deleteAsset(input)
-                        .then(resolve)
-                        .catch(reject);
-                }
-                else if (input._content_type_uid === '_content_types') {
-                    return this.deleteContentType(input)
-                        .then(resolve)
-                        .catch(reject);
-                }
-                return this.deleteEntry(input)
+                return this.unpublishEntry(input)
                     .then(resolve)
                     .catch(reject);
             }
@@ -110,47 +86,20 @@ class FilesystemStore {
             }
         });
     }
-    publishEntry(data) {
+    delete(input) {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             try {
-                let entry = lodash_1.cloneDeep(data);
-                entry = index_1.filter(entry); // to remove _content_type and checkpoint from entry data
-                // to get entry folder path
-                const entryPathKeys = index_1.getPathKeys(this.pattern.entryKeys, entry);
-                const entryPath = path_1.join.apply(this, entryPathKeys) + '.json';
-                entryPathKeys.splice(entryPathKeys.length - 1);
-                const entryFolderPath = path_1.join.apply(this, entryPathKeys);
-                entry = index_1.removeUnwantedKeys(this.unwanted.entry, entry);
-                if (fs_1.existsSync(entryFolderPath)) {
-                    if (fs_1.existsSync(entryPath)) {
-                        // entry file exists!
-                        const data = yield fs_2.readFile(entryPath, 'utf-8');
-                        const entries = JSON.parse(data);
-                        // use this to save writes
-                        let entryUpdated = false;
-                        for (let i = 0, j = entries.length; i < j; i++) {
-                            if (entries[i].uid === entry.uid && entries[i].locale === entry.locale) {
-                                entries[i] = entry;
-                                entryUpdated = true;
-                                break;
-                            }
-                        }
-                        if (!entryUpdated) {
-                            entries.unshift(entry);
-                        }
-                        yield fs_2.writeFile(entryPath, JSON.stringify(entries));
-                    }
-                    else {
-                        // entry file does not exist
-                        yield fs_2.writeFile(entryPath, JSON.stringify([entry]));
-                    }
+                let output;
+                if (input._content_type_uid === '_assets') {
+                    output = yield this.deleteAsset(input);
+                }
+                else if (input._content_type_uid === '_content_types') {
+                    output = yield this.deleteContentType(input);
                 }
                 else {
-                    // entry folder does not exist!
-                    mkdirp_1.default.sync(entryFolderPath);
-                    yield fs_2.writeFile(entryPath, JSON.stringify([entry]));
+                    output = yield this.deleteEntry(input);
                 }
-                return resolve(entry);
+                return resolve(output);
             }
             catch (error) {
                 return reject(error);
@@ -167,8 +116,6 @@ class FilesystemStore {
             if (fs_1.existsSync(contentTypePath)) {
                 const content = yield fs_2.readFile(contentTypePath, 'utf-8');
                 const jsonData = JSON.parse(content);
-                // for time being, keeping things simple
-                // all schemas in one file
                 let contentTypeUpdated = false;
                 for (let i = 0, j = jsonData.length; i < j; i++) {
                     if (jsonData[i].uid === data.uid) {
@@ -195,22 +142,19 @@ class FilesystemStore {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             try {
                 let asset = lodash_1.cloneDeep(data);
-                // to get asset folder path 
                 const assetPathKeys = index_1.getPathKeys(this.pattern.assetKeys, asset);
                 const assetPath = path_1.join.apply(this, assetPathKeys) + '.json';
                 assetPathKeys.splice(assetPathKeys.length - 1);
                 const assetFolderPath = path_1.join.apply(this, assetPathKeys);
-                // to remove unwanted keys and change structure
                 asset = index_1.removeUnwantedKeys(this.unwanted.asset, asset);
                 if (asset.hasOwnProperty('_version')) {
-                    // unpublish the published version of asset
                     yield this.unpublishAsset(asset);
                 }
                 asset = yield this.assetStore.download(asset);
                 if (fs_1.existsSync(assetFolderPath)) {
                     if (fs_1.existsSync(assetPath)) {
                         const contents = yield fs_2.readFile(assetPath, 'utf-8');
-                        let assets = JSON.parse(contents);
+                        const assets = JSON.parse(contents);
                         if (asset.hasOwnProperty('_version')) {
                             assets.unshift(asset);
                             yield fs_2.writeFile(assetPath, JSON.stringify(assets));
@@ -234,7 +178,6 @@ class FilesystemStore {
                     }
                 }
                 else {
-                    // create folder, if it does not exist!
                     mkdirp_1.default.sync(assetFolderPath);
                     yield fs_2.writeFile(assetPath, JSON.stringify([data]));
                 }
@@ -253,14 +196,12 @@ class FilesystemStore {
                 if (fs_1.existsSync(assetPath)) {
                     const data = yield fs_2.readFile(assetPath);
                     const assets = JSON.parse(data);
-                    // will help in saving un-necessary writes
                     let unpublishedAsset = false;
                     let rteAsset = false;
                     let removedAsset;
                     for (let i = 0, j = assets.length; i < j; i++) {
                         if (assets[i].uid === asset.uid) {
                             if (assets[i].hasOwnProperty('_version')) {
-                                // remove the matching asset
                                 removedAsset = assets.splice(i, 1)[0];
                                 unpublishedAsset = true;
                                 i--;
@@ -271,11 +212,9 @@ class FilesystemStore {
                             }
                         }
                     }
-                    // decide, if the on-premise media file is to be removed
                     if (unpublishedAsset && !(rteAsset)) {
                         yield this.assetStore.unpublish(removedAsset);
                     }
-                    // if any asset object has been removed, only then write to disk
                     if (unpublishedAsset) {
                         yield fs_2.writeFile(assetPath, JSON.stringify(assets));
                     }
@@ -359,7 +298,9 @@ class FilesystemStore {
             const locales = JSON.parse(content);
             return Promise
                 .all([this.deleteSchema(data, locales), this.deleteAllEntries(data, locales)])
-                .then(() => console.log('Content type deleted successfully!\n', JSON.stringify(data)));
+                .then(() => {
+                return data;
+            });
         });
     }
     deleteAllEntries(data, locales) {
@@ -375,7 +316,6 @@ class FilesystemStore {
                 const entryPath = path_1.join.apply(this, entryPathKeys) + '.json';
                 if (fs_1.existsSync(entryPath)) {
                     const contents = yield fs_2.readFile(entryPath, 'utf-8');
-                    // its possible to put all entries in one file
                     const entries = JSON.parse(contents);
                     for (let k = 0, l = entries.length; k < l; k++) {
                         if (entries[k]._content_type_uid === uid) {
@@ -397,7 +337,7 @@ class FilesystemStore {
                 const deleteContentTypeObject = {
                     _content_type_uid: '_content_types',
                     locale,
-                    uid: data.uid
+                    uid: data.uid,
                 };
                 const contentTypePathKeys = index_1.getPathKeys(this.pattern.contentTypeKeys, deleteContentTypeObject);
                 const contentTypePath = path_1.join.apply(this, contentTypePathKeys) + '.json';
@@ -405,9 +345,9 @@ class FilesystemStore {
                     const content = yield fs_2.readFile(contentTypePath, 'utf-8');
                     const jsonData = JSON.parse(content);
                     if (jsonData instanceof Array) {
-                        for (let i = 0, j = jsonData.length; i < j; i++) {
-                            if (jsonData[i].uid === data.uid) {
-                                jsonData.splice(i, 1);
+                        for (let k = 0, m = jsonData.length; k < m; k++) {
+                            if (jsonData[k].uid === data.uid) {
+                                jsonData.splice(k, 1);
                                 break;
                             }
                         }
@@ -441,6 +381,48 @@ class FilesystemStore {
                     if (entryDeleted) {
                         yield fs_2.writeFile(entryPath, JSON.stringify(entries));
                     }
+                }
+                return resolve(entry);
+            }
+            catch (error) {
+                return reject(error);
+            }
+        }));
+    }
+    publishEntry(data) {
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                let entry = lodash_1.cloneDeep(data);
+                entry = index_1.filter(entry);
+                const entryPathKeys = index_1.getPathKeys(this.pattern.entryKeys, entry);
+                const entryPath = path_1.join.apply(this, entryPathKeys) + '.json';
+                entryPathKeys.splice(entryPathKeys.length - 1);
+                const entryFolderPath = path_1.join.apply(this, entryPathKeys);
+                entry = index_1.removeUnwantedKeys(this.unwanted.entry, entry);
+                if (fs_1.existsSync(entryFolderPath)) {
+                    if (fs_1.existsSync(entryPath)) {
+                        const contents = yield fs_2.readFile(entryPath, 'utf-8');
+                        const entries = JSON.parse(contents);
+                        let entryUpdated = false;
+                        for (let i = 0, j = entries.length; i < j; i++) {
+                            if (entries[i].uid === entry.uid && entries[i].locale === entry.locale) {
+                                entries[i] = entry;
+                                entryUpdated = true;
+                                break;
+                            }
+                        }
+                        if (!entryUpdated) {
+                            entries.unshift(entry);
+                        }
+                        yield fs_2.writeFile(entryPath, JSON.stringify(entries));
+                    }
+                    else {
+                        yield fs_2.writeFile(entryPath, JSON.stringify([entry]));
+                    }
+                }
+                else {
+                    mkdirp_1.default.sync(entryFolderPath);
+                    yield fs_2.writeFile(entryPath, JSON.stringify([entry]));
                 }
                 return resolve(entry);
             }

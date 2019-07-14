@@ -2,12 +2,12 @@ import {
   existsSync,
 } from 'fs'
 import {
-  sync
+  sync,
 } from 'mkdirp'
 import {
-  join,
   isAbsolute,
-  sep
+  join,
+  sep,
 } from 'path'
 
 const filterKeys = ['_content_type', 'checkpoint', 'type']
@@ -19,6 +19,7 @@ export const filter: any = (data) => {
       result[key] = data[key]
     }
   }
+
   return result
 }
 
@@ -28,13 +29,14 @@ export const getPathKeys = (patternKeys, json) => {
     if (patternKeys[i].charAt(0) === ':') {
       let k = patternKeys[i].substring(1)
       const idx = k.indexOf('.json')
+      // tslint:disable-next-line: no-bitwise
       if (~idx) {
         k = k.slice(0, idx)
       }
       if (json[k]) {
         pathKeys.push(json[k])
       } else {
-        throw new TypeError(`The key ${pathKeys[i]} did not exist on ${JSON.stringify(json)}`)
+        throw new TypeError(`The key ${k} did not exist on ${JSON.stringify(json)}`)
       }
     } else {
       pathKeys.push(patternKeys[i])
@@ -58,7 +60,7 @@ export const normalizeBaseDir = (config) => {
   if (isAbsolute(config.baseDir)) {
     if (!existsSync(config.baseDir)) {
       sync(config.baseDir)
-    } 
+    }
   } else {
     const projectDir = join(__dirname, '..', '..', '..', '..', '..')
     const contentDir = join(projectDir, config.baseDir)
@@ -70,7 +72,7 @@ export const normalizeBaseDir = (config) => {
   return config
 }
 
-export const buildLocalePath = (path, appConfig) => {
+export const buildLocalePath = (appConfig) => {
   const localePath = join(appConfig.baseDir, appConfig.internal.locale)
   const localePathArr = localePath.split(sep)
   localePathArr.splice(localePathArr.length - 1)

@@ -1,0 +1,32 @@
+export const data = [
+  {
+    _content_type_uid: '_assets',
+    _id: 'a1',
+    _internal_url: 'assets/en-us/assetOne.jpg',
+    _version: 1,
+    filename: 'assetOne.jpg',
+    locale: 'en-us',
+    title: 'asset one',
+    uid: 'a1',
+  },
+  {
+    _content_type_uid: '_assets',
+    _id: 'a2',
+    _internal_url: 'assets/en-us/assetTwo.jpg',
+    _version: 2,
+    filename: 'assetTwo.jpg',
+    locale: 'en-us',
+    title: 'asset two',
+    uid: 'a2',
+  },
+  {
+    _content_type_uid: '_assets',
+    _id: 'a3',
+    _internal_url: 'assets/en-us/assetThree.jpg',
+    _version: 3,
+    filename: 'assetTwo.jpg',
+    locale: 'en-us',
+    title: 'asset three',
+    uid: 'a3',
+  },
+]

@@ -5,15 +5,14 @@
  */
 export declare class FilesystemStore {
     private readonly assetStore;
-    private config;
-    private pattern;
-    private unwanted;
+    private readonly config;
+    private readonly pattern;
+    private readonly unwanted;
     private readonly localePath;
     constructor(assetStore: any, config: any);
     publish(input: any): Promise<unknown>;
     unpublish(input: any): Promise<unknown>;
     delete(input: any): Promise<unknown>;
-    private publishEntry;
     updateContentType(data: any): Promise<any>;
     private publishAsset;
     private unpublishAsset;
@@ -23,4 +22,5 @@ export declare class FilesystemStore {
     private deleteAllEntries;
     private deleteSchema;
     private deleteEntry;
+    private publishEntry;
 }
