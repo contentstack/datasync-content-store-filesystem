@@ -40,14 +40,15 @@
     "mkdirp": "0.5.1",
     "nedb": "^1.8.0",
     "rimraf": "2.6.2",
-    "write-file-atomic": "2.4.2"
+    "write-file-atomic": "^2.4.2"
   },
   "devDependencies": {
     "@types/rimraf": "2.0.2",
-    "@types/jest": "^23.3.10",
+    "@types/jest": "^23.3.11",
     "@types/node": "^10.12.2",
     "jest": "24.8.0",
     "rimraf": "^2.6.2",
+    "ts-jest": "24.0.2",
     "typescript": "^3.2.2",
     "tslint": "5.18.0"
   }

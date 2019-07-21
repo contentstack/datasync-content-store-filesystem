@@ -4,7 +4,7 @@
 * MIT Licensed
 */
 
-export const defaults = {
+export const config = {
   contentStore: {
     baseDir: './_contents',
     internal: {
