@@ -4,8 +4,7 @@ module.exports = {
     deliveryToken: ''
   },
   contentStore: {
-    dbName: 'contentstack',
-    collectionName: 'development'
+    baseDir: '_development_contents'
   },
   assetStore: {
     baseDir: './_development_contents'
