@@ -12,7 +12,6 @@ import { data as assets } from './mock/data/assets'
 import { data as entries } from './mock/data/entries'
 
 const config = cloneDeep(merge({}, appConfig, mockConfig))
-config.contentStore.collectionName = 'unpublishing'
 
 // tslint:disable-next-line: one-variable-per-declaration
 let db

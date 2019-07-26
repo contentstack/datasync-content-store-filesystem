@@ -13,7 +13,6 @@ import { data as content_type } from './mock/data/content-types'
 import { data as entries } from './mock/data/entries'
 
 const config = cloneDeep(merge({}, appConfig, mockConfig))
-config.contentStore.collectionName = 'deletion'
 
 // tslint:disable-next-line: one-variable-per-declaration
 let db
