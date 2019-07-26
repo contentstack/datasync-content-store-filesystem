@@ -4,12 +4,20 @@
 # Dependency directories
 node_modules
 
-# Coverage directories
+# Testing/Coverage directories
 coverage
+_testing
 
 # Data
 _contents
-example/_contents/
+example/*
+!example/index.js
+!example/config.js
 
 # Node files
 package-lock.json
+
+# Config files
+tsconfig.json
+jest.config.js
+.jsbeautifyrc
