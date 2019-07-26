@@ -21,23 +21,17 @@ export declare const config: {
         unwanted: {
             asset: {
                 ACL: boolean;
-                created_at: boolean;
                 created_by: boolean;
-                updated_at: boolean;
                 updated_by: boolean;
             };
             contentType: {
                 ACL: boolean;
-                created_at: boolean;
                 inbuilt_class: boolean;
                 last_activity: boolean;
-                updated_at: boolean;
             };
             entry: {
                 ACL: boolean;
-                created_at: boolean;
                 created_by: boolean;
-                updated_at: boolean;
                 updated_by: boolean;
             };
         };

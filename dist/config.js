@@ -23,23 +23,17 @@ exports.config = {
         unwanted: {
             asset: {
                 ACL: true,
-                created_at: true,
                 created_by: true,
-                updated_at: true,
                 updated_by: true,
             },
             contentType: {
                 ACL: true,
-                created_at: true,
                 inbuilt_class: true,
                 last_activity: true,
-                updated_at: true,
             },
             entry: {
                 ACL: true,
-                created_at: true,
                 created_by: true,
-                updated_at: true,
                 updated_by: true,
             },
         },
