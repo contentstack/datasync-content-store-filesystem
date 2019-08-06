@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = require("fs");
 const mkdirp_1 = require("mkdirp");
 const path_1 = require("path");
-const filterKeys = ['_content_type', 'checkpoint', 'type'];
+const filterKeys = ['_content_type', '_checkpoint', '_type'];
 exports.filter = (data) => {
     const result = {};
     for (const key in data) {
