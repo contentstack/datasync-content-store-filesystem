@@ -10,7 +10,7 @@ import {
   sep,
 } from 'path'
 
-const filterKeys = ['_content_type', 'checkpoint', 'type']
+const filterKeys = ['_content_type', '_checkpoint', '_type']
 
 export const filter: any = (data) => {
   const result = {}

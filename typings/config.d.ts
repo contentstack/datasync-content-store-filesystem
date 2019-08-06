@@ -26,6 +26,8 @@ export declare const config: {
             };
             contentType: {
                 ACL: boolean;
+                DEFAULT_ACL: boolean;
+                SYS_ACL: boolean;
                 inbuilt_class: boolean;
                 last_activity: boolean;
             };
