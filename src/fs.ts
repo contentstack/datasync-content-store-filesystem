@@ -138,7 +138,9 @@ export class FilesystemStore {
       let contentTypeUpdated = false
       for (let i = 0, j = jsonData.length; i < j; i++) {
         if (jsonData[i].uid === data.uid) {
-          jsonData[i] = data
+          //jsonData[i] = data
+          jsonData.splice(i, 1)
+          jsonData.unshift(data)
           contentTypeUpdated = true
           break
         }
@@ -190,6 +192,8 @@ export class FilesystemStore {
               let rteMarkdownExists = false
               for (let i = 0, j = assets.length; i < j; i++) {
                 if (assets[i].download_id === asset.download_id) {
+                  assets.splice(i, 1)
+                  assets.unshift(asset)
                   rteMarkdownExists = true
                   break
                 }
@@ -457,7 +461,9 @@ export class FilesystemStore {
             let entryUpdated = false
             for (let i = 0, j = entries.length; i < j; i++) {
               if (entries[i].uid === entry.uid && entries[i].locale === entry.locale) {
-                entries[i] = entry
+                entries.splice(i, 1)
+                entries.unshift(entry)
+                //entries[i] = entry
                 entryUpdated = true
                 break
               }
