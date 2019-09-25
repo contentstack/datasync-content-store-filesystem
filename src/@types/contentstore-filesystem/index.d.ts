@@ -1,6 +1,12 @@
+/*!
+* DataSync Content Store Filesystem
+* copyright (c) Contentstack LLC
+* MIT Licensed
+*/
 
-declare module "fileSystemContentStoreModule" {
-	export declare class FilesystemStore {
+declare module 'contentstore-filesystem' {
+	
+	export class FilesystemStore {
     	private readonly assetStore;
     	private readonly config;
     	private readonly pattern;
@@ -59,10 +65,10 @@ declare module "fileSystemContentStoreModule" {
 	    assetStore: any;
 	}
 
-	export declare const setAssetConnector: (instance: IAssetConnector) => void;
-	export declare const setConfig: (config: IConfig) => void;
-	export declare const getConfig: () => IConfig;
-	export declare const getFilesystemClient: () => any;
-	export declare const start: (connector: IAssetConnector, config?: IConfig) => Promise<unknown>;
+	export const setAssetConnector: (instance: IAssetConnector) => void;
+	export const setConfig: (config: IConfig) => void;
+	export const getConfig: () => IConfig;
+	export const getFilesystemClient: () => any;
+	export const start: (connector: IAssetConnector, config?: IConfig) => Promise<unknown>;
 
 }
