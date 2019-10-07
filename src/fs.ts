@@ -52,6 +52,8 @@ export class FilesystemStore {
       try {
         debug(`Publishing ${JSON.stringify(input)}`)
         validatePublishedObject(input)
+        const time = new Date().toISOString()
+        input._synced_at = time
         if (existsSync(this.localePath)) {
           // if its a new locale, keep track!
           const data: string = await readFile(this.localePath, 'utf-8')
@@ -125,7 +127,8 @@ export class FilesystemStore {
     let schema = cloneDeep(data)
     validateContentTypeDeletedObject(schema)
     schema = removeUnwantedKeys(this.unwanted.contentType, data)
-
+    const time = new Date().toISOString()
+    schema._synced_at = time
     const contentTypePathKeys = getPathKeys(this.pattern.contentTypeKeys, data)
     const contentTypePath = join.apply(this, contentTypePathKeys) + '.json'
 

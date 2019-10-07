@@ -43,6 +43,8 @@ class FilesystemStore {
             try {
                 debug(`Publishing ${JSON.stringify(input)}`);
                 validations_1.validatePublishedObject(input);
+                const time = new Date().toISOString();
+                input._synced_at = time;
                 if (fs_1.existsSync(this.localePath)) {
                     const data = yield fs_2.readFile(this.localePath, 'utf-8');
                     const locales = JSON.parse(data);
@@ -112,6 +114,8 @@ class FilesystemStore {
             let schema = lodash_1.cloneDeep(data);
             validations_1.validateContentTypeDeletedObject(schema);
             schema = index_1.removeUnwantedKeys(this.unwanted.contentType, data);
+            const time = new Date().toISOString();
+            schema._synced_at = time;
             const contentTypePathKeys = index_1.getPathKeys(this.pattern.contentTypeKeys, data);
             const contentTypePath = path_1.join.apply(this, contentTypePathKeys) + '.json';
             if (fs_1.existsSync(contentTypePath)) {
