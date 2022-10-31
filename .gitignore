@@ -14,9 +14,6 @@ example/*
 !example/index.js
 !example/config.js
 
-# Node files
-package-lock.json
-
 # Config files
 tsconfig.json
 jest.config.js
