@@ -10,6 +10,7 @@ import { cloneDeep, compact } from 'lodash'
 import mkdirp from 'mkdirp'
 import { join, sep } from 'path'
 import { readFile, writeFile } from './util/fs'
+import { getFileFields } from './util/get-file-fields'
 import { buildLocalePath, filter, getPathKeys, removeUnwantedKeys } from './util/index'
 
 import {
@@ -484,6 +485,16 @@ export class FilesystemStore {
         return reject(error)
       }
     })
+  }
+
+  private updateAssetReferences(data, schema) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const fileFields = getFileFields(schema);
+      } catch (error) {
+        return reject(error);
+      }
+    });
   }
 // tslint:disable-next-line: max-file-line-count
 }
