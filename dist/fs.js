@@ -24,6 +24,7 @@ const lodash_1 = require("lodash");
 const mkdirp_1 = __importDefault(require("mkdirp"));
 const path_1 = require("path");
 const fs_2 = require("./util/fs");
+const get_file_fields_1 = require("./util/get-file-fields");
 const index_1 = require("./util/index");
 const validations_1 = require("./util/validations");
 const debug = debug_1.debug('core-fs');
@@ -61,9 +62,9 @@ class FilesystemStore {
                         .then(resolve)
                         .catch(reject);
                 }
-                return this.publishEntry(input)
-                    .then(resolve)
-                    .catch(reject);
+                const publishEntryResult = yield this.publishEntry(input);
+                yield this.updateAssetReferences(input, input._content_type);
+                return resolve(publishEntryResult);
             }
             catch (error) {
                 return reject(error);
@@ -218,6 +219,7 @@ class FilesystemStore {
                         yield this.assetStore.unpublish(removedAsset);
                     }
                     if (unpublishedAsset) {
+                        yield this.updateDeletedAssetReferences(asset);
                         yield fs_2.writeFile(assetPath, JSON.stringify(assets));
                     }
                 }
@@ -281,6 +283,7 @@ class FilesystemStore {
                     if (!assetsRemoved) {
                         return resolve(asset);
                     }
+                    yield this.updateDeletedAssetReferences(asset);
                     return this.assetStore.delete(bucket)
                         .then(() => fs_2.writeFile(assetPath, JSON.stringify(assets)))
                         .then(() => resolve(asset))
@@ -432,6 +435,150 @@ class FilesystemStore {
                 return reject(error);
             }
         }));
+    }
+    updateAssetReferences(data, schema) {
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const fileFieldPaths = get_file_fields_1.getFileFieldPaths(schema);
+                const assetPathKeys = index_1.getPathKeys(this.pattern.assetKeys, { locale: data.publish_details.locale });
+                assetPathKeys.splice(assetPathKeys.length - 1);
+                const assetFolderPath = path_1.join.apply(this, assetPathKeys);
+                let assetMap = yield fs_2.readFile(assetFolderPath + '/asset_map.json', 'utf-8');
+                try {
+                    assetMap = JSON.parse(assetMap);
+                    if (Array.isArray(assetMap)) {
+                        assetMap = {};
+                    }
+                }
+                catch (error) {
+                    assetMap = {};
+                }
+                const entryData = {
+                    uid: data.uid,
+                    contentTypeUid: data._content_type_uid,
+                    locale: data.publish_details.locale,
+                };
+                for (const fileFieldPath of fileFieldPaths) {
+                    this._getAssetFieldsHelper(data, fileFieldPath.split('.'), 0, assetMap, entryData);
+                }
+                yield fs_2.writeFile(assetFolderPath + '/asset_map.json', JSON.stringify(assetMap));
+                return resolve(assetFolderPath);
+            }
+            catch (error) {
+                return reject(error);
+            }
+        }));
+    }
+    updateDeletedAssetReferences(asset) {
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const assetPathKeys = index_1.getPathKeys(this.pattern.assetKeys, { locale: asset.publish_details ? asset.publish_details.locale : asset.locale });
+                assetPathKeys.splice(assetPathKeys.length - 1);
+                const assetFolderPath = path_1.join.apply(this, assetPathKeys);
+                let assetMap = yield fs_2.readFile(assetFolderPath + '/asset_map.json', 'utf-8');
+                try {
+                    assetMap = JSON.parse(assetMap);
+                    if (Array.isArray(assetMap)) {
+                        assetMap = {};
+                    }
+                }
+                catch (error) {
+                    assetMap = {};
+                }
+                if (!assetMap[asset.uid]) {
+                    return resolve({});
+                }
+                const entries = assetMap[asset.uid];
+                for (const entry of entries) {
+                    this._updateEntryAssetReference(entry, asset.uid);
+                }
+            }
+            catch (error) {
+                return reject(error);
+            }
+        }));
+    }
+    _getAssetFieldsHelper(data, fileFieldPathArray, index, assetFieldMap, entryData) {
+        if (fileFieldPathArray.length <= index) {
+            if (Array.isArray(data)) {
+                for (const d of data) {
+                    if (!assetFieldMap[d]) {
+                        assetFieldMap[d] = [];
+                    }
+                    assetFieldMap[d].push(Object.assign({ path: fileFieldPathArray }, entryData));
+                }
+            }
+            else {
+                if (!assetFieldMap[data]) {
+                    assetFieldMap[data] = [];
+                }
+                assetFieldMap[data].push(Object.assign({ path: fileFieldPathArray }, entryData));
+            }
+            return;
+        }
+        if (Array.isArray(data)) {
+            for (const d of data) {
+                this._getAssetFieldsHelper(d, fileFieldPathArray, index + 1, assetFieldMap, entryData);
+            }
+        }
+        else {
+            if (data[fileFieldPathArray[index]]) {
+                this._getAssetFieldsHelper(data[fileFieldPathArray[index]], fileFieldPathArray, index + 1, assetFieldMap, entryData);
+            }
+        }
+    }
+    _updateEntryAssetReference(data, assetId) {
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const entryPathKeys = index_1.getPathKeys(this.pattern.entryKeys, Object.assign(Object.assign({}, data), { _content_type_uid: data.contentTypeUid }));
+                const entryFolderPath = path_1.join.apply(this, entryPathKeys);
+                let entries = yield fs_2.readFile(entryFolderPath + '.json', 'utf-8');
+                entries = JSON.parse(entries);
+                let _entry;
+                for (const entry of entries) {
+                    if (entry.uid === data.uid) {
+                        _entry = entry;
+                        break;
+                    }
+                }
+                if (_entry) {
+                    this._nullifyDeletedAssetField(_entry, data.path, 0, assetId);
+                    yield fs_2.writeFile(entryFolderPath + '.json', JSON.stringify(entries));
+                }
+                return resolve(entries);
+            }
+            catch (error) {
+                return reject(error);
+            }
+        }));
+    }
+    _nullifyDeletedAssetField(data, fileFieldPathArray, index, assetId) {
+        if (fileFieldPathArray.length - 1 <= index) {
+            if (Array.isArray(data[fileFieldPathArray[index]])) {
+                const _d = data[fileFieldPathArray[index]];
+                for (let i = 0; i < _d.length; i++) {
+                    if (_d[i] === assetId) {
+                        _d[i] = null;
+                    }
+                }
+            }
+            else {
+                if (data[fileFieldPathArray[index]] === assetId) {
+                    data[fileFieldPathArray[index]] = null;
+                }
+            }
+            return;
+        }
+        if (Array.isArray(data)) {
+            for (const d of data) {
+                this._nullifyDeletedAssetField(d, fileFieldPathArray, index + 1, assetId);
+            }
+        }
+        else {
+            if (data[fileFieldPathArray[index]]) {
+                this._nullifyDeletedAssetField(data[fileFieldPathArray[index]], fileFieldPathArray, index + 1, assetId);
+            }
+        }
     }
 }
 exports.FilesystemStore = FilesystemStore;
