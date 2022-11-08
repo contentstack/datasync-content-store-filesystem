@@ -74,8 +74,7 @@ export class FilesystemStore {
             .catch(reject)
         }
 
-        const publishEntryResult = await this.publishEntry(input);
-        await this.updateAssetReferences(input, input._content_type);
+        const [publishEntryResult] = await Promise.all([this.publishEntry(input), this.updateAssetReferences(input, input._content_type)]);
         return resolve(publishEntryResult);
       } catch (error) {
         return reject(error)
@@ -248,8 +247,7 @@ export class FilesystemStore {
 
           // if any asset object has been removed, only then write to disk
           if (unpublishedAsset) {
-            await this.updateDeletedAssetReferences(asset);
-            await writeFile(assetPath, JSON.stringify(assets))
+            await Promise.all([writeFile(assetPath, JSON.stringify(assets)), this.updateDeletedAssetReferences(asset)]);
           }
         }
 
@@ -320,7 +318,7 @@ export class FilesystemStore {
 
           // Update the entry here.
           // TODO: When the asset is re-published, check if the entry is updated again.
-          await this.updateDeletedAssetReferences(asset);
+          this.updateDeletedAssetReferences(asset).catch(reject);
           return this.assetStore.delete(bucket)
             .then(() => writeFile(assetPath, JSON.stringify(assets)))
             .then(() => resolve(asset))
