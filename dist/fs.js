@@ -62,8 +62,7 @@ class FilesystemStore {
                         .then(resolve)
                         .catch(reject);
                 }
-                const publishEntryResult = yield this.publishEntry(input);
-                yield this.updateAssetReferences(input, input._content_type);
+                const [publishEntryResult] = yield Promise.all([this.publishEntry(input), this.updateAssetReferences(input, input._content_type)]);
                 return resolve(publishEntryResult);
             }
             catch (error) {
@@ -219,8 +218,7 @@ class FilesystemStore {
                         yield this.assetStore.unpublish(removedAsset);
                     }
                     if (unpublishedAsset) {
-                        yield this.updateDeletedAssetReferences(asset);
-                        yield fs_2.writeFile(assetPath, JSON.stringify(assets));
+                        yield Promise.all([fs_2.writeFile(assetPath, JSON.stringify(assets)), this.updateDeletedAssetReferences(asset)]);
                     }
                 }
                 return resolve(asset);
@@ -283,7 +281,7 @@ class FilesystemStore {
                     if (!assetsRemoved) {
                         return resolve(asset);
                     }
-                    yield this.updateDeletedAssetReferences(asset);
+                    this.updateDeletedAssetReferences(asset).catch(reject);
                     return this.assetStore.delete(bucket)
                         .then(() => fs_2.writeFile(assetPath, JSON.stringify(assets)))
                         .then(() => resolve(asset))
