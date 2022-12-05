@@ -438,7 +438,7 @@ class FilesystemStore {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const fileFieldPaths = get_file_fields_1.getFileFieldPaths(schema);
-                const assetPathKeys = index_1.getPathKeys(this.pattern.assetKeys, { locale: data.publish_details.locale });
+                const assetPathKeys = index_1.getPathKeys(this.pattern.assetKeys, { locale: data.publish_details ? data.publish_details.locale.locale : data.locale });
                 assetPathKeys.splice(assetPathKeys.length - 1);
                 const assetFolderPath = path_1.join.apply(this, assetPathKeys);
                 let assetMap = yield fs_2.readFile(assetFolderPath + '/asset_map.json', 'utf-8');
