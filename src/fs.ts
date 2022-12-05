@@ -493,7 +493,7 @@ export class FilesystemStore {
       try {
         const fileFieldPaths = getFileFieldPaths(schema);
 
-        const assetPathKeys = getPathKeys(this.pattern.assetKeys, { locale: data.publish_details.locale });
+        const assetPathKeys = getPathKeys(this.pattern.assetKeys, { locale: data.publish_details ? data.publish_details.locale.locale : data.locale });
         assetPathKeys.splice(assetPathKeys.length - 1);
         const assetFolderPath = join.apply(this, assetPathKeys);
         // Get the asset field map from filesystem.
