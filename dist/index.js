@@ -13,25 +13,29 @@ const validations_1 = require("./util/validations");
 let appConfig = {};
 let assetConnectorInstance;
 let fsClient;
-exports.setAssetConnector = (instance) => {
+const setAssetConnector = (instance) => {
     assetConnectorInstance = instance;
 };
-exports.setConfig = (config) => {
+exports.setAssetConnector = setAssetConnector;
+const setConfig = (config) => {
     appConfig = config;
 };
-exports.getConfig = () => {
+exports.setConfig = setConfig;
+const getConfig = () => {
     return appConfig;
 };
-exports.getFilesystemClient = () => {
+exports.getConfig = getConfig;
+const getFilesystemClient = () => {
     return fsClient;
 };
-exports.start = (connector, config) => {
+exports.getFilesystemClient = getFilesystemClient;
+const start = (connector, config) => {
     return new Promise((resolve, reject) => {
         try {
-            appConfig = lodash_1.merge(config_1.config, appConfig, config);
-            validations_1.validateConfig(appConfig);
+            appConfig = (0, lodash_1.merge)(config_1.config, appConfig, config);
+            (0, validations_1.validateConfig)(appConfig);
             assetConnectorInstance = connector || assetConnectorInstance;
-            validations_1.validateAssetConnectorInstance(assetConnectorInstance);
+            (0, validations_1.validateAssetConnectorInstance)(assetConnectorInstance);
             fsClient = new fs_1.FilesystemStore(assetConnectorInstance, appConfig);
             return resolve(fsClient);
         }
@@ -40,3 +44,4 @@ exports.start = (connector, config) => {
         }
     });
 };
+exports.start = start;

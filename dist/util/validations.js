@@ -6,8 +6,8 @@ const requiredPublishKeys = ['locale', 'uid', '_content_type_uid'];
 const requiredUnublishKeys = ['locale', 'uid', '_content_type_uid'];
 const requiredEntryAssetDeleteKeys = ['locale', 'uid', '_content_type_uid'];
 const requiredContentTypeDeleteKeys = ['uid', '_content_type_uid'];
-exports.validatePublishedObject = (publishedObject) => {
-    if ((lodash_1.isEmpty(publishedObject)) || !(lodash_1.isPlainObject(publishedObject))) {
+const validatePublishedObject = (publishedObject) => {
+    if (((0, lodash_1.isEmpty)(publishedObject)) || !((0, lodash_1.isPlainObject)(publishedObject))) {
         throw new Error('Publish object should be of type plain object and not empty!');
     }
     requiredPublishKeys.forEach((key) => {
@@ -21,8 +21,9 @@ exports.validatePublishedObject = (publishedObject) => {
     }
     return;
 };
-exports.validateUnpublishedObject = (unpublishedObject) => {
-    if (lodash_1.isEmpty(unpublishedObject) || !(lodash_1.isPlainObject(unpublishedObject))) {
+exports.validatePublishedObject = validatePublishedObject;
+const validateUnpublishedObject = (unpublishedObject) => {
+    if ((0, lodash_1.isEmpty)(unpublishedObject) || !((0, lodash_1.isPlainObject)(unpublishedObject))) {
         throw new Error('Unpublish object should be of type plain object and not empty!');
     }
     requiredUnublishKeys.forEach((key) => {
@@ -36,13 +37,14 @@ exports.validateUnpublishedObject = (unpublishedObject) => {
     }
     return;
 };
-exports.validateEntryAssetDeletedObject = (deletedObject) => {
+exports.validateUnpublishedObject = validateUnpublishedObject;
+const validateEntryAssetDeletedObject = (deletedObject) => {
     requiredEntryAssetDeleteKeys.forEach((key) => {
         if (!(deletedObject.hasOwnProperty(key))) {
             throw new Error(`${key} is missing from ${JSON.stringify(deletedObject)}!`);
         }
     });
-    if (lodash_1.isEmpty(deletedObject) || !(lodash_1.isPlainObject(deletedObject))) {
+    if ((0, lodash_1.isEmpty)(deletedObject) || !((0, lodash_1.isPlainObject)(deletedObject))) {
         throw new Error('Unpublish object.data should be of type plain object and not empty!');
     }
     if (typeof deletedObject.locale !== 'string' || typeof deletedObject.uid !== 'string' ||
@@ -51,7 +53,8 @@ exports.validateEntryAssetDeletedObject = (deletedObject) => {
     }
     return;
 };
-exports.validateContentTypeDeletedObject = (deletedObject) => {
+exports.validateEntryAssetDeletedObject = validateEntryAssetDeletedObject;
+const validateContentTypeDeletedObject = (deletedObject) => {
     if (!deletedObject || typeof deletedObject !== 'object' || deletedObject instanceof Array) {
         throw new Error('Invalid input for content type deletion!');
     }
@@ -65,13 +68,14 @@ exports.validateContentTypeDeletedObject = (deletedObject) => {
     }
     return;
 };
-exports.validateContentTypeObj = (schema) => {
+exports.validateContentTypeDeletedObject = validateContentTypeDeletedObject;
+const validateContentTypeObj = (schema) => {
     requiredPublishKeys.forEach((key) => {
         if (!(schema.hasOwnProperty(key))) {
             throw new Error(`${key} is missing from ${JSON.stringify(schema)}!`);
         }
     });
-    if ((lodash_1.isEmpty(schema)) || !(lodash_1.isPlainObject(schema))) {
+    if (((0, lodash_1.isEmpty)(schema)) || !((0, lodash_1.isPlainObject)(schema))) {
         throw new Error('Content type object should be of type plain object and not empty!');
     }
     if (typeof schema.locale !== 'string' || typeof schema.uid !== 'string' ||
@@ -80,13 +84,15 @@ exports.validateContentTypeObj = (schema) => {
     }
     return;
 };
-exports.validateConfig = (appConfig) => {
+exports.validateContentTypeObj = validateContentTypeObj;
+const validateConfig = (appConfig) => {
     const contentStore = appConfig.contentStore;
     if (typeof contentStore.baseDir !== 'string' || contentStore.baseDir.length === 0) {
         throw new Error('Content connector baseDir cannot be empty!');
     }
 };
-exports.validateAssetConnectorInstance = (instance) => {
+exports.validateConfig = validateConfig;
+const validateAssetConnectorInstance = (instance) => {
     const keys = ['download', 'delete', 'unpublish'];
     keys.forEach((fn) => {
         if (!(fn in instance) || typeof instance[fn] !== 'function') {
@@ -94,3 +100,4 @@ exports.validateAssetConnectorInstance = (instance) => {
         }
     });
 };
+exports.validateAssetConnectorInstance = validateAssetConnectorInstance;
