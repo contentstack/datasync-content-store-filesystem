@@ -493,7 +493,7 @@ export class FilesystemStore {
       try {
         const fileFieldPaths = getFileFieldPaths(schema);
 
-        const assetPathKeys = getPathKeys(this.pattern.assetKeys, { locale: data.publish_details ? data.publish_details.locale : data.locale });
+        const assetPathKeys = getPathKeys(this.pattern.assetKeys, { locale: data.publish_details ? data.publish_details.locale : data.locale, branch: data.branch });
         assetPathKeys.splice(assetPathKeys.length - 1);
         const assetFolderPath = join.apply(this, assetPathKeys);
         // Get the asset field map from filesystem.
@@ -510,6 +510,7 @@ export class FilesystemStore {
           uid: data.uid,
           contentTypeUid: data._content_type_uid,
           locale: data.publish_details ? data.publish_details.locale : data.locale,
+          branch: data.branch,
         };
         for (const fileFieldPath of fileFieldPaths) {
           this._getAssetFieldsHelper(data, fileFieldPath.split('.'), 0, assetMap, entryData);
@@ -526,7 +527,7 @@ export class FilesystemStore {
   public updateDeletedAssetReferences(asset) {
     return new Promise(async (resolve, reject) => {
       try {
-        const assetPathKeys = getPathKeys(this.pattern.assetKeys, { locale: asset.publish_details ? asset.publish_details.locale : asset.locale });
+        const assetPathKeys = getPathKeys(this.pattern.assetKeys, { locale: asset.publish_details ? asset.publish_details.locale : asset.locale, branch: asset.branch });
         assetPathKeys.splice(assetPathKeys.length - 1);
         const assetFolderPath = join.apply(this, assetPathKeys);
         let assetMap: any = await readFile(assetFolderPath + '/asset_map.json', 'utf-8');
