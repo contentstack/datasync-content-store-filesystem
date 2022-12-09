@@ -5,6 +5,7 @@
 * MIT Licensed
 */
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.start = exports.getFilesystemClient = exports.getConfig = exports.setConfig = exports.setAssetConnector = void 0;
 const lodash_1 = require("lodash");
 const config_1 = require("./config");
 const fs_1 = require("./fs");

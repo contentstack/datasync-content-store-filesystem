@@ -10,6 +10,7 @@ import { cloneDeep, compact } from 'lodash'
 import mkdirp from 'mkdirp'
 import { join, sep } from 'path'
 import { readFile, writeFile } from './util/fs'
+import { getFileFieldPaths } from './util/get-file-fields'
 import { buildLocalePath, filter, getPathKeys, removeUnwantedKeys } from './util/index'
 
 import {
@@ -73,10 +74,8 @@ export class FilesystemStore {
             .catch(reject)
         }
 
-        return this.publishEntry(input)
-          .then(resolve)
-          .catch(reject)
-
+        const [publishEntryResult] = await Promise.all([this.publishEntry(input), this.updateAssetReferences(input, input._content_type)]);
+        return resolve(publishEntryResult);
       } catch (error) {
         return reject(error)
       }
@@ -248,7 +247,7 @@ export class FilesystemStore {
 
           // if any asset object has been removed, only then write to disk
           if (unpublishedAsset) {
-            await writeFile(assetPath, JSON.stringify(assets))
+            await Promise.all([writeFile(assetPath, JSON.stringify(assets)), this.updateDeletedAssetReferences(asset)]);
           }
         }
 
@@ -317,6 +316,9 @@ export class FilesystemStore {
             return resolve(asset)
           }
 
+          // Update the entry here.
+          // TODO: When the asset is re-published, check if the entry is updated again.
+          this.updateDeletedAssetReferences(asset).catch(reject);
           return this.assetStore.delete(bucket)
             .then(() => writeFile(assetPath, JSON.stringify(assets)))
             .then(() => resolve(asset))
@@ -484,6 +486,149 @@ export class FilesystemStore {
         return reject(error)
       }
     })
+  }
+
+  public updateAssetReferences(data, schema) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const fileFieldPaths = getFileFieldPaths(schema);
+
+        const assetPathKeys = getPathKeys(this.pattern.assetKeys, { locale: data.publish_details ? data.publish_details.locale : data.locale });
+        assetPathKeys.splice(assetPathKeys.length - 1);
+        const assetFolderPath = join.apply(this, assetPathKeys);
+        // Get the asset field map from filesystem.
+        let assetMap: any = await readFile(assetFolderPath + '/asset_map.json', 'utf-8');
+        try {
+          assetMap = JSON.parse(assetMap);
+          if (Array.isArray(assetMap)) {
+            assetMap = {};
+          }
+        } catch (error) {
+          assetMap = {};
+        }
+        const entryData = {
+          uid: data.uid,
+          contentTypeUid: data._content_type_uid,
+          locale: data.publish_details ? data.publish_details.locale : data.locale,
+        };
+        for (const fileFieldPath of fileFieldPaths) {
+          this._getAssetFieldsHelper(data, fileFieldPath.split('.'), 0, assetMap, entryData);
+        }
+        // Check if the asset uids exists in the filesystem before saving, if not delete the keys from mapping object.
+        await writeFile(assetFolderPath + '/asset_map.json', JSON.stringify(assetMap));
+        return resolve(assetFolderPath);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  }
+
+  public updateDeletedAssetReferences(asset) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const assetPathKeys = getPathKeys(this.pattern.assetKeys, { locale: asset.publish_details ? asset.publish_details.locale : asset.locale });
+        assetPathKeys.splice(assetPathKeys.length - 1);
+        const assetFolderPath = join.apply(this, assetPathKeys);
+        let assetMap: any = await readFile(assetFolderPath + '/asset_map.json', 'utf-8');
+        try {
+          assetMap = JSON.parse(assetMap);
+          if (Array.isArray(assetMap)) {
+            assetMap = {};
+          }
+        } catch (error) {
+          assetMap = {};
+        }
+        if (!assetMap[asset.uid]) {
+          return resolve({});
+        }
+        const entries = assetMap[asset.uid];
+        for (const entry of entries) {
+          this._updateEntryAssetReference(entry, asset.uid);
+        }
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  }
+
+  private _getAssetFieldsHelper(data, fileFieldPathArray, index, assetFieldMap, entryData) {
+    if (fileFieldPathArray.length <= index) {
+      if (Array.isArray(data)) {
+        for (const d of data) {
+          if (!assetFieldMap[d]) {
+            assetFieldMap[d] = [];
+          }
+          assetFieldMap[d].push({ path: fileFieldPathArray, ...entryData });
+        }
+      } else {
+        if (!assetFieldMap[data]) {
+          assetFieldMap[data] = [];
+        }
+        assetFieldMap[data].push({ path: fileFieldPathArray, ...entryData });
+      }
+      return;
+    }
+    if (Array.isArray(data)) {
+      for (const d of data) {
+        this._getAssetFieldsHelper(d, fileFieldPathArray, index + 1, assetFieldMap, entryData);
+      }
+    } else {
+      if (data[fileFieldPathArray[index]]) {
+        this._getAssetFieldsHelper(data[fileFieldPathArray[index]], fileFieldPathArray, index + 1, assetFieldMap, entryData);
+      }
+    }
+  }
+
+  private _updateEntryAssetReference(data, assetId) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const entryPathKeys = getPathKeys(this.pattern.entryKeys, { ...data, _content_type_uid: data.contentTypeUid });
+        const entryFolderPath = join.apply(this, entryPathKeys);
+        let entries: any = await readFile(entryFolderPath + '.json', 'utf-8');
+        entries = JSON.parse(entries);
+        let _entry;
+        for (const entry of entries) {
+          if (entry.uid === data.uid) {
+            _entry = entry;
+            break;
+          }
+        }
+        if (_entry) {
+          this._nullifyDeletedAssetField(_entry, data.path, 0, assetId);
+          await writeFile(entryFolderPath + '.json', JSON.stringify(entries))
+        }
+        return resolve(entries);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  }
+
+  private _nullifyDeletedAssetField(data, fileFieldPathArray, index, assetId) {
+    if (fileFieldPathArray.length - 1 <= index) {
+      if (Array.isArray(data[fileFieldPathArray[index]])) {
+        const _d = data[fileFieldPathArray[index]];
+        for (let i = 0; i < _d.length; i++) {
+          if (_d[i] === assetId) {
+            _d[i] = null;
+          }
+        }
+      } else {
+        if (data[fileFieldPathArray[index]] === assetId) {
+          data[fileFieldPathArray[index]] = null;
+        }
+      }
+      return;
+    }
+    if (Array.isArray(data)) {
+      for (const d of data) {
+        this._nullifyDeletedAssetField(d, fileFieldPathArray, index + 1, assetId);
+      }
+    } else {
+      if (data[fileFieldPathArray[index]]) {
+        this._nullifyDeletedAssetField(data[fileFieldPathArray[index]], fileFieldPathArray, index + 1, assetId);
+      }
+    }
   }
 // tslint:disable-next-line: max-file-line-count
 }
