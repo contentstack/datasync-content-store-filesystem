@@ -23,4 +23,9 @@ export declare class FilesystemStore {
     private deleteSchema;
     private deleteEntry;
     private publishEntry;
+    updateAssetReferences(data: any, schema: any): Promise<unknown>;
+    updateDeletedAssetReferences(asset: any): Promise<unknown>;
+    private _getAssetFieldsHelper;
+    private _updateEntryAssetReference;
+    private _nullifyDeletedAssetField;
 }
