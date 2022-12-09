@@ -5,7 +5,7 @@ const fs_1 = require("fs");
 const mkdirp_1 = require("mkdirp");
 const path_1 = require("path");
 const filterKeys = ['_content_type', '_checkpoint', '_type'];
-exports.filter = (data) => {
+const filter = (data) => {
     const result = {};
     for (const key in data) {
         if (filterKeys.indexOf(key) === -1) {
@@ -14,7 +14,8 @@ exports.filter = (data) => {
     }
     return result;
 };
-exports.getPathKeys = (patternKeys, json) => {
+exports.filter = filter;
+const getPathKeys = (patternKeys, json) => {
     const pathKeys = [];
     for (let i = 0, keyLength = patternKeys.length; i < keyLength; i++) {
         if (patternKeys[i].charAt(0) === ':') {
@@ -36,7 +37,8 @@ exports.getPathKeys = (patternKeys, json) => {
     }
     return pathKeys;
 };
-exports.removeUnwantedKeys = (unwanted, json) => {
+exports.getPathKeys = getPathKeys;
+const removeUnwantedKeys = (unwanted, json) => {
     for (const key in unwanted) {
         if (unwanted[key] && json.hasOwnProperty(key)) {
             delete json[key];
@@ -44,28 +46,31 @@ exports.removeUnwantedKeys = (unwanted, json) => {
     }
     return json;
 };
-exports.normalizeBaseDir = (config) => {
-    if (path_1.isAbsolute(config.baseDir)) {
-        if (!fs_1.existsSync(config.baseDir)) {
-            mkdirp_1.sync(config.baseDir);
+exports.removeUnwantedKeys = removeUnwantedKeys;
+const normalizeBaseDir = (config) => {
+    if ((0, path_1.isAbsolute)(config.baseDir)) {
+        if (!(0, fs_1.existsSync)(config.baseDir)) {
+            (0, mkdirp_1.sync)(config.baseDir);
         }
     }
     else {
-        const projectDir = path_1.join(__dirname, '..', '..', '..', '..', '..');
-        const contentDir = path_1.join(projectDir, config.baseDir);
-        if (!fs_1.existsSync(contentDir)) {
-            mkdirp_1.sync(contentDir);
+        const projectDir = (0, path_1.join)(__dirname, '..', '..', '..', '..', '..');
+        const contentDir = (0, path_1.join)(projectDir, config.baseDir);
+        if (!(0, fs_1.existsSync)(contentDir)) {
+            (0, mkdirp_1.sync)(contentDir);
         }
     }
     return config;
 };
-exports.buildLocalePath = (appConfig) => {
-    const localePath = path_1.join(appConfig.baseDir, appConfig.internal.locale);
+exports.normalizeBaseDir = normalizeBaseDir;
+const buildLocalePath = (appConfig) => {
+    const localePath = (0, path_1.join)(appConfig.baseDir, appConfig.internal.locale);
     const localePathArr = localePath.split(path_1.sep);
     localePathArr.splice(localePathArr.length - 1);
     const localeFolderPath = path_1.join.apply(this, localePathArr);
-    if (!fs_1.existsSync(localeFolderPath)) {
-        mkdirp_1.sync(localeFolderPath);
+    if (!(0, fs_1.existsSync)(localeFolderPath)) {
+        (0, mkdirp_1.sync)(localeFolderPath);
     }
     return localePath;
 };
+exports.buildLocalePath = buildLocalePath;
