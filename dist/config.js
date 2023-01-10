@@ -17,6 +17,11 @@ exports.config = {
             locale: '/locales.json',
         },
         patterns: {
+            asset: '/:locale/data/assets',
+            contentType: '/:locale/data/content_types',
+            entry: '/:locale/data/:_content_type_uid',
+        },
+        patternsWithBranch: {
             asset: ':branch/:locale/data/assets',
             contentType: ':branch/:locale/data/content_types',
             entry: ':branch/:locale/data/:_content_type_uid',

@@ -35,9 +35,16 @@ class FilesystemStore {
         const baseDirKeys = this.config.baseDir.split(path_1.sep);
         this.pattern = {};
         this.unwanted = this.config.unwanted;
-        this.pattern.contentTypeKeys = baseDirKeys.concat((0, lodash_1.compact)(this.config.patterns.contentType.split('/')));
-        this.pattern.entryKeys = baseDirKeys.concat((0, lodash_1.compact)(this.config.patterns.entry.split('/')));
-        this.pattern.assetKeys = baseDirKeys.concat((0, lodash_1.compact)(this.config.patterns.asset.split('/')));
+        if (config.contentstack.branch) {
+            this.pattern.contentTypeKeys = baseDirKeys.concat((0, lodash_1.compact)(this.config.patternsWithBranch.contentType.split('/')));
+            this.pattern.entryKeys = baseDirKeys.concat((0, lodash_1.compact)(this.config.patternsWithBranch.entry.split('/')));
+            this.pattern.assetKeys = baseDirKeys.concat((0, lodash_1.compact)(this.config.patternsWithBranch.asset.split('/')));
+        }
+        else {
+            this.pattern.contentTypeKeys = baseDirKeys.concat((0, lodash_1.compact)(this.config.patterns.contentType.split('/')));
+            this.pattern.entryKeys = baseDirKeys.concat((0, lodash_1.compact)(this.config.patterns.entry.split('/')));
+            this.pattern.assetKeys = baseDirKeys.concat((0, lodash_1.compact)(this.config.patterns.asset.split('/')));
+        }
         this.localePath = (0, index_1.buildLocalePath)(this.config);
     }
     publish(input) {
