@@ -41,9 +41,15 @@ export class FilesystemStore {
 
     // path keys for entry, assets & content types
     // splitting it by '/' instead of ':/', as we need to know if its a pattern not not, further down the line
-    this.pattern.contentTypeKeys = baseDirKeys.concat(compact(this.config.patterns.contentType.split('/')))
-    this.pattern.entryKeys = baseDirKeys.concat(compact(this.config.patterns.entry.split('/')))
-    this.pattern.assetKeys = baseDirKeys.concat(compact(this.config.patterns.asset.split('/')))
+    if (config.enableBranch) {
+      this.pattern.contentTypeKeys = baseDirKeys.concat(compact(this.config.patternsWithBranch.contentType.split('/')))
+      this.pattern.entryKeys = baseDirKeys.concat(compact(this.config.patternsWithBranch.entry.split('/')))
+      this.pattern.assetKeys = baseDirKeys.concat(compact(this.config.patternsWithBranch.asset.split('/')))
+    } else {
+      this.pattern.contentTypeKeys = baseDirKeys.concat(compact(this.config.patterns.contentType.split('/')))
+      this.pattern.entryKeys = baseDirKeys.concat(compact(this.config.patterns.entry.split('/')))
+      this.pattern.assetKeys = baseDirKeys.concat(compact(this.config.patterns.asset.split('/')))
+    }
     // maintain locales in a separate file
     this.localePath = buildLocalePath(this.config)
   }
