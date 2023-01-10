@@ -41,7 +41,7 @@ export class FilesystemStore {
 
     // path keys for entry, assets & content types
     // splitting it by '/' instead of ':/', as we need to know if its a pattern not not, further down the line
-    if (config.enableBranch) {
+    if (config.contentstack.branch) {
       this.pattern.contentTypeKeys = baseDirKeys.concat(compact(this.config.patternsWithBranch.contentType.split('/')))
       this.pattern.entryKeys = baseDirKeys.concat(compact(this.config.patternsWithBranch.entry.split('/')))
       this.pattern.assetKeys = baseDirKeys.concat(compact(this.config.patternsWithBranch.asset.split('/')))
