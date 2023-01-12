@@ -348,6 +348,7 @@ class FilesystemStore {
                     _content_type_uid: '_content_types',
                     locale,
                     uid: data.uid,
+                    branch: data.branch
                 };
                 const contentTypePathKeys = (0, index_1.getPathKeys)(this.pattern.contentTypeKeys, deleteContentTypeObject);
                 const contentTypePath = path_1.join.apply(this, contentTypePathKeys) + '.json';
