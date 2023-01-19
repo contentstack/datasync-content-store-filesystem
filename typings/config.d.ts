@@ -18,6 +18,11 @@ export declare const config: {
             contentType: string;
             entry: string;
         };
+        patternsWithBranch: {
+            asset: string;
+            contentType: string;
+            entry: string;
+        };
         unwanted: {
             asset: {
                 ACL: boolean;
