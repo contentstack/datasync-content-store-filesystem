@@ -19,7 +19,13 @@ import {
 } from './util/validations'
 
 const debug = Debug('core-fs')
-if (process.env.DEBUG === "*") debug.enabled = true;
+
+if (
+  process.env.DEBUG === "*" ||
+  (process.env.DEBUG || "").includes("core-fs")
+) {
+  debug.enabled = true;
+}
 
 export class FilesystemStore {
   private readonly assetStore: any
