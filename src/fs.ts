@@ -559,8 +559,9 @@ export class FilesystemStore {
         }
         const entries = assetMap[asset.uid];
         for (const entry of entries) {
-          this._updateEntryAssetReference(entry, asset.uid);
+          await this._updateEntryAssetReference(entry, asset.uid);
         }
+        resolve({});
       } catch (error) {
         return reject(error);
       }
