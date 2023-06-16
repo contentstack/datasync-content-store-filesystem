@@ -20,6 +20,13 @@ import {
 
 const debug = Debug('core-fs')
 
+if (
+  process.env.DEBUG === "*" ||
+  (process.env.DEBUG || "").includes("core-fs")
+) {
+  debug.enabled = true;
+}
+
 export class FilesystemStore {
   private readonly assetStore: any
   private readonly config: any
@@ -552,8 +559,9 @@ export class FilesystemStore {
         }
         const entries = assetMap[asset.uid];
         for (const entry of entries) {
-          this._updateEntryAssetReference(entry, asset.uid);
+          await this._updateEntryAssetReference(entry, asset.uid);
         }
+        resolve({});
       } catch (error) {
         return reject(error);
       }
