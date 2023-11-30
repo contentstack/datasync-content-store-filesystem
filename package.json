@@ -43,7 +43,7 @@
     "debug": "^4.3.4",
     "lodash": "^4.17.15",
     "mkdirp": "^1.0.4",
-    "rimraf": "^3.0.2",
+    "rimraf": "^4.0.0",
     "write-file-atomic": "^4.0.2"
   },
   "devDependencies": {
