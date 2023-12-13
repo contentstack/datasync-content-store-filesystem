@@ -45,5 +45,7 @@ export const config = {
         updated_by: true,
       },
     },
+    //Flag to preserve asset uid in the referenced entries, When a new asset version is published.
+    preserveAssetInReferencedEntries: false
   },
 }

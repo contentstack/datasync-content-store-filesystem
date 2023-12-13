@@ -557,9 +557,12 @@ export class FilesystemStore {
         if (!assetMap[asset.uid]) {
           return resolve({});
         }
-        const entries = assetMap[asset.uid];
-        for (const entry of entries) {
-          await this._updateEntryAssetReference(entry, asset.uid);
+        //NOTE:- Preserve asset uid in the referenced entries instead of updating it with null, When a new asset version is published.
+        if(!this.config.preserveAssetInReferencedEntries){
+          const entries = assetMap[asset.uid];
+          for (const entry of entries) {
+            await this._updateEntryAssetReference(entry, asset.uid);
+          }
         }
         resolve({});
       } catch (error) {
