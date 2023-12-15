@@ -42,7 +42,7 @@
   "dependencies": {
     "debug": "^4.3.4",
     "lodash": "^4.17.15",
-    "mkdirp": "^1.0.4",
+    "mkdirp": "^3.0.1",
     "rimraf": "^3.0.2",
     "write-file-atomic": "^4.0.2"
   },
