@@ -169,7 +169,7 @@ export const contentType = {
   last_activity: {
     environments: [
       {
-        uid: 'blt2e69b1b65d17bc6f',
+        uid: '***REMOVED***',
         'details': [
           {
             locale: 'en-us',
