@@ -30,6 +30,7 @@ if (
 export class FilesystemStore {
   private readonly assetStore: any
   private readonly config: any
+  private readonly _config: any;
   private readonly pattern: {
     contentTypeKeys: string[],
     entryKeys: string[],
@@ -40,6 +41,7 @@ export class FilesystemStore {
 
   constructor(assetStore, config) {
     this.assetStore = assetStore
+    this._config = config;
     this.config = config.contentStore
     const baseDirKeys = this.config.baseDir.split(sep)
     this.pattern = ({} as any)
@@ -454,6 +456,14 @@ export class FilesystemStore {
   private publishEntry(data) {
     return new Promise(async (resolve, reject) => {
       try {
+        if (this._config && this._config.enableContentReferences) {
+          // Check if reference exists and update the field
+          this._updateReferenceFields(data, data._content_type?.schema, 'reference');
+        }
+        if (this._config && this._config.enableAssetReferences) {
+            // Check if reference exists and update the field
+            this._updateReferenceFields(data, data._content_type?.schema, 'file');
+        }
         let entry = cloneDeep(data)
         entry = filter(entry) // to remove _content_type and checkpoint from entry data
 
@@ -651,4 +661,25 @@ export class FilesystemStore {
     }
   }
 // tslint:disable-next-line: max-file-line-count
+
+  private _updateReferenceFields(data, ctSchema, fieldType) {
+    for (const field of ctSchema) {
+      if (field.data_type === fieldType) {
+        if (fieldType === "reference") {
+          data[field.uid] = {
+            reference_to: field.reference_to?.[0],
+            value: data[field.uid]?.[0].uid,
+          };
+        } else {
+          data[field.uid] = {
+            reference_to: "_assets",
+            value: data[field.uid],
+          };
+        }
+      }
+      if (field.schema) {
+        this._updateReferenceFields(data[field.uid], field.schema, fieldType);
+      }
+    }
+  }
 }
