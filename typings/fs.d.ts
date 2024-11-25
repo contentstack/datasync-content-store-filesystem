@@ -30,4 +30,5 @@ export declare class FilesystemStore {
     private _updateEntryAssetReference;
     private _nullifyDeletedAssetField;
     private _updateReferenceFields;
+    private _updateAssetFields;
 }
