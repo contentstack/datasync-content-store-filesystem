@@ -42,5 +42,6 @@ export declare const config: {
                 updated_by: boolean;
             };
         };
+        preserveAssetInReferencedEntries: boolean;
     };
 };

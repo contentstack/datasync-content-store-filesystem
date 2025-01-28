@@ -63,7 +63,7 @@ export const normalizeBaseDir = (config) => {
     }
   } else {
     const projectDir = join(__dirname, '..', '..', '..', '..', '..')
-    const contentDir = join(projectDir, config.baseDir)
+    const contentDir = join(sanitizePath(projectDir), sanitizePath(config.baseDir))
     if (!existsSync(contentDir)) {
       sync(contentDir)
     }
@@ -73,7 +73,7 @@ export const normalizeBaseDir = (config) => {
 }
 
 export const buildLocalePath = (appConfig) => {
-  const localePath = join(appConfig.baseDir, appConfig.internal.locale)
+  const localePath = join(sanitizePath(appConfig.baseDir), sanitizePath(appConfig.internal.locale))
   const localePathArr = localePath.split(sep)
   localePathArr.splice(localePathArr.length - 1)
   const localeFolderPath = join.apply(this, localePathArr)
@@ -84,3 +84,5 @@ export const buildLocalePath = (appConfig) => {
 
   return localePath
 }
+
+const sanitizePath = (str: string) => str?.replace(/^(\.\.(\/|\\|$))+/, '');
