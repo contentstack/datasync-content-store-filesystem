@@ -40,7 +40,7 @@
   "author": "Contentstack LLC <support@contentstack.com>",
   "license": "MIT",
   "dependencies": {
-    "debug": "^4.3.4",
+    "debug": "^4.4.0",
     "lodash": "^4.17.15",
     "mkdirp": "^1.0.4",
     "rimraf": "^5.0.5",
