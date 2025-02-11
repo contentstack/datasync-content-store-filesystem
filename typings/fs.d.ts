@@ -6,6 +6,7 @@
 export declare class FilesystemStore {
     private readonly assetStore;
     private readonly config;
+    private readonly _config;
     private readonly pattern;
     private readonly unwanted;
     private readonly localePath;
@@ -28,4 +29,6 @@ export declare class FilesystemStore {
     private _getAssetFieldsHelper;
     private _updateEntryAssetReference;
     private _nullifyDeletedAssetField;
+    private _updateReferenceFields;
+    private _updateAssetFields;
 }
