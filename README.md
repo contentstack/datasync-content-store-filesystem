@@ -10,7 +10,7 @@ Contentstack is a headless CMS with an API-first approach. It is a CMS that deve
 This module is basically a Filesystem database where the DataSync Manager stores the most recent version of content. When the DataSync Manager syncs with the Contentstack server via a listener or any other device where the content is updated, it fetches that content and places it in the filesystem.
 
 ### Prerequisite
- - Node.js 8+  
+ - Node.js 20+  
  - Contentstack Data Sync Asset Store.
 
 ### Usage
