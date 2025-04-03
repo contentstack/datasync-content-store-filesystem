@@ -24,4 +24,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ steps.publish-to-npm.outputs.version }}
-        run:  gh release create "v$VERSION" --title "Release $VERSION" --generate-notes
+        run:  gh release create v"$VERSION" --title "Release $VERSION" --generate-notes
