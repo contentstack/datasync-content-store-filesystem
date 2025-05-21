@@ -6,7 +6,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@4
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "22.x"
@@ -23,4 +23,5 @@ jobs:
         id: github-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run:  gh release create v${{ steps.publish-to-npm.outputs.version }} --title "Release ${{ steps.publish-to-npm.outputs.version }}" --generate-notes
+          VERSION: ${{ steps.publish-to-npm.outputs.version }}
+        run:  gh release create v"$VERSION" --title "Release $VERSION" --generate-notes
