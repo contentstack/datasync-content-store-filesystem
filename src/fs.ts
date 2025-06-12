@@ -5,9 +5,8 @@
  */
 
 import { debug as Debug } from 'debug'
-import { existsSync, unlinkSync } from 'fs'
+import { existsSync, unlinkSync,  mkdirSync } from 'fs'
 import { cloneDeep, compact } from 'lodash'
-import mkdirp from 'mkdirp'
 import { join, sep } from 'path'
 import { readFile, writeFile } from './util/fs'
 import { getFileFieldPaths } from './util/get-file-fields'
@@ -167,7 +166,7 @@ export class FilesystemStore {
       contentTypePathKeys.splice(contentTypePathKeys.length - 1)
       const contentTypeFolderPath = join.apply(contentTypePathKeys)
 
-      mkdirp.sync(contentTypeFolderPath)
+      mkdirSync(contentTypeFolderPath)
       await writeFile(contentTypePath, JSON.stringify([schema]))
     }
 
@@ -218,7 +217,7 @@ export class FilesystemStore {
           }
         } else {
           // create folder, if it does not exist!
-          mkdirp.sync(assetFolderPath)
+          mkdirSync(assetFolderPath)
           await writeFile(assetPath, JSON.stringify([data]))
         }
 
@@ -501,7 +500,7 @@ export class FilesystemStore {
           }
         } else {
           // entry folder does not exist!
-          mkdirp.sync(entryFolderPath)
+          mkdirSync(entryFolderPath)
 
           await writeFile(entryPath, JSON.stringify([entry]))
         }
