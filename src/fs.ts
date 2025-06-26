@@ -166,7 +166,7 @@ export class FilesystemStore {
       contentTypePathKeys.splice(contentTypePathKeys.length - 1)
       const contentTypeFolderPath = join.apply(contentTypePathKeys)
 
-      mkdirSync(contentTypeFolderPath)
+      mkdirSync(contentTypeFolderPath, { recursive: true })
       await writeFile(contentTypePath, JSON.stringify([schema]))
     }
 
@@ -217,7 +217,7 @@ export class FilesystemStore {
           }
         } else {
           // create folder, if it does not exist!
-          mkdirSync(assetFolderPath)
+          mkdirSync(assetFolderPath, { recursive: true })
           await writeFile(assetPath, JSON.stringify([data]))
         }
 
@@ -500,7 +500,7 @@ export class FilesystemStore {
           }
         } else {
           // entry folder does not exist!
-          mkdirSync(entryFolderPath)
+          mkdirSync(entryFolderPath, { recursive: true })
 
           await writeFile(entryPath, JSON.stringify([entry]))
         }
