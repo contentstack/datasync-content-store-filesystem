@@ -1,5 +1,4 @@
-import { existsSync, readFile as readFileNative } from "fs";
-import { sync } from "mkdirp";
+import { existsSync, readFile as readFileNative, mkdirSync } from "fs";
 import { join, sep } from "path";
 import { promisify } from "util";
 import writeFileAtomic from "write-file-atomic";
@@ -23,7 +22,7 @@ export const writeFile = (path, data) => {
         pathArr.splice(pathArr.length - 1, 1);
         const folderPath = join.apply(this, pathArr);
         if (!existsSync(folderPath)) {
-          sync(folderPath);
+          mkdirSync(folderPath, { recursive: true });
         }
       }
 
