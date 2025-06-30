@@ -1,5 +1,4 @@
-import { existsSync } from "fs";
-import { sync } from "mkdirp";
+import { existsSync, mkdirSync } from "fs";
 import { isAbsolute, join, sep } from "path";
 
 const filterKeys = ["_content_type", "_checkpoint", "_type"];
@@ -53,7 +52,7 @@ export const removeUnwantedKeys = (unwanted, json) => {
 export const normalizeBaseDir = (config) => {
   if (isAbsolute(config.baseDir)) {
     if (!existsSync(config.baseDir)) {
-      sync(config.baseDir);
+      mkdirSync(config.baseDir, { recursive: true });
     }
   } else {
     const projectDir = join(__dirname, "..", "..", "..", "..", "..");
@@ -62,7 +61,7 @@ export const normalizeBaseDir = (config) => {
       sanitizePath(config.baseDir)
     );
     if (!existsSync(contentDir)) {
-      sync(contentDir);
+      mkdirSync(contentDir, { recursive: true });
     }
   }
 
@@ -79,7 +78,7 @@ export const buildLocalePath = (appConfig) => {
   const localeFolderPath = join.apply(this, localePathArr);
 
   if (!existsSync(localeFolderPath)) {
-    sync(localeFolderPath);
+    mkdirSync(localeFolderPath, { recursive: true });
   }
 
   return localePath;
