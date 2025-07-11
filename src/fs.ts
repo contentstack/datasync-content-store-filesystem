@@ -4,7 +4,6 @@
  * MIT Licensed
  */
 
-import { debug as Debug } from 'debug'
 import { existsSync, unlinkSync,  mkdirSync } from 'fs'
 import { cloneDeep, compact } from 'lodash'
 import { join, sep } from 'path'
@@ -17,7 +16,8 @@ import {
   validatePublishedObject, validateUnpublishedObject,
 } from './util/validations'
 
-const debug = Debug('core-fs')
+const debug = require('debug')('core-fs')
+debug.log = console.log.bind(console);
 
 if (
   process.env.DEBUG === "*" ||
