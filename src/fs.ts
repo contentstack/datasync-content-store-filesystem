@@ -10,6 +10,7 @@ import { join, sep } from 'path'
 import { readFile, writeFile } from './util/fs'
 import { getFileFieldPaths } from './util/get-file-fields'
 import { buildLocalePath, filter, getPathKeys, removeUnwantedKeys } from './util/index'
+import { LOG_MESSAGES } from './util/messages'
 
 import {
   validateContentTypeDeletedObject, validateEntryAssetDeletedObject,
@@ -65,7 +66,7 @@ export class FilesystemStore {
   public publish(input) {
     return new Promise(async (resolve, reject) => {
       try {
-        debug(`Publishing ${JSON.stringify(input)}`)
+        debug(LOG_MESSAGES.PUBLISHING_ENTRY(input))
         validatePublishedObject(input)
         if (existsSync(this.localePath)) {
           // if its a new locale, keep track!
