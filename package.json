@@ -1,6 +1,6 @@
 {
   "name": "@contentstack/datasync-content-store-filesystem",
-  "version": "2.1.8",
+  "version": "2.1.9",
   "description": "Datasync content store library - saves data in filesystem",
   "main": "./dist",
   "types": "./typings",
@@ -42,7 +42,7 @@
   "license": "MIT",
   "dependencies": {
     "debug": "^4.4.3",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "mkdirp": "^3.0.1",
     "rimraf": "^6.1.2",
     "write-file-atomic": "^7.0.0"
