@@ -1,0 +1,32 @@
+---
+description: PR review checklist for DataSync filesystem content store library
+alwaysApply: true
+---
+
+# Code review checklist
+
+## Product terminology
+
+- This repo is a **DataSync filesystem content store**, not the **CDA** (Delivery) or **CMA** (Management) REST SDKs. Docs and comments should say **DataSync / content store / asset connector** where accurate.
+
+## API and compatibility
+
+- **Public API**: exported functions in `src/index.ts` and behavior of **`FilesystemStore`** — avoid breaking changes without semver and changelog.
+- **JSDoc**: keep or improve existing JSDoc on public exports when behavior changes.
+- **Errors**: validation lives in **`src/util/validations.ts`** — new failure modes should be explicit; do not silently change throw conditions for the same inputs.
+- **Null/undefined**: defensive checks should match existing patterns for optional config and payload fields.
+
+## Dependencies and security
+
+- New **dependencies** need justification (bundle, maintenance, SCA). Align with **`package.json`** and org policy.
+
+## Tests
+
+- **Unit tests** under `test/` should cover new branches. This repo does not ship separate integration tests against Contentstack APIs — filesystem/mocks are the scope.
+- Run **`npm test`** locally before merge when touching `src/` or `test/`.
+
+## Severity (optional labels)
+
+- **Blocker**: breaks DataSync Manager contract (publish/unpublish/delete), data corruption risk, or security issue.
+- **Major**: breaking API, incorrect persistence layout, or missing tests for risky logic.
+- **Minor**: style, non-user-facing refactors, doc-only.
