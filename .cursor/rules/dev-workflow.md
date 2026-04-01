@@ -7,7 +7,9 @@ alwaysApply: false
 
 ## Branches
 
-Use your team’s Git workflow (e.g. feature branches off the default branch). This repo does not mandate a branch naming scheme in tooling; align with Contentstack/org conventions.
+- Use **feature branches** for new work; open pull requests against **`development`** to integrate changes.
+- For a **release**, open a pull request from **`development`** into **`master`**. Releases to npm are driven from **`master`**.
+
 
 ## Lint and tests
 
