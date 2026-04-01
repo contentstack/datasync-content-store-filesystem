@@ -1,0 +1,29 @@
+---
+description: Jest tests, mocks, and pretest behavior for this repo
+globs: test/**/*.ts,jest.config.js
+alwaysApply: false
+---
+
+# Testing — datasync-content-store-filesystem
+
+## Runner and layout
+
+- **Jest** with **`ts-jest`** (`jest.config.js`), **`testEnvironment: node`**.
+- Tests live under **`test/`** as `*.ts` files; **`test/mock/`** holds fixtures and is **ignored** from test matching (`testPathIgnorePatterns`).
+- **`npm test`** runs **`pretest`**: `build-ts` plus `rimraf _contents coverage`, then Jest with coverage.
+
+## Naming and style
+
+- Use **`describe` / `test`** (see `test/index.ts`, `test/publishing.ts`, etc.). No separate `*.spec.ts` convention in this repo — files are named by concern (`publishing`, `deletion`, `validations`, …).
+
+## Mocks and data
+
+- Shared mocks: `test/mock/config.ts`, `test/mock/assetStore.ts`, `test/mock/data/*`.
+
+## Credentials and “live” tests
+
+- **None required.** All tests are local/unit against the filesystem and mocks. No env vars are mandatory for `npm test`.
+
+## Coverage
+
+- Jest collects coverage to **`coverage/`** (reporters: json, html). Adjust thresholds in `jest.config.js` only if the team enables `coverageThreshold`.
