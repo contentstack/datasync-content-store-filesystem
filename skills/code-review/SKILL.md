@@ -1,46 +1,59 @@
 ---
 name: code-review
-description: PR review checklist for the DataSync filesystem content store package — API, tests, terminology, security
+description: PR review checklist for DataSync filesystem content store — API, compatibility, tests, terminology (not CDA/CMA HTTP SDK)
 ---
 
-# Code review (expanded)
+# Code review — `@contentstack/datasync-content-store-filesystem`
 
-Use for reviewing changes to **`@contentstack/datasync-content-store-filesystem`**.
+## When to use
 
-## Terminology
+- Reviewing a PR that touches `src/`, `test/`, or public-facing docs
+- Self-checking before requesting review
+- Assessing semver or regression risk for store behavior
 
-- This is a **DataSync content store** that writes to disk. It is **not** the Contentstack **CDA** or **CMA** SDK. Use **DataSync**, **content store**, **asset connector**, **baseDir**, **locale**, **branch** (when configured) in review comments.
+## Instructions
 
-## Public API and docs
+### Scope and terminology
+
+- This package is the **DataSync filesystem content store** — not the **CDA** or **CMA** HTTP client unless the change explicitly compares or documents integration.
+- Prefer **DataSync**, **content store**, **asset connector**, **baseDir**, **locale**, **branch** (when configured).
+
+### Public API and docs
 
 - Exports from **`src/index.ts`**: `start`, `setConfig`, `getConfig`, `setAssetConnector`, `getFilesystemClient`.
-- **`FilesystemStore`** in **`src/fs.ts`** implements the store behavior (publish/unpublish/delete, etc.).
-- Preserve or extend **JSDoc** on public exports when behavior changes.
+- **`FilesystemStore`** in **`src/fs.ts`** — preserve or extend **JSDoc** on public exports when behavior changes.
 
-## Backward compatibility
+### Compatibility
 
-- Avoid breaking changes to export signatures or on-disk layout without a **semver** bump and maintainer agreement.
-- Callers depend on predictable validation in **`src/util/validations.ts`** — do not weaken checks without explicit rationale.
+- Avoid breaking export signatures or on-disk layout without **semver** and changelog intent.
+- Validation in **`src/util/validations.ts`** — do not silently change throw conditions for the same inputs.
 
-## Errors
+### Errors
 
-- Errors are thrown from validation and I/O paths; there is no separate error-code enum. Reviews should ensure messages remain actionable and that new throws are documented or covered by tests.
+- No separate SDK error-code enum; ensure messages stay actionable and new throws are covered by tests where appropriate.
 
-## Null safety
+### Null safety
 
-- Config and webhook payloads may omit fields; follow existing guards and optional chaining patterns in **`src/fs.ts`** and validations.
+- Config and payloads may omit fields; match existing guards in **`src/fs.ts`** and validations.
 
-## Dependencies and SCA
+### Dependencies and security
 
-- New **`package.json`** dependencies affect consumers and CI (Snyk, etc.). Flag unnecessary additions and version pins.
+- New **`package.json`** dependencies need justification (SCA, maintenance). Align with org policy.
 
-## Tests
+### Tests
 
-- **`npm test`** must pass for `src/` and `test/` changes.
-- Add or update tests under **`test/`** for new branches; use **`test/mock/`** for shared fixtures.
+- **`npm test`** should pass for `src/` / `test/` changes; extend **`test/`** and **`test/mock/`** for new behavior. No live stack API tests in this repo.
 
-## Severity (optional)
+### Optional severity
 
-- **Blocker**: contract break with DataSync Manager, data loss/corruption, security.
-- **Major**: breaking API, wrong file layout, untested risky logic.
-- **Minor**: style, comments, non-functional refactors.
+| Level | Examples |
+|-------|----------|
+| **Blocker** | Breaks DataSync Manager contract, data loss/corruption, security |
+| **Major** | Breaking API, wrong persistence layout, missing tests for risky logic |
+| **Minor** | Style, non-user-facing refactors, doc nits |
+
+## References
+
+- [`../testing/SKILL.md`](../testing/SKILL.md)
+- [`../datasync-content-store-filesystem/SKILL.md`](../datasync-content-store-filesystem/SKILL.md)
+- [`../../AGENTS.md`](../../AGENTS.md)
