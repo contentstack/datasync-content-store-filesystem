@@ -1,20 +1,17 @@
-# Skills — `@contentstack/datasync-content-store-filesystem`
+# Skills – `@contentstack/datasync-content-store-filesystem`
 
-**This directory is the source of truth** for detailed conventions (workflow, TypeScript, DataSync store behavior, tests, code review). The repo root **[`AGENTS.md`](../AGENTS.md)** is the universal index and quick reference; each skill is a folder with **`SKILL.md`** (YAML frontmatter: `name`, `description`).
+Source of truth for detailed guidance. Read [`AGENTS.md`](../AGENTS.md) first, then open the skill that matches your task.
 
 ## When to use which skill
 
 | Skill folder | Use when |
 |--------------|----------|
-| [`dev-workflow/`](dev-workflow/SKILL.md) | Branching, `npm` scripts, Husky, CI workflows, version bumps |
-| [`typescript/`](typescript/SKILL.md) | `tsconfig`, TSLint, `src/` / `typings/` layout, logging |
-| [`datasync-content-store-filesystem/`](datasync-content-store-filesystem/SKILL.md) | `FilesystemStore`, config merge, asset connector, branch/locale paths — **not** CDA/CMA as primary API |
-| [`testing/`](testing/SKILL.md) | Jest, `pretest`, `test/mock`, coverage |
-| [`code-review/`](code-review/SKILL.md) | PR review: API, compatibility, terminology, tests |
+| [`dev-workflow/`](dev-workflow/SKILL.md) | Branching, CI, build/test/lint, Husky, PRs, version bumps |
+| [`typescript/`](typescript/SKILL.md) | `tsconfig`, TSLint, `src/` layout, typings, logging |
+| [`datasync-content-store-filesystem/`](datasync-content-store-filesystem/SKILL.md) | Store API, `FilesystemStore`, config, DataSync vs CDA/CMA |
+| [`testing/`](testing/SKILL.md) | Jest layout, mocks, coverage, credentials policy |
+| [`code-review/`](code-review/SKILL.md) | PR checklist, Blocker/Major/Minor, terminology |
+
+Each folder contains `SKILL.md` with YAML frontmatter (`name`, `description`).
 
 There is no separate **framework** skill: this package has no standalone HTTP client layer.
-
-## How to use these docs
-
-- **Humans / any AI tool:** Start at **`AGENTS.md`**, then open the relevant **`skills/<name>/SKILL.md`**.
-- **Cursor users:** **[`.cursor/rules/README.md`](../.cursor/rules/README.md)** points to **`AGENTS.md`** and these skills. The **`.cursor/rules/`** folder contains **only** that README (no separate rule files).

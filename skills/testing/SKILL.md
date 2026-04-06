@@ -22,7 +22,7 @@ description: Jest tests for datasync-content-store-filesystem — pretest, test/
 ### Runner and config
 
 - **Jest** + **ts-jest** (`jest.config.js`), **`testEnvironment: node`**, verbose output.
-- **`testMatch`**: `**/test/**/*.ts` (and `.js`); **`testPathIgnorePatterns`**: **`/test/mock/*`**, **`/test/mongo.setup.ts`** (legacy path in config — file may or may not exist).
+- **`testMatch`**: `**/test/**/*.ts` (and `.js`); **`testPathIgnorePatterns`**: **`/test/mock/*`** only.
 - **`collectCoverage`**: true; reports under **`coverage/`** (json, html). No **`coverageThreshold`** in the checked-in config unless the team adds it.
 
 ### Layout
