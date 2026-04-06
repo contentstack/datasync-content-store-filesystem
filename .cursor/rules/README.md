@@ -1,5 +1,5 @@
 # Cursor (optional)
 
-**Cursor** users: start at the repo root **[`AGENTS.md`](../../AGENTS.md)**. All conventions live in **`skills/*/SKILL.md`** (universal for any editor or tool).
+*Cursor* users: start at *[AGENTS.md](../../AGENTS.md)*. All conventions live in **skills/*/SKILL.md**.
 
-This folder **only** contains this **README** — no `.mdc` or other rule files — so nothing editor-specific duplicates the canonical docs.
+This folder only points contributors to *AGENTS.md* so editor-specific config does not duplicate the canonical docs.

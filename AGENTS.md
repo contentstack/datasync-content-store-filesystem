@@ -1,89 +1,51 @@
-# Agent guidance — `@contentstack/datasync-content-store-filesystem`
+# Contentstack DataSync Content Store (Filesystem) – Agent guide
 
-## Single source of truth
+*Universal entry point* for contributors and AI agents. Detailed conventions live in **skills/*/SKILL.md**.
 
-Use this file and **`skills/`** as the **canonical** place for project context, workflows, and review standards. That way every contributor gets the same guidance in **any IDE or agent** (Cursor, Copilot, CLI tools, etc.).
+## What this repo is
 
-| Layer | Role |
-|-------|------|
-| **`AGENTS.md`** (this file) | Entry point: package identity, repo links, tech stack, commands, **skills index** |
-| **`skills/<topic>/SKILL.md`** | Full detail: workflow, TypeScript, DataSync store behavior, testing, code review |
-| **`.cursor/rules/README.md`** | **Cursor only** — single pointer file; canonical text stays in **`AGENTS.md`** and **`skills/`** |
+| Field | Detail |
+|-------|--------|
+| *Name:* | `@contentstack/datasync-content-store-filesystem` — [GitHub](https://github.com/contentstack/datasync-content-store-filesystem) |
+| *Purpose:* | Node.js **DataSync content store** that persists synced stack content to the **local filesystem** for DataSync Manager (publish/unpublish/delete, file layout, optional branch-aware paths). Main exports: `start`, `setConfig`, `getConfig`, `setAssetConnector`, `getFilesystemClient`; implementation: `FilesystemStore` in `src/fs.ts`. |
+| *Out of scope (if any):* | Not the Content **Delivery (CDA)** or **Management (CMA)** HTTP SDKs as this package’s primary API. **No** runtime HTTP client dependency; core behavior is filesystem I/O and validation, not live stack REST calls for normal store operations. |
 
-**Flow:** **[`.cursor/rules/README.md`](.cursor/rules/README.md)** → **`AGENTS.md`** → **`skills/<name>/SKILL.md`**
+Product docs: [Contentstack DataSync](https://www.contentstack.com/docs/guide/synchronization/contentstack-datasync).
 
----
+## Tech stack (at a glance)
 
-## What this package is
+| Area | Details |
+|------|---------|
+| Language | TypeScript (`typescript` in `package.json`; `tsconfig.json` → CommonJS, `dist/`, declarations in `typings/`) |
+| Build | `tsc` via `npm run build-ts` (runs `clean` then `tsc`) or `npm run compile` (`tsc` only) |
+| Tests | Jest + ts-jest (`jest.config.js`), Node; tests under `test/**/*.ts`; `test/mock/*` ignored as test files |
+| Lint / coverage | TSLint: `npm run tslint`, `tslint.json`, `src/**/*.ts`; Jest `collectCoverage`, output `coverage/` (json, html reporters) |
+| Runtime | `debug`, `lodash`, `mkdirp`, `rimraf`, `write-file-atomic` |
 
-**Contentstack DataSync content store (filesystem)** — a Node.js library used with [Contentstack DataSync](https://www.contentstack.com/docs/guide/synchronization/contentstack-datasync) to persist synced stack content to the **local filesystem** for use with DataSync Manager. It writes and updates files under your configured base directory; it does **not** perform normal “read from stack” behavior via Content Delivery (CDA) or Management (CMA) HTTP APIs.
+## Commands (quick reference)
 
-### Out of scope (unless comparing or documenting integration)
+| Command type | Command |
+|--------------|---------|
+| Build | `npm run build-ts` (clean `dist`/`coverage` + compile) or `npm run compile` |
+| Test | `npm test` (`pretest` runs `build-ts` and `rimraf _contents coverage`, then `jest --coverage`) |
+| Lint | `npm run tslint` |
 
-- **CDA** / **CMA** REST SDKs as the primary API for this package’s core behavior
-- General-purpose HTTP clients for stack reads/writes (this library has **no** runtime HTTP dependency)
+**CI:** workflows under [`.github/workflows/`](.github/workflows/) (e.g. `check-version-bump.yml`, `release.yml`, CodeQL, SCA, policy scans — see each file for triggers).
 
-## Repository
+**Debug:** optional `DEBUG=*` or include `core-fs` (see `src/fs.ts`).
 
-- **Homepage / docs**: [Contentstack DataSync guide](https://www.contentstack.com/docs/guide/synchronization/contentstack-datasync)
-- **Git**: `https://github.com/contentstack/datasync-content-store-filesystem`
+## Where the documentation lives: skills
 
-## Tech stack
+| Skill | Path | What it covers |
+|-------|------|----------------|
+| Dev workflow | [skills/dev-workflow/SKILL.md](skills/dev-workflow/SKILL.md) | Branches, npm scripts, Husky (Talisman/Snyk), CI, version bumps |
+| TypeScript | [skills/typescript/SKILL.md](skills/typescript/SKILL.md) | `tsconfig`, TSLint, `src/` / `typings/` layout, `core-fs` logging |
+| DataSync content store | [skills/datasync-content-store-filesystem/SKILL.md](skills/datasync-content-store-filesystem/SKILL.md) | `FilesystemStore`, config, asset connector, branch/locale — not CDA/CMA as primary API |
+| Testing | [skills/testing/SKILL.md](skills/testing/SKILL.md) | Jest, `pretest`, `test/mock`, coverage, env |
+| Code review | [skills/code-review/SKILL.md](skills/code-review/SKILL.md) | PR checklist, terminology, semver, tests |
 
-| Area | Choice |
-|------|--------|
-| Language | TypeScript (see `package.json` / `typescript`) |
-| Module output | CommonJS (`dist/`), declarations in `typings/` |
-| Build | `tsc` → `dist/` (`npm run build-ts`, `compile`) |
-| Lint | TSLint (`tslint.json`, script `tslint` on `src/**/*.ts`) |
-| Tests | Jest + `ts-jest` (`jest.config.js`), Node environment |
-| Runtime deps | `debug`, `lodash`, `mkdirp`, `rimraf`, `write-file-atomic` (no HTTP client) |
-
-## Source layout and public API
-
-| Role | Path |
-|------|------|
-| Implementation | `src/` (`index.ts`, `fs.ts`, `config.ts`, `util/`) |
-| Published types | `typings/` (generated alongside build) |
-| Example usage | `example/` |
-
-Main exports from `src/index.ts`: `start`, `setConfig`, `getConfig`, `setAssetConnector`, `getFilesystemClient`. The store implementation is `FilesystemStore` in `src/fs.ts`.
-
-## Commands
-
-| Command | Purpose |
-|---------|---------|
-| `npm run build-ts` | Clean `dist`/`coverage`, compile TypeScript |
-| `npm run compile` | `tsc` only |
-| `npm test` | `pretest` runs `build-ts` and cleans `_contents`/`coverage`, then Jest with coverage |
-| `npm run tslint` | TSLint on `src/**/*.ts` |
-
-Tests are **unit-style** under `test/` with mocks in `test/mock/`; Jest ignores `test/mock/*`. There are **no** live Contentstack API or integration tests in this repo — nothing requires stack credentials to run `npm test`.
-
-Optional **debug** logging: set `DEBUG` to `*` or include `core-fs` (see `src/fs.ts`).
-
-## Contributor workflow notes
-
-- Preferred flow is feature branch → PR to **`development`**, then **`development`** → **`master`** for release (align with team if different).
-- Local hooks may run **Talisman** and **Snyk** from `.husky/pre-commit`; ensure both are available when using Husky (`SKIP_HOOK=1` only per team policy).
-- For release-affecting changes, bump **`package.json`** version per team policy. **`.github/workflows/check-version-bump.yml`** may use path filters that do not list `src/` — verify with maintainers if version checks behave unexpectedly.
-
----
-
-## Skills index
-
-Detailed guidance lives in **`skills/`**. Start with [`skills/README.md`](skills/README.md).
-
-| Topic | Skill |
-|--------|--------|
-| Branches, scripts, hooks, CI, version bumps | [`skills/dev-workflow/SKILL.md`](skills/dev-workflow/SKILL.md) |
-| TypeScript / `tsconfig` / TSLint / `src/` layout | [`skills/typescript/SKILL.md`](skills/typescript/SKILL.md) |
-| DataSync content store: config, `FilesystemStore`, validations | [`skills/datasync-content-store-filesystem/SKILL.md`](skills/datasync-content-store-filesystem/SKILL.md) |
-| Jest, mocks, coverage | [`skills/testing/SKILL.md`](skills/testing/SKILL.md) |
-| PR / code review checklist | [`skills/code-review/SKILL.md`](skills/code-review/SKILL.md) |
-
----
+An index with “when to use” hints is in [skills/README.md](skills/README.md).
 
 ## Using Cursor (optional)
 
-If you use **Cursor**, read **[`.cursor/rules/README.md`](.cursor/rules/README.md)** first — it points here and to **`skills/*/SKILL.md`**. This repo keeps **no other files** under `.cursor/rules/` (only this README). Edit policy in **`AGENTS.md`** / **`skills/`**.
+If you use *Cursor*, [`.cursor/rules/README.md`](.cursor/rules/README.md) only points to *AGENTS.md*—same docs as everyone else. This repo keeps no other files under `.cursor/rules/`.
