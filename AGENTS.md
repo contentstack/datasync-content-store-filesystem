@@ -6,17 +6,22 @@ Use this file and **`skills/`** as the **canonical** place for project context, 
 
 | Layer | Role |
 |-------|------|
-| **`AGENTS.md`** (this file) | Entry point: what the package is, repo links, tech stack, commands, and **index of skills** |
-| **`skills/<topic>/SKILL.md`** | Full detail: DataSync domain, testing, and code review (plus contributor workflow notes) |
-| **`.cursor/rules/`** | **Cursor only** — short rules with `description` / `globs` / `alwaysApply` that **point here** and into **`skills/`**; they do not replace this document |
+| **`AGENTS.md`** (this file) | Entry point: package identity, repo links, tech stack, commands, **skills index** |
+| **`skills/<topic>/SKILL.md`** | Full detail: workflow, TypeScript, DataSync store behavior, testing, code review |
+| **`.cursor/rules/README.md`** | **Cursor only** — single pointer file; canonical text stays in **`AGENTS.md`** and **`skills/`** |
 
-**Flow:** Cursor rules → **`AGENTS.md`** → **`skills/*.md`**
+**Flow:** **[`.cursor/rules/README.md`](.cursor/rules/README.md)** → **`AGENTS.md`** → **`skills/<name>/SKILL.md`**
 
 ---
 
 ## What this package is
 
-**Contentstack DataSync content store (filesystem)** — a Node.js library used with [Contentstack DataSync](https://www.contentstack.com/docs/guide/synchronization/contentstack-datasync) to persist synced stack content to the **local filesystem**. It is **not** the Content Delivery API (CDA) client, **not** the Content Management API (CMA) SDK, and **not** a general HTTP API wrapper. It implements the content-store role for DataSync Manager (publish/unpublish/delete flows, file layout, optional branch-aware paths).
+**Contentstack DataSync content store (filesystem)** — a Node.js library used with [Contentstack DataSync](https://www.contentstack.com/docs/guide/synchronization/contentstack-datasync) to persist synced stack content to the **local filesystem** for use with DataSync Manager. It writes and updates files under your configured base directory; it does **not** perform normal “read from stack” behavior via Content Delivery (CDA) or Management (CMA) HTTP APIs.
+
+### Out of scope (unless comparing or documenting integration)
+
+- **CDA** / **CMA** REST SDKs as the primary API for this package’s core behavior
+- General-purpose HTTP clients for stack reads/writes (this library has **no** runtime HTTP dependency)
 
 ## Repository
 
@@ -59,9 +64,9 @@ Optional **debug** logging: set `DEBUG` to `*` or include `core-fs` (see `src/fs
 
 ## Contributor workflow notes
 
-- Preferred flow is feature branch -> `development` PR, then `development` -> `master` for release.
-- Local hooks may run Talisman and Snyk from `.husky/pre-commit`; ensure both are available when using Husky.
-- For release-affecting changes, bump `package.json` version per team release policy.
+- Preferred flow is feature branch → PR to **`development`**, then **`development`** → **`master`** for release (align with team if different).
+- Local hooks may run **Talisman** and **Snyk** from `.husky/pre-commit`; ensure both are available when using Husky (`SKIP_HOOK=1` only per team policy).
+- For release-affecting changes, bump **`package.json`** version per team policy. **`.github/workflows/check-version-bump.yml`** may use path filters that do not list `src/` — verify with maintainers if version checks behave unexpectedly.
 
 ---
 
@@ -71,12 +76,14 @@ Detailed guidance lives in **`skills/`**. Start with [`skills/README.md`](skills
 
 | Topic | Skill |
 |--------|--------|
-| DataSync store API, config, terminology | [`skills/typescript-datasync-content-store/SKILL.md`](skills/typescript-datasync-content-store/SKILL.md) |
+| Branches, scripts, hooks, CI, version bumps | [`skills/dev-workflow/SKILL.md`](skills/dev-workflow/SKILL.md) |
+| TypeScript / `tsconfig` / TSLint / `src/` layout | [`skills/typescript/SKILL.md`](skills/typescript/SKILL.md) |
+| DataSync content store: config, `FilesystemStore`, validations | [`skills/datasync-content-store-filesystem/SKILL.md`](skills/datasync-content-store-filesystem/SKILL.md) |
 | Jest, mocks, coverage | [`skills/testing/SKILL.md`](skills/testing/SKILL.md) |
 | PR / code review checklist | [`skills/code-review/SKILL.md`](skills/code-review/SKILL.md) |
 
 ---
 
-## Cursor rules 
+## Using Cursor (optional)
 
-If you use **Cursor**, scoped rules under [`.cursor/rules/`](.cursor/rules/README.md) attach context by file pattern. They **reference this file and the skills above** — edit policy in **`AGENTS.md`** / **`skills/`**, not only in `.cursor/rules/`.
+If you use **Cursor**, read **[`.cursor/rules/README.md`](.cursor/rules/README.md)** first — it points here and to **`skills/*/SKILL.md`**. This repo keeps **no other files** under `.cursor/rules/` (only this README). Edit policy in **`AGENTS.md`** / **`skills/`**.

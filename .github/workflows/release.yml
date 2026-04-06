@@ -1,0 +1,48 @@
+name: Release
+
+on:
+  release:
+    types: [created]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build-ts
+
+      # Tarball name matches npm’s naming for this scoped package (see npm pack output)
+      - name: Pack the npm package
+        id: pack
+        run: echo "filename=$(npm pack | tail -1)" >> "$GITHUB_OUTPUT"
+
+      - name: Publish to npm
+        id: publish_npm
+        uses: JS-DevTools/npm-publish@v3
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
+          # access: public # Uncomment if this package’s first npm publish must be public
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ${{ steps.pack.outputs.filename }}
+          asset_name: ${{ steps.pack.outputs.filename }}
+          asset_content_type: application/gzip

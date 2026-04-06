@@ -1,11 +1,20 @@
-# Agent skills — `@contentstack/datasync-content-store-filesystem`
+# Skills — `@contentstack/datasync-content-store-filesystem`
 
-Short index for project-local **`skills/`** (each topic is a folder with **`SKILL.md`**). Use these when the task matches the description; combine with [`.cursor/rules/`](../.cursor/rules/README.md) and [`AGENTS.md`](../AGENTS.md).
+**This directory is the source of truth** for detailed conventions (workflow, TypeScript, DataSync store behavior, tests, code review). The repo root **[`AGENTS.md`](../AGENTS.md)** is the universal index and quick reference; each skill is a folder with **`SKILL.md`** (YAML frontmatter: `name`, `description`).
 
-| Skill | When to use |
-|-------|-------------|
-| [`code-review/`](code-review/SKILL.md) | PR or diff review: compatibility, tests, terminology (DataSync vs CDA/CMA), security |
-| [`testing/`](testing/SKILL.md) | Running Jest, mocks, `pretest`, coverage, no-credentials test runs |
-| [`typescript-datasync-content-store/`](typescript-datasync-content-store/SKILL.md) | Mental model of this library: entrypoints, `FilesystemStore`, config, branch/locale paths |
+## When to use which skill
 
-There is no separate **framework** skill: this package has no standalone HTTP client or retry layer beyond filesystem I/O and DataSync integration.
+| Skill folder | Use when |
+|--------------|----------|
+| [`dev-workflow/`](dev-workflow/SKILL.md) | Branching, `npm` scripts, Husky, CI workflows, version bumps |
+| [`typescript/`](typescript/SKILL.md) | `tsconfig`, TSLint, `src/` / `typings/` layout, logging |
+| [`datasync-content-store-filesystem/`](datasync-content-store-filesystem/SKILL.md) | `FilesystemStore`, config merge, asset connector, branch/locale paths — **not** CDA/CMA as primary API |
+| [`testing/`](testing/SKILL.md) | Jest, `pretest`, `test/mock`, coverage |
+| [`code-review/`](code-review/SKILL.md) | PR review: API, compatibility, terminology, tests |
+
+There is no separate **framework** skill: this package has no standalone HTTP client layer.
+
+## How to use these docs
+
+- **Humans / any AI tool:** Start at **`AGENTS.md`**, then open the relevant **`skills/<name>/SKILL.md`**.
+- **Cursor users:** **[`.cursor/rules/README.md`](../.cursor/rules/README.md)** points to **`AGENTS.md`** and these skills. The **`.cursor/rules/`** folder contains **only** that README (no separate rule files).
