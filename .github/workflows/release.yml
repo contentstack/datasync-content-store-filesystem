@@ -1,27 +1,45 @@
-name: Release datasync content store filesystem
+name: Release
+
 on:
-  push:
-    branches: [master]
+  release:
+    types: [created]
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: "22.x"
-      - name: Installing dependencies
+
+      - name: Install dependencies
         run: npm install
+
       - name: Build
         run: npm run build-ts
-      - name: Publishing datasync content store filesystem
-        id: publish-to-npm
-        uses: JS-DevTools/npm-publish@v2.2.1
+
+      # Tarball name matches npm’s naming for this scoped package (see npm pack output)
+      - name: Pack the npm package
+        id: pack
+        run: echo "filename=$(npm pack | tail -1)" >> "$GITHUB_OUTPUT"
+
+      - name: Publish to npm
+        id: publish_npm
+        uses: JS-DevTools/npm-publish@v3
         with:
           token: ${{ secrets.NPM_TOKEN }}
-      - name: github-release
-        id: github-release
+          # access: public # Uncomment if this package’s first npm publish must be public
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ steps.publish-to-npm.outputs.version }}
-        run:  gh release create v"$VERSION" --title "Release $VERSION" --generate-notes
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ${{ steps.pack.outputs.filename }}
+          asset_name: ${{ steps.pack.outputs.filename }}
+          asset_content_type: application/gzip
