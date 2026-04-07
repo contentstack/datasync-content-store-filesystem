@@ -3,9 +3,11 @@ fileignoreconfig:
   ignore_detectors:
     - filecontent
 - filename: package-lock.json
-  checksum: 58da400518e4eb2e953d723b6278546dba596f089ffa8bb11b41ffa4c45517c6
+  checksum: 24691dc7b878951e6f221154be24d78abbd1416da13427311848567e7f325195
 - filename: .husky/pre-commit
   checksum: 1b9367d219802de2e3a8af9c5c698e0c255c00af89339d73bdbb8acf5275079f
 - filename: src/util/index.ts
   checksum: 8c4600145acb0319051df4237b7e753af93465419d14d5fe97c211050f6da405
+- filename: skills/datasync-content-store-filesystem/SKILL.md
+  checksum: e5113dc126bf6eb471af4754665e721e5206aa08e54e4daabba6949fa35d00da
 version: ""
