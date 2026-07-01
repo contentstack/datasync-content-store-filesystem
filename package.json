@@ -1,6 +1,6 @@
 {
   "name": "@contentstack/datasync-content-store-filesystem",
-  "version": "2.1.12",
+  "version": "2.1.13",
   "description": "Datasync content store library - saves data in filesystem",
   "main": "./dist",
   "types": "./typings",
@@ -48,7 +48,7 @@
     "write-file-atomic": "^7.0.0"
   },
   "overrides": {
-    "brace-expansion": "5.0.6"
+    "brace-expansion": "5.0.7"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
