@@ -1,6 +1,6 @@
 {
   "name": "@contentstack/datasync-content-store-filesystem",
-  "version": "2.1.14",
+  "version": "2.1.12",
   "description": "Datasync content store library - saves data in filesystem",
   "main": "./dist",
   "types": "./typings",
